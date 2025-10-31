@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+#Tic Tac Toe
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -1831,4 +1831,4 @@ setupBtn.addEventListener('click', openSetup);
 </script>
 </body>
 </html>
-```
+
