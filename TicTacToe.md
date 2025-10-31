@@ -13,7 +13,10 @@
     --x:#7aa2f7; --o:#c9d27e; --p3:#ff9f6f; --p4:#6ae3bd;
     --win:#73d13d; --danger:#f7768e; --gold:#ffce63; --lime:#32cd32;
     --shadow:0 12px 36px rgba(0,0,0,.5);
-    --rar-common:#9aa0aa; --rar-rare:#7aa2f7; --rar-epic:#c28fff; --rar-legend:#ffce63; --rar-myth:#f7768e;
+
+    --glow1:rgba(122,162,247,.22);
+    --glow2:rgba(194,143,255,.22);
+    --glow3:rgba(106,227,189,.22);
   }
   *{box-sizing:border-box}
   html,body{height:100%}
@@ -21,11 +24,13 @@
     margin:0; color:var(--text);
     font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
     background:
-      radial-gradient(1200px 600px at 65% -10%, #14203a 0%, var(--bg) 60%) fixed,
-      radial-gradient(900px 420px at 12% 120%, #1a1f35 0%, transparent 65%) fixed;
-    display:grid; grid-template-rows:auto 1fr auto;
+      radial-gradient(1400px 700px at 65% -10%, #14203a 0%, var(--bg) 60%) fixed,
+      radial-gradient(1000px 420px at 12% 120%, #1a1f35 0%, transparent 65%) fixed;
+    display:grid; grid-template-rows:auto 1fr;
   }
   .noselect{ user-select:none; -webkit-user-select:none; -ms-user-select:none }
+
+  /* Topbar */
   .topbar{
     display:flex; align-items:center; gap:12px;
     padding:14px 18px; backdrop-filter: blur(10px);
@@ -48,7 +53,8 @@
   .btn:hover{ border-color: rgba(122,162,247,.38); background: linear-gradient(180deg, #14182a, #0f1325); box-shadow: 0 10px 24px rgba(122,162,247,.22); transform: translateY(-1px) }
   .btn:disabled{ opacity:.4; cursor:not-allowed }
 
-  .wrap{ display:grid; justify-items:center; align-content:start; gap:16px; padding: 24px 20px 28px; }
+  /* Layout */
+  .wrap{ display:grid; justify-items:center; align-content:start; gap:16px; padding: 20px 20px 28px; }
   .row{ display:flex; gap:12px; align-items:center; flex-wrap:wrap }
   .status{
     font-size:14px; color:var(--muted);
@@ -70,6 +76,7 @@
   .dot.p3{ color:var(--p3); background: var(--p3) }
   .dot.p4{ color:var(--p4); background: var(--p4) }
 
+  /* Board */
   .board{
     position:relative; display:grid; gap:12px; padding:16px;
     border-radius: 18px; border: 1px solid var(--border);
@@ -84,6 +91,13 @@
     transition: transform .12s ease, border-color .15s ease, box-shadow .18s ease, background .22s ease, color .2s ease, filter .2s ease;
     overflow:hidden;
   }
+  .cell::after{
+    content:'';
+    position:absolute; inset:0;
+    background: radial-gradient(400px 140px at var(--mx,50%) var(--my,10%), rgba(122,162,247,.08), transparent 60%);
+    opacity:0; transition: opacity .18s ease;
+  }
+  .cell:hover::after{ opacity:1 }
   .cell:hover{ transform: translateY(-2px); border-color: rgba(122,162,247,.42); box-shadow: 0 12px 24px rgba(122,162,247,.12); background: linear-gradient(180deg, #16203a, #111423) }
   .cell.played{ animation: pop .18s cubic-bezier(.2,.7,.2,1); filter: drop-shadow(0 6px 10px rgba(0,0,0,.25)) }
   @keyframes pop{ 0%{ transform: scale(.85) } 100%{ transform: scale(1) } }
@@ -98,12 +112,13 @@
   @keyframes winPulse{ 0%{ filter: brightness(1) } 50%{ filter: brightness(1.25) } 100%{ filter: brightness(1) } }
   .ribbon{
     position:absolute; inset:-2px; border-radius: 18px; pointer-events:none;
-    background: conic-gradient(from 0deg, rgba(122,162,247,.18) 0 150deg, rgba(194,143,255,.18) 150deg 270deg, rgba(106,227,189,.18) 270deg 360deg);
+    background: conic-gradient(from 0deg, var(--glow1) 0 150deg, var(--glow2) 150deg 270deg, var(--glow3) 270deg 360deg);
     mix-blend-mode: screen; opacity:0; transition: opacity .3s ease;
   }
   .board.win .ribbon{ opacity:.75; animation: spin 4s linear infinite }
   @keyframes spin{ to{ transform: rotate(360deg) } }
 
+  /* Win-line beam */
   .beam{
     position:absolute; height:4px; background: linear-gradient(90deg, rgba(115,209,61,0), var(--win), rgba(115,209,61,0));
     box-shadow: 0 0 14px rgba(115,209,61,.8);
@@ -126,6 +141,7 @@
   .score .p4{ color:var(--p4); font-weight:600 }
   .score .d{ color:#c7cbd6; font-weight:600 }
 
+  /* Cards tray (private per current player) */
   .cardsTray{
     position:fixed; left:50%; transform:translateX(-50%);
     bottom:16px; display:none; gap:10px; padding:10px 12px;
@@ -141,11 +157,11 @@
   .cardItem:hover{ transform:translateY(-6px); box-shadow:0 12px 28px rgba(0,0,0,.45) }
   .cardName{ font-size:12px; text-align:center }
   .rarBar{ position:absolute; inset:auto 0 0 0; height:6px; border-radius:0 0 12px 12px }
-  .rar-common{ background: linear-gradient(90deg, var(--rar-common), #8a8f99) }
-  .rar-rare{ background: linear-gradient(90deg, var(--rar-rare), #87b0ff) }
-  .rar-epic{ background: linear-gradient(90deg, var(--rar-epic), #dea9ff) }
-  .rar-legend{ background: linear-gradient(90deg, var(--rar-legend), #ffe18e) }
-  .rar-myth{ background: linear-gradient(90deg, var(--rar-myth), #ff9aa7) }
+  .rar-common{ background: linear-gradient(90deg, #9aa0aa, #8a8f99) }
+  .rar-rare{ background: linear-gradient(90deg, #7aa2f7, #87b0ff) }
+  .rar-epic{ background: linear-gradient(90deg, #c28fff, #dea9ff) }
+  .rar-legend{ background: linear-gradient(90deg, #ffce63, #ffe18e) }
+  .rar-myth{ background: linear-gradient(90deg, #f7768e, #ff9aa7) }
   .cardTip{
     position:absolute; bottom:118%; left:50%; transform:translateX(-50%);
     white-space:normal; width:220px; font-size:11px; color:var(--muted);
@@ -155,8 +171,10 @@
   }
   .cardItem:hover .cardTip{ opacity:1 }
 
+  /* Effect overlay */
   .effectOverlay{
-    position:fixed; inset:0; display:none; place-items:center; z-index:1002; pointer-events:none;
+    position:fixed; inset:0; display:none; place-items:center; z-index:1002;
+    pointer-events:none; background: radial-gradient(600px 300px at 50% 40%, rgba(10,12,18,.35), rgba(6,8,12,.55));
   }
   .effectBubble{
     display:grid; gap:8px; justify-items:center;
@@ -170,12 +188,11 @@
   .effectTitle{ font-weight:700 }
   .effectDesc{ font-size:12px; color:var(--muted); text-align:center; max-width:360px }
 
+  /* Turn prompt overlay */
   .turnOverlay{
-    position:fixed; inset:0; display:grid; place-items:center; z-index:1003;
-    pointer-events:none; opacity:0; transition: opacity .18s ease;
-    background: radial-gradient(900px 500px at 50% 40%, rgba(10,12,18,.25), rgba(6,8,12,.45));
+    position:fixed; inset:0; display:none; place-items:center; z-index:1003;
+    pointer-events:none; background: radial-gradient(900px 500px at 50% 40%, rgba(10,12,18,.25), rgba(6,8,12,.45));
   }
-  .turnOverlay.active{ opacity:1 }
   .turnBubble{
     display:grid; gap:6px; justify-items:center;
     padding:12px 16px; border-radius:12px; color:#fff;
@@ -187,6 +204,7 @@
   .turnTitle{ font-weight:800; letter-spacing:.2px }
   .turnDesc{ font-size:12px; color:var(--muted) }
 
+  /* Fog mask */
   .fogMask{
     position:absolute; inset:0; backdrop-filter: blur(10px) brightness(0.6);
     background: radial-gradient(800px 400px at 50% 30%, rgba(10,12,18,.65), rgba(6,8,12,.85));
@@ -194,12 +212,47 @@
   }
   .fogMask.active{ opacity:1 }
 
-  .loading{
-    position:fixed; inset:0; display:grid; place-items:center;
-    background: radial-gradient(800px 400px at 50% 30%, rgba(20,24,34,.88), rgba(10,12,18,.95));
-    backdrop-filter: blur(6px); z-index:1000; opacity:0; pointer-events:none; transition: opacity .28s ease;
+  /* Piece badge */
+  .piece{
+    position:absolute; inset:auto auto 6px 6px; z-index:3;
+    font-size:12px; padding:2px 6px; border-radius:8px;
+    border:1px solid rgba(255,255,255,.18);
+    background: rgba(16,20,32,.88); color:#fff;
+    box-shadow: 0 6px 18px rgba(0,0,0,.4);
+    animation: pieceIn .2s ease-out;
   }
-  .loading.active{ opacity:1; pointer-events:auto }
+  @keyframes pieceIn{ from{ transform:translateY(6px); opacity:.0 } to{ transform:translateY(0); opacity:1 } }
+
+  /* Modal */
+  .modal{
+    position:fixed; inset:0; display:none; place-items:center;
+    background: radial-gradient(800px 400px at 50% 30%, rgba(20,24,34,.86), rgba(10,12,18,.92));
+    backdrop-filter: blur(6px); z-index:1001;
+  }
+  .sheet{
+    width:min(820px, 92vw); display:grid; gap:14px;
+    padding: 18px 18px 20px; border: 1px solid rgba(122,162,247,.28);
+    border-radius: 14px; background: linear-gradient(180deg, rgba(16,20,32,.78), rgba(14,18,30,.88));
+    box-shadow: var(--shadow);
+  }
+  .group{ display:grid; gap:8px }
+  .row-flex{ display:flex; gap:12px; align-items:center; flex-wrap:wrap }
+  .pill{
+    display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px;
+    border:1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06); color:var(--muted); font-size:12px;
+  }
+  .select,.range{
+    width:100%; background:#101423; border:1px solid rgba(255,255,255,.12); color:var(--text);
+    border-radius:10px; padding:8px 10px;
+  }
+  .range{ accent-color: var(--accent) }
+
+  /* Loading */
+  .loading{
+    position:fixed; inset:0; display:none; place-items:center;
+    background: radial-gradient(800px 400px at 50% 30%, rgba(20,24,34,.88), rgba(10,12,18,.95));
+    backdrop-filter: blur(6px); z-index:1000;
+  }
   .loader{
     display:grid; gap:12px; justify-items:center;
     padding: 24px 26px; border: 1px solid rgba(122,162,247,.28);
@@ -216,68 +269,31 @@
   .progress{ width:240px; height:8px; border-radius:999px; border:1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.06); overflow:hidden }
   .bar{ height:100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); width:0%; transition: width .28s ease }
   .loader-label{ font-size:12px; color:var(--muted) }
-
-  .modal{
-    position:fixed; inset:0; display:grid; place-items:center;
-    background: radial-gradient(800px 400px at 50% 30%, rgba(20,24,34,.86), rgba(10,12,18,.92));
-    backdrop-filter: blur(6px); z-index:1001; opacity:0; pointer-events:none; transition: opacity .28s ease;
-  }
-  .modal.active{ opacity:1; pointer-events:auto }
-  .sheet{
-    width:min(760px, 92vw); display:grid; gap:14px;
-    padding: 18px 18px 20px; border: 1px solid rgba(122,162,247,.28);
-    border-radius: 14px; background: linear-gradient(180deg, rgba(16,20,32,.78), rgba(14,18,30,.88));
-    box-shadow: var(--shadow);
-  }
-  .sheet h3{ margin:0; font-size:18px }
-  .group{ display:grid; gap:8px }
-  .row-flex{ display:flex; gap:12px; align-items:center; flex-wrap:wrap }
-  .select,.range{
-    width:100%; background:#101423; border:1px solid rgba(255,255,255,.12); color:var(--text);
-    border-radius:10px; padding:8px 10px;
-  }
-  .range{ accent-color: var(--accent) }
-  .pill{
-    display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px;
-    border:1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06); color:var(--muted); font-size:12px;
-  }
-
-  .piece{
-    position:absolute; inset:auto auto 6px 6px; z-index:3;
-    font-size:12px; padding:2px 6px; border-radius:8px;
-    border:1px solid rgba(255,255,255,.18);
-    background: rgba(16,20,32,.88); color:#fff;
-    box-shadow: 0 6px 18px rgba(0,0,0,.4);
-    animation: pieceIn .2s ease-out;
-  }
-  @keyframes pieceIn{ from{ transform:translateY(6px); opacity:.0 } to{ transform:translateY(0); opacity:1 } }
 </style>
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">X and O</div>
+    <div class="brand noselect">X and O</div>
     <div class="spacer"></div>
-    <button class="btn" id="back">Back</button>
-    <button class="btn" id="refresh">Refresh</button>
     <button class="btn" id="setup">Setup</button>
+    <button class="btn" id="reset">Reset</button>
   </header>
 
   <section class="wrap">
     <div class="row">
-      <div class="status" id="status">Waiting for setup…</div>
-      <span class="chip"><span class="dot x"></span>X</span>
-      <span class="chip"><span class="dot o"></span>O</span>
-      <span class="chip"><span class="dot p3"></span>■</span>
-      <span class="chip"><span class="dot p4"></span>▲</span>
+      <div class="status noselect" id="status">Waiting for setup…</div>
+      <span class="chip noselect"><span class="dot x"></span>X</span>
+      <span class="chip noselect"><span class="dot o"></span>O</span>
+      <span class="chip noselect"><span class="dot p3"></span>■</span>
+      <span class="chip noselect"><span class="dot p4"></span>▲</span>
     </div>
 
-    <div class="board" id="board" aria-label="Tic-tac-toe board">
+    <div class="board" id="board" aria-label="Board">
       <div class="ribbon" aria-hidden="true"></div>
       <div class="fogMask" id="fogMask"></div>
     </div>
 
     <div class="bar">
-      <button class="btn" id="reset">Reset</button>
       <div class="score">
         <span class="x">X:</span><span id="scoreX">0</span>
         <span class="o">O:</span><span id="scoreO">0</span>
@@ -291,10 +307,10 @@
     </div>
   </section>
 
-  <div class="cardsTray" id="cardsTray" style="display:none"></div>
+  <div class="cardsTray" id="cardsTray"></div>
 
-  <div class="effectOverlay" id="effectOverlay" style="display:none">
-    <div class="effectBubble" id="effectBubble">
+  <div class="effectOverlay" id="effectOverlay">
+    <div class="effectBubble">
       <div class="effectTitle" id="effectTitle"></div>
       <div class="effectDesc" id="effectDesc"></div>
     </div>
@@ -304,14 +320,6 @@
     <div class="turnBubble">
       <div class="turnTitle" id="turnTitle"></div>
       <div class="turnDesc" id="turnDesc"></div>
-    </div>
-  </div>
-
-  <div id="loading" class="loading" aria-live="polite" aria-busy="true">
-    <div class="loader">
-      <div class="ring" aria-hidden="true"></div>
-      <div class="progress"><div class="bar" id="bar"></div></div>
-      <div class="loader-label noselect" id="loaderLabel">Spinning up board…</div>
     </div>
   </div>
 
@@ -329,37 +337,36 @@
 
       <div class="group" id="botRow" style="display:none">
         <div class="pill noselect">Difficulty: <span id="difficultyLabel">2.5</span></div>
-        <div class="pill noselect" id="difficultyNote">Baseline Extreme</div>
-        <input class="range" id="difficulty" type="range" min="1" max="5" step="0.1" value="2.5"/>
+        <div class="pill noselect" id="difficultyNote">Baseline Medium</div>
+        <input class="range" id="difficulty" type="range" min="1" max="8.9" step="0.1" value="2.5"/>
       </div>
 
       <div class="group">
         <div class="pill noselect">Gamemode</div>
         <select class="select" id="mode">
-          <option value="casual">Casual (normal tic‑tac‑toe)</option>
-          <option value="three">Triad Clash (three players)</option>
-          <option value="four">Quad Arena (four players)</option>
-          <option value="blitz">Blitz (turn timer)</option>
+          <option value="casual">Casual</option>
           <option value="randomizer">Chaos Deck (cards & random events)</option>
           <option value="mine">Minefield (hidden mines)</option>
+          <option value="blitz">Blitz (turn timer)</option>
+          <option value="three">Triad Clash (three players)</option>
+          <option value="four">Quad Arena (four players)</option>
         </select>
       </div>
 
       <div class="group">
         <div class="pill noselect">Players</div>
+        <select class="select" id="playerCount">
+          <option value="2">2 players</option>
+          <option value="3">3 players</option>
+          <option value="4">4 players</option>
+        </select>
+      </div>
+
+      <div class="group" id="blitzRow" style="display:none">
+        <div class="pill noselect">Blitz base (5–20s)</div>
         <div class="row-flex">
-          <div id="playersRow" class="row-flex">
-            <select class="select" id="playerCount">
-              <option value="2">2 players</option>
-              <option value="3">3 players</option>
-              <option value="4">4 players</option>
-            </select>
-          </div>
-          <div id="blitzRow" class="row-flex" style="display:none">
-            <div class="pill noselect">Blitz base (5–20s)</div>
-            <input class="range" id="blitzSec" type="range" min="5" max="20" step="1" value="10" />
-            <div class="pill noselect"><span id="blitzLabel">10s</span></div>
-          </div>
+          <input class="range" id="blitzSec" type="range" min="5" max="20" step="1" value="10" />
+          <div class="pill noselect"><span id="blitzLabel">10s</span></div>
         </div>
       </div>
 
@@ -370,13 +377,19 @@
     </div>
   </div>
 
+  <div id="loading" class="loading">
+    <div class="loader">
+      <div class="ring" aria-hidden="true"></div>
+      <div class="progress"><div class="bar" id="bar"></div></div>
+      <div class="loader-label noselect" id="loaderLabel">Spinning up board…</div>
+    </div>
+  </div>
+
 <script>
-// Elements
+/* Elements */
 const boardEl = document.getElementById('board');
 const statusEl = document.getElementById('status');
 const resetBtn = document.getElementById('reset');
-const backBtn = document.getElementById('back');
-const refreshBtn = document.getElementById('refresh');
 const setupBtn = document.getElementById('setup');
 
 const loading = document.getElementById('loading');
@@ -391,7 +404,6 @@ const difficultyLabel = document.getElementById('difficultyLabel');
 const difficultyNote = document.getElementById('difficultyNote');
 
 const modeSel = document.getElementById('mode');
-const playersRow = document.getElementById('playersRow');
 const playerCountSel = document.getElementById('playerCount');
 
 const blitzRow = document.getElementById('blitzRow');
@@ -416,7 +428,7 @@ const turnOverlay = document.getElementById('turnOverlay');
 const turnTitle = document.getElementById('turnTitle');
 const turnDesc = document.getElementById('turnDesc');
 
-// State
+/* State */
 let config = {
   opponent: 'player',
   difficulty: 2.5,
@@ -433,16 +445,12 @@ let fogOwner = null;
 let fogRoundsLeft = 0;
 let revealedMinesRounds = 0;
 let revealedMinesOwner = null;
-
-// Mafia night state
 let mafiaOwner = null;
 let mafiaActive = false;
-
-// Piece control (owner-only immediate move)
 let pieceControl = { active:false, owner:null, piece:null, moves:0 };
 
-// Loader
-function showLoader(flag){ loading.classList.toggle('active', !!flag) }
+/* Loader */
+function showLoader(flag){ loading.style.display = flag ? 'grid' : 'none'; }
 function animateProgress(ms=900){
   bar.style.width='0%'; label.textContent='Spinning up board…';
   let p=0;
@@ -459,28 +467,20 @@ function animateProgress(ms=900){
   return new Promise(res=>setTimeout(res, ms));
 }
 
-// Modal behavior
-function openSetup(){ modal.classList.add('active'); updateSetupLabels(); applyFieldVisibility(); }
-function closeSetup(){ modal.classList.remove('active'); }
+/* Modal behavior */
+function openSetup(){ modal.style.display='grid'; updateSetupLabels(); applyFieldVisibility(); }
+function closeSetup(){ modal.style.display='none'; }
 function updateSetupLabels(){
-  difficultyLabel.textContent = difficultyRange.value;
+  const v = parseFloat(difficultyRange.value);
+  difficultyLabel.textContent = v.toFixed(1);
+  difficultyNote.textContent = difficultyLabelFor(v);
   blitzLabel.textContent = blitzRange.value + 's';
-  difficultyNote.textContent = etoHLabel(parseFloat(difficultyRange.value));
-}
-function etoHLabel(v){
-  // illustrative mapping (EToH style labels)
-  if (v < 1.5) return 'Bottom-Low Hard';
-  if (v < 2.5) return 'Baseline Extreme';
-  if (v < 3.5) return 'High-Peak Easy';
-  if (v < 4.5) return 'Upper Crest';
-  return 'Apex Mastery';
 }
 function applyFieldVisibility(){
   botRow.style.display = opponentSel.value==='bot' ? 'grid' : 'none';
-  blitzRow.style.display = modeSel.value==='blitz' ? 'flex' : 'none';
-  playersRow.style.display = (modeSel.value==='three' || modeSel.value==='four') ? 'none' : 'flex';
-  if(modeSel.value==='three') playerCountSel.value = '3';
-  if(modeSel.value==='four') playerCountSel.value = '4';
+  blitzRow.style.display = modeSel.value==='blitz' ? 'grid' : 'none';
+  if(modeSel.value==='three'){ playerCountSel.value='3'; }
+  if(modeSel.value==='four'){ playerCountSel.value='4'; }
 }
 opponentSel.addEventListener('change', applyFieldVisibility);
 difficultyRange.addEventListener('input', updateSetupLabels);
@@ -498,6 +498,24 @@ applySetup.addEventListener('click', async ()=>{
   initGame(true);
 });
 
+/* Difficulty label mapping (1–8.9 tiers) */
+function difficultyLabelFor(v){
+  const bands = [
+    [1.0,'Baseline Easy'],[1.1,'Bottom Easy'],[1.2,'Bottom-Low Easy'],[1.3,'Low Easy'],[1.4,'Low-Mid Easy'],[1.5,'Mid Easy'],[1.6,'Mid-High Easy'],[1.7,'High Easy'],[1.8,'High-Peak Easy'],[1.9,'Peak Easy'],
+    [2.0,'Baseline Medium'],[2.1,'Bottom Medium'],[2.2,'Bottom-Low Medium'],[2.3,'Low Medium'],[2.4,'Low-Mid Medium'],[2.5,'Mid Medium'],[2.6,'Mid-High Medium'],[2.7,'High Medium'],[2.8,'High-Peak Medium'],[2.9,'Peak Medium'],
+    [3.0,'Baseline Hard'],[3.1,'Bottom Hard'],[3.2,'Bottom-Low Hard'],[3.3,'Low Hard'],[3.4,'Low-Mid Hard'],[3.5,'Mid Hard'],[3.6,'Mid-High Hard'],[3.7,'High Hard'],[3.8,'High-Peak Hard'],[3.9,'Peak Hard'],
+    [4.0,'Baseline Difficult'],[4.1,'Bottom Difficult'],[4.2,'Bottom-Low Difficult'],[4.3,'Low Difficult'],[4.4,'Low-Mid Difficult'],[4.5,'Mid Difficult'],[4.6,'Mid-High Difficult'],[4.7,'High Difficult'],[4.8,'High-Peak Difficult'],[4.9,'Peak Difficult'],
+    [5.0,'Baseline Challenging'],[5.1,'Bottom Challenging'],[5.2,'Bottom-Low Challenging'],[5.3,'Low Challenging'],[5.4,'Low-Mid Challenging'],[5.5,'Mid Challenging'],[5.6,'Mid-High Challenging'],[5.7,'High Challenging'],[5.8,'High-Peak Challenging'],[5.9,'Peak Challenging'],
+    [6.0,'Baseline Intense'],[6.1,'Bottom Intense'],[6.2,'Bottom-Low Intense'],[6.3,'Low Intense'],[6.4,'Low-Mid Intense'],[6.5,'Mid Intense'],[6.6,'Mid-High Intense'],[6.7,'High Intense'],[6.8,'High-Peak Intense'],[6.9,'Peak Intense'],
+    [7.0,'Baseline Extreme'],[7.1,'Bottom Extreme'],[7.2,'Bottom-Low Extreme'],[7.3,'Low Extreme'],[7.4,'Low-Mid Extreme'],[7.5,'Mid Extreme'],[7.6,'Mid-High Extreme'],[7.7,'High Extreme'],[7.8,'High-Peak Extreme'],[7.9,'Peak Extreme'],
+    [8.0,'Baseline Catastrophic'],[8.1,'Bottom Catastrophic'],[8.2,'Bottom-Low Catastrophic'],[8.3,'Low Catastrophic'],[8.4,'Low-Mid Catastrophic'],[8.5,'Mid Catastrophic'],[8.6,'Mid-High Catastrophic'],[8.7,'High Catastrophic'],[8.8,'High-Peak Catastrophic'],[8.9,'Peak Catastrophic']
+  ];
+  const roundToOne = Math.max(1.0, Math.min(8.9, Math.round(v*10)/10));
+  const found = bands.find(([val])=>val===roundToOne);
+  return found ? found[1] : 'Custom';
+}
+
+/* Core */
 function getBoardSize(){
   if (config.mode === 'randomizer') return 5;
   if (config.mode === 'three' || config.players === 3) return 4;
@@ -513,7 +531,6 @@ function mineCount(){
   return config.players === 4 ? 6 : config.players === 3 ? 4 : 3;
 }
 
-// Turn prompt
 function showTurnPrompt(player){
   const isHuman = !(config.opponent==='bot' && player!==state.order[0]);
   const title = isHuman ? 'Your Turn' : 'Bot Turn';
@@ -521,8 +538,8 @@ function showTurnPrompt(player){
                        : `Bot is thinking…`;
   turnTitle.textContent = title;
   turnDesc.textContent = desc;
-  turnOverlay.classList.add('active');
-  setTimeout(()=>turnOverlay.classList.remove('active'), 900);
+  turnOverlay.style.display='grid';
+  setTimeout(()=>turnOverlay.style.display='none', 900);
 }
 
 function initGame(fromSetup=false){
@@ -551,7 +568,8 @@ function initGame(fromSetup=false){
     shields: new Set(),
     extraTurns: 0,
     playBlockedOnce: false,
-    pieces: []
+    pieces: [],
+    lastMove: null
   };
 
   for(let m=0;m<mineCount();m++){
@@ -571,8 +589,12 @@ function initGame(fromSetup=false){
   for(let i=0;i<size*size;i++){
     const cell=document.createElement('button');
     cell.className='cell';
-    cell.setAttribute('aria-label', `Cell ${i+1}`);
     cell.dataset.idx=i;
+    cell.addEventListener('mousemove', (ev)=>{
+      const rect=cell.getBoundingClientRect();
+      cell.style.setProperty('--mx', ((ev.clientX-rect.left)/rect.width*100)+'%');
+      cell.style.setProperty('--my', ((ev.clientY-rect.top)/rect.height*100)+'%');
+    });
     cell.addEventListener('click', onCellClick);
     boardEl.appendChild(cell);
   }
@@ -588,7 +610,7 @@ function initGame(fromSetup=false){
     stopTurnTimer(); timerBox.style.display='none';
   }
 
-  if (!fromSetup) renderScores();
+  renderScores();
   showTurnPrompt(currentPlayer());
   maybeBotFirstMove();
 }
@@ -606,7 +628,7 @@ function symbolClass(sym){
   return 'x';
 }
 
-// Cards
+/* Cards */
 const Rarity = { COMMON:'common', RARE:'rare', EPIC:'epic', LEGEND:'legend', MYTH:'myth' };
 function card(name, rarity, desc, apply){ return { name, rarity, desc, apply }; }
 
@@ -634,17 +656,17 @@ function buildDeck(){
     card('Boost Draw', Rarity.RARE, 'Draw 1 extra card now', ()=>drawFor(currentPlayer(),1)),
     card('Reveal Mines', Rarity.RARE, 'Show all mines for 2 rounds (you only)', ()=>revealMines(currentPlayer(),2)),
     card('Swap Mine', Rarity.RARE, 'Move a mine to a chosen empty cell', (ctx)=>swapMineToEmpty()),
+    card('Swap Hands', Rarity.EPIC, 'Swap your hand with another player', (ctx)=>swapHands(ctx)),
 
     // EPIC
     card('Teleport', Rarity.EPIC, 'Move one of your marks to another cell', (ctx)=>teleportMark(ctx)),
     card('Shield', Rarity.EPIC, 'Protect one of your marks from clear/block', (ctx)=>shieldMark(ctx)),
     card('Accelerate', Rarity.EPIC, 'You play again after this turn', ()=>extraTurn()),
     card('Bridge', Rarity.EPIC, 'Connect two of your marks as a wildcard (visual)', (ctx)=>bridgeMarks(ctx)),
-    card('Expand', Rarity.EPIC, 'Increase board size by 1 (adds layer)', ()=>expandBoard()),
+    card('Expand', Rarity.EPIC, 'Increase board size by 1', ()=>expandBoard()),
     card('Cover Zone', Rarity.EPIC, 'Cover a 2x2 zone temporarily', ()=>coverZone(2, randomInt(1,4))),
     card('Knight Strike', Rarity.EPIC, 'Place a knight; removes marks like chess L for 2 rounds', ()=>spawnPiece('Knight', 2)),
     card('Bishop Sweep', Rarity.EPIC, 'Place a bishop; clears diagonals for 3 rounds', ()=>spawnPiece('Bishop', 3)),
-    card('Swap Hands', Rarity.EPIC, 'Swap your hand with another player', (ctx)=>swapHands(ctx)),
 
     // LEGEND
     card('Storm', Rarity.LEGEND, 'Clear 3 random opponent marks', ()=>clearRandomOpponentMarks(3)),
@@ -659,22 +681,21 @@ function buildDeck(){
     card('Blitz Surge', Rarity.LEGEND, 'Enable Blitz with random timers 12–20s', ()=>blitzSurge()),
 
     // MYTH
-    card('M87', Rarity.MYTH, 'Black hole resets the board and restarts the round', ()=>m87Reset()),
+    card('M87', Rarity.MYTH, 'Black hole resets the board', ()=>m87Reset()),
     card('Singularity', Rarity.MYTH, 'Absorb all cards; everyone discards hand', ()=>absorbCards()),
     card('Nova', Rarity.MYTH, 'Add glow; next win highlights across board', ()=>novaGlow()),
     card('Anomaly', Rarity.MYTH, 'Random powerful effect', ()=>randomPower()),
-    card('Mafia Night', Rarity.MYTH, 'Secret role phase to eliminate a player/mark', ()=>startMafiaNight()),
+    card('Mafia Night', Rarity.MYTH, 'Secret role phase to eliminate player if >2 remain', ()=>startMafiaNight()),
     card('UNO Reverse', Rarity.MYTH, 'Reverse order and force next to draw 2 cards', ()=>unoReverse()),
     card('Chess Rain', Rarity.MYTH, 'Spawn random chess pieces for 1–4 rounds', ()=>chessRain()),
     card('Swap Identity', Rarity.MYTH, 'Swap your symbol with another player', (ctx)=>swapIdentity(ctx))
   ];
 
-  // variants/intensities + extras
   state.deck = cards.concat([
     card('Block Trio', Rarity.RARE, 'Block 3 chosen empty cells', (ctx)=>blockChosenCells(ctx,3)),
     card('Clear Duo', Rarity.RARE, 'Clear 2 chosen marks', (ctx)=>clearChosenMarks(ctx,2)),
     card('Peek Trio', Rarity.RARE, 'Reveal 3 selected cells for mines', (ctx)=>peekMultiple(ctx,3)),
-    card('Bridge+', Rarity.EPIC, 'Bridge three marks (looser)', (ctx)=>bridgeMarks(ctx,true)),
+    card('Bridge+', Rarity.EPIC, 'Bridge three marks (visual)', (ctx)=>bridgeMarks(ctx,true)),
     card('Accelerate+', Rarity.EPIC, 'Take 2 extra turns (limited)', ()=>extraTurn(2)),
     card('Storm+', Rarity.LEGEND, 'Clear 5 random opponent marks', ()=>clearRandomOpponentMarks(5)),
     card('Quake+', Rarity.LEGEND, 'Block 6 random empty cells', ()=>blockRandomCells(6)),
@@ -722,10 +743,7 @@ function drawFor(p, n){
   const hand = state.hands.get(p) || [];
   hand.push(...draw(n));
   state.hands.set(p, hand);
-  if(hand.length>10){
-    eliminatePlayer(p,"Too many cards (>10)");
-    return;
-  }
+  if(hand.length>10){ eliminatePlayer(p,"Too many cards (>10)"); return; }
   updateCardsTray();
 }
 function shuffle(arr){
@@ -734,7 +752,7 @@ function shuffle(arr){
   }
 }
 
-// Cards tray
+/* Cards tray */
 function updateCardsTray(){
   const p = currentPlayer();
   const hand = state.hands.get(p) || [];
@@ -752,7 +770,7 @@ function updateCardsTray(){
         <div>Rarity: ${c.rarity.toUpperCase()}</div>
         <div style="margin-top:6px">${c.desc}</div>
       </div>
-      <div class="rarBar ${rarClass}"></div>
+      <div class="${rarClass}" style="position:absolute;bottom:0;left:0;right:0;height:6px;border-radius:0 0 12px 12px"></div>
     `;
     el.addEventListener('click', async ()=>{
       if (state.winner) return;
@@ -789,17 +807,18 @@ function showEffect(title, desc){
   effectTitle.textContent = title;
   effectDesc.textContent = desc;
   effectOverlay.style.display='grid';
-  setTimeout(()=>effectOverlay.style.display='none', 1300);
+  setTimeout(()=>effectOverlay.style.display='none', 1200);
 }
 function animateBoardPulse(){
   boardEl.classList.add('win');
   setTimeout(()=>boardEl.classList.remove('win'), 700);
 }
 
-// Cell interactions
+/* Cell interactions */
 async function onCellClick(e){
   if (state.winner) return;
 
+  // piece move
   if (pieceControl.active && currentPlayer()===pieceControl.owner){
     const idx = Number(e.currentTarget.dataset.idx);
     attemptPieceMove(idx);
@@ -817,6 +836,7 @@ async function onCellClick(e){
 
   if (state.mines.has(i) && config.mode==='mine'){
     placeGlyph(e.currentTarget, player);
+    state.lastMove = {i, player};
     eliminatePlayer(player, `Mine triggered by ${player}`);
     return;
   }
@@ -852,13 +872,11 @@ function eliminatePlayer(player, reason){
 function applyMove(i, player, cellEl){
   state.grid[i] = player;
   state.moves++;
+  state.lastMove = {i, player};
   placeGlyph(cellEl, player);
 
   const win = checkWin(state.grid, state.size, getWinLength());
-  if (win){
-    endGame(player, win.line, false);
-    return;
-  }
+  if (win){ endGame(player, win.line, false); return; }
 
   if (state.moves + state.blocked.size === state.grid.length){
     statusEl.textContent = 'Draw';
@@ -965,8 +983,9 @@ function renderScores(){
 
 function currentPlayer(){ return state.order[state.turnIndex]; }
 
-// Win detection NxN
+/* Win detection NxN */
 function checkWin(g, size, winLen){
+  // rows
   for(let r=0;r<size;r++){
     for(let c=0;c<=size-winLen;c++){
       const start=r*size+c; const first=g[start]; if(!first) continue;
@@ -975,6 +994,7 @@ function checkWin(g, size, winLen){
       if(ok) return {player:first, line};
     }
   }
+  // cols
   for(let c=0;c<size;c++){
     for(let r=0;r<=size-winLen;r++){
       const start=r*size+c; const first=g[start]; if(!first) continue;
@@ -983,6 +1003,7 @@ function checkWin(g, size, winLen){
       if(ok) return {player:first, line};
     }
   }
+  // diag down-right
   for(let r=0;r<=size-winLen;r++){
     for(let c=0;c<=size-winLen;c++){
       const start=r*size+c; const first=g[start]; if(!first) continue;
@@ -991,6 +1012,7 @@ function checkWin(g, size, winLen){
       if(ok) return {player:first, line};
     }
   }
+  // diag up-right
   for(let r=winLen-1;r<size;r++){
     for(let c=0;c<=size-winLen;c++){
       const start=r*size+c; const first=g[start]; if(!first) continue;
@@ -1002,45 +1024,62 @@ function checkWin(g, size, winLen){
   return null;
 }
 
-/* Bot logic */
+/* Bot logic and tiers */
 function isBot(p){ return config.opponent==='bot' && !eliminated.has(p) && p!==state.order[0]; }
 function isBotTurn(){ return isBot(currentPlayer()); }
 async function maybeBotFirstMove(){ if (isBotTurn()) await botTurn(); }
 async function maybeBotReply(){
   if (isBotTurn()){
-    await sleep(380);
+    await sleep(380); // UI settle to prevent control stealing
     if (state.winner) return;
     if (!isBotTurn()) return;
     await botTurn();
   }
 }
 
+function tier(){
+  const d = config.difficulty;
+  if (d<4) return 'low';            // no mine inference, weak card use
+  if (d<7) return 'high';           // mine heuristics, card evaluation, holds M87 smartly
+  if (d<8) return 'extreme';        // very strong, not cheating
+  return 'catastrophic';            // cheats: sees future, knows mines, player marks/cards at high-peaks
+}
+
 async function botTurn(){
   try{
+    const t = tier();
     const d = config.difficulty;
-    const highLevel = d >= 4.0;
-    const baseThink = config.mode==='blitz' ? 120 : 220;
-    await sleep(baseThink + Math.random()*160 + d*60);
+    const thinkBase = config.mode==='blitz' ? 90 : 180;
+    const thinkVar = (t==='low'?140: t==='high'?100: t==='extreme'?70:40);
+    await sleep(thinkBase + Math.random()*thinkVar);
 
     if (state.winner) return;
     if (!isBotTurn()) return;
 
-    // High-level bots evaluate cards and may hold powerful ones
+    // Card usage
     if (config.mode==='randomizer'){
       const hand = (state.hands.get(currentPlayer()) || []);
       if (hand.length>0){
-        const useChance = highLevel ? 0.65 : Math.min(0.2 + d*0.12, 0.45);
         let playIdx = -1;
-        if (highLevel){
-          // Prefer impactful cards unless M87 is reserved near win
+        if (t==='low'){
+          if (Math.random() < 0.25) playIdx = Math.floor(Math.random()*hand.length);
+        } else {
           const nearWin = isAnyPlayerNearWin();
-          playIdx = hand.findIndex(c=>{
-            if (c.name==='M87') return nearWin; // hold until someone near win
-            return ['Storm+','Quake+','Mass Shield','Purge','Teleport+','UNO Reverse','Swap Identity','Swap Hands','Blitz Surge'].includes(c.name);
-          });
-          if (playIdx<0 && Math.random()<useChance) playIdx = 0;
-        } else if (Math.random()<useChance){
-          playIdx = 0;
+          // Catastrophic: perfect knowledge — always play best unless holding M87 for near-win
+          const priority = ['Storm+','Quake+','Mass Shield','Purge','Teleport+','UNO Reverse','Swap Identity','Swap Hands','Blitz Surge','Accelerate+','Shield+','Time Freeze'];
+          const sorted = hand
+            .map((c,i)=>({c,i,w: priority.includes(c.name)?3: (c.rarity===Rarity.LEGEND?2: c.rarity===Rarity.EPIC?1:0)}))
+            .sort((a,b)=>b.w-a.w);
+          if (sorted.length){
+            const top = sorted[0];
+            if (top.c.name==='M87'){
+              if (nearWin) playIdx = top.i; // use to deny
+              else playIdx = (sorted[1] ? sorted[1].i : -1);
+            } else {
+              playIdx = top.i;
+            }
+          }
+          if (t==='high' && playIdx<0 && Math.random()<0.5) playIdx = Math.floor(Math.random()*hand.length);
         }
         if (playIdx>=0){
           const card = hand[playIdx];
@@ -1054,29 +1093,53 @@ async function botTurn(){
       }
     }
 
-    const i = chooseBotMove(highLevel);
+    // Choose move
+    const i = chooseBotMove(t);
     if (i==null){
       const empties = emptyIndices();
       if (!empties.length) { advanceTurn(); return; }
       const pick = empties[Math.floor(Math.random()*empties.length)];
       const cellEl = boardEl.children[2 + pick];
+
+      // Ensure bot elimination when steps on mine
+      if (config.mode==='mine' && state.mines.has(pick)){
+        state.grid[pick]=currentPlayer();
+        placeGlyph(cellEl, currentPlayer());
+        state.lastMove={i:pick, player:currentPlayer()};
+        eliminatePlayer(currentPlayer(),"Mine triggered by bot");
+        return;
+      }
+
       applyMove(pick, currentPlayer(), cellEl);
       return;
     }
+
     const cellEl = boardEl.children[2 + i];
+
+    // Bot mine elimination fix
+    if (config.mode==='mine' && state.mines.has(i)){
+      state.grid[i]=currentPlayer();
+      placeGlyph(cellEl, currentPlayer());
+      state.lastMove={i, player:currentPlayer()};
+      eliminatePlayer(currentPlayer(),"Mine triggered by bot");
+      return;
+    }
+
     applyMove(i, currentPlayer(), cellEl);
   }catch(e){
     advanceTurn();
   }
 }
-function rarityWeight(r){ return r===Rarity.COMMON?1: r===Rarity.RARE?2: r===Rarity.EPIC?3: r===Rarity.LEGEND?4:5; }
-function chooseBotMove(highLevel=false){
+
+function chooseBotMove(tierName){
   const size = state.size, winLen = getWinLength();
   const grid = state.grid.slice();
   const me = currentPlayer();
   const opp = state.order.filter(p=>p!==me);
 
+  // Immediate win
   const winMove = findLineCompletion(grid, size, winLen, me); if (winMove!=null) return winMove;
+  // Block opponent win
   for (const o of opp){
     const blockMove = findLineCompletion(grid, size, winLen, o); if (blockMove!=null) return blockMove;
   }
@@ -1084,23 +1147,32 @@ function chooseBotMove(highLevel=false){
   const empties = grid.map((v,idx)=> (v||state.blocked.has(idx))?null:idx).filter(v=>v!=null);
   if (!empties.length) return null;
 
-  // Mine awareness: low-level ignore mines; high-level avoid likely mine cells heuristically
+  // Mine awareness tiers
   let candidates = empties;
-  if (config.mode==='mine' && highLevel){
-    const safe = empties.filter(i=> !likelyMine(i));
-    if (safe.length) candidates = safe;
+  if (config.mode==='mine'){
+    if (tierName==='low'){
+      // ignore mines
+    } else if (tierName==='high' || tierName==='extreme'){
+      const safe = empties.filter(i=> !likelyMine(i));
+      if (safe.length) candidates = safe;
+    } else {
+      // catastrophic: cheat — avoid all mines
+      const safe = empties.filter(i=> !state.mines.has(i));
+      if (safe.length) candidates = safe;
+    }
   }
 
+  // Center priority
   const centers = getCenterIndices(size);
   const centerPick = centers.find(i=>candidates.includes(i));
   if (centerPick!=null) return centerPick;
 
-  // Prefer higher line potential
+  // Best potential line
   const scored = candidates.map(i=>({i,score: linePotentialScore(i, grid, size, winLen, me)})).sort((a,b)=>b.score-a.score);
   return (scored[0] ? scored[0].i : candidates[Math.floor(Math.random()*candidates.length)]);
 }
+
 function likelyMine(i){
-  // Heuristic: avoid cells adjacent to many unknowns when mines exist
   const s = state.size, r=Math.floor(i/s), c=i%s;
   let suspicion=0;
   const neighbors = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
@@ -1109,7 +1181,7 @@ function likelyMine(i){
     const idx=rr*s+cc;
     if (!state.grid[idx] && !state.blocked.has(idx)) suspicion++;
   }
-  return suspicion>=5; // rough guess
+  return suspicion>=5;
 }
 function isAnyPlayerNearWin(){
   const size=state.size, winLen=getWinLength();
@@ -1152,7 +1224,7 @@ function linePotentialScore(i, grid, size, winLen, player){
   return score;
 }
 
-// Blitz timer
+/* Blitz timer */
 function startTurnTimer(sec){
   if (config.mode!=='blitz') return;
   stopTurnTimer();
@@ -1177,7 +1249,7 @@ function nextActive(from){
   return state.order[idx];
 }
 
-// Chaos events
+/* Chaos events */
 function processChaosEvent(often=false){
   state.chaosTick++;
   const interval = often ? 2 : 3;
@@ -1198,13 +1270,12 @@ function randomEvent(){
     {name:'Remove mine', desc:'A mine disappears', apply:()=>removeRandomMine()},
     {name:'Reveal mine hint', desc:'A mine pulses somewhere…', apply:()=>pulseMineTease()},
     {name:'Fog burst', desc:'Brief global fog', apply:()=>applyFog(currentPlayer(),1)},
-    {name:'Zone chill', desc:'Block a 2x2 zone briefly', apply:()=>coverZone(2,1)},
     {name:'Meteor spark', desc:'Clear 2 random cells', apply:()=>meteorStrike(2)}
   ];
   return events[Math.floor(Math.random()*events.length)];
 }
 
-// Card effects helpers
+/* Card effects helpers */
 function skipTarget(target, n){ state.skip = state.skip || {}; state.skip[target] = (state.skip[target] || 0) + n; }
 function reverseTurnOrder(){ const cp = currentPlayer(); state.order.reverse(); state.turnIndex = state.order.indexOf(cp); updateStatus(); }
 function blockChosenCell(ctx){ pickCells(1, (indices)=>{ indices.forEach(i=>blockIndex(i)); }); }
@@ -1240,11 +1311,9 @@ function clearMark(i){
   el.animate([{filter:'brightness(1)'},{filter:'brightness(.7)'},{filter:'brightness(1)'}], {duration:200, easing:'ease-out'});
 }
 function undoLastMove(){
-  for(let i=state.grid.length-1; i>=0; i--){
-    if (boardEl.children[2 + i].classList.contains('played')){
-      clearMark(i); break;
-    }
-  }
+  const lm = state.lastMove;
+  if (!lm) return;
+  clearMark(lm.i);
 }
 function removeRandomMine(){
   const arr = Array.from(state.mines);
@@ -1294,7 +1363,7 @@ function shieldMark(ctx, two=false){
 }
 function shieldMultiple(n){ pickCells(n, (idxs)=> idxs.forEach(i=> state.shields.add(i)), true); }
 function extraTurn(times=1){ state.extraTurns = (state.extraTurns||0) + times; }
-function bridgeMarks(ctx, loose=false){ /* visual only */ }
+function bridgeMarks(ctx, loose=false){ /* visual only for now */ }
 function clearRandomOpponentMarks(n){
   const opponents = state.order.filter(p=>p!==currentPlayer());
   const marks = [];
@@ -1399,7 +1468,7 @@ function purgeArea(size){
   });
 }
 
-// Bonus effects
+/* Bonus effects */
 function meteorStrike(n){
   const filled = state.grid.map((v,i)=>v?i:null).filter(v=>v!=null);
   shuffle(filled);
@@ -1419,7 +1488,7 @@ function shuffleMines(){
   pulseAllMines();
 }
 
-// Mafia Night (eliminate one player if >2 remain; owner-only selection visuals)
+/* Mafia Night: eliminate one player if >2 remain; private selection visuals */
 function startMafiaNight(){
   const activeCount = state.order.filter(p=>!eliminated.has(p)).length;
   if (activeCount<=2){ showEffect('Mafia Night', 'Not enough players to eliminate'); return; }
@@ -1435,7 +1504,7 @@ function startMafiaNight(){
       mafiaActive=false; mafiaOwner=null;
     }, 'limegreen');
   } else {
-    // Bot mafia chooses victim by majority marks
+    // Bot chooses victim by majority marks
     const opp = state.order.filter(p=>p!==mafiaOwner && !eliminated.has(p));
     const counts = new Map(opp.map(o=>[o,0]));
     for(let i=0;i<state.grid.length;i++){ const m=state.grid[i]; if(counts.has(m)) counts.set(m, counts.get(m)+1); }
@@ -1446,7 +1515,7 @@ function startMafiaNight(){
   }
 }
 
-// Cover & expand, pieces
+/* Cover & expand, pieces */
 function coverZone(size, rounds){
   pickCells(1, (idxs)=>{
     const center = idxs[0];
@@ -1510,7 +1579,7 @@ function expandBoard(layers=1){
   showEffect('Expand', `Board size is now ${state.size}x${state.size}`);
 }
 
-// Piece spawn and immediate interactive move
+/* Pieces */
 function spawnPiece(type, rounds){
   const empties = emptyIndices();
   if (!empties.length) return;
@@ -1529,7 +1598,6 @@ function spawnPiece(type, rounds){
   showEffect(`${type} placed`, `Move it once now`);
   highlightPieceMoves(piece);
 }
-
 function chessRain(){
   const count = randomInt(2,4);
   const types = ['Knight','Bishop','Rook','Checker'];
@@ -1537,22 +1605,6 @@ function chessRain(){
     spawnPiece(types[Math.floor(Math.random()*types.length)], randomInt(1,4));
   }
 }
-
-function mafiaMini(){
-  const opp = state.order.filter(p=>p!==currentPlayer());
-  const marks = [];
-  for(let i=0;i<state.grid.length;i++){
-    if (state.grid[i] && opp.includes(state.grid[i])) marks.push(i);
-  }
-  if (!marks.length) return;
-  clearMark(marks[Math.floor(Math.random()*marks.length)]);
-}
-function unoReverse(){
-  reverseTurnOrder();
-  const next = nextActive(currentPlayer());
-  drawFor(next,2);
-}
-
 function tickDurations(){
   if (fogRoundsLeft>0){ fogRoundsLeft--; if (fogRoundsLeft<=0) unfogBoard(); }
   if (revealedMinesRounds>0){ revealedMinesRounds--; if (revealedMinesRounds<=0) { revealedMinesOwner=null; } }
@@ -1568,7 +1620,6 @@ function tickDurations(){
     }
   });
 }
-
 function actPiece(piece){
   const s = state.size;
   const origin = piece.idx;
@@ -1592,7 +1643,7 @@ function actPiece(piece){
   }
 }
 
-// Interactive piece move helpers (green outlines owner-only)
+/* Piece interactive moves */
 function pieceMoves(piece){
   const s = state.size;
   const origin = piece.idx;
@@ -1654,7 +1705,7 @@ function attemptPieceMove(destIdx){
   else highlightPieceMoves(piece);
 }
 
-// Target/cell picker
+/* Target pickers */
 function pickCells(n, done, requireHasMark=false){
   const picked = [];
   const cells = Array.from(boardEl.children).slice(2);
@@ -1713,7 +1764,7 @@ function pickOpponentMarks(n, done, color='var(--danger)'){
   });
 }
 
-// Identity/hand/morph/blitz cards
+/* Identity/hand/morph/blitz cards */
 function swapIdentity(ctx){
   const others = state.order.filter(p=>p!==currentPlayer() && !eliminated.has(p));
   if(!others.length) return;
@@ -1756,7 +1807,7 @@ function blitzSurge(){
   startTurnTimer(baseTimer);
 }
 
-// Utils
+/* Utils */
 function emptyIndices(){ return state.grid.map((v,i)=> v||state.blocked.has(i)?null:i).filter(v=>v!=null); }
 function pulseCell(i, color){
   const el = boardEl.children[2 + i];
@@ -1766,20 +1817,13 @@ function pulseCell(i, color){
 function randomInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min }
 function sleep(ms){ return new Promise(res=>setTimeout(res, ms)) }
 
-// Controls
+/* Controls */
 resetBtn.addEventListener('click', async ()=>{
   showLoader(true); await animateProgress(700); showLoader(false); initGame();
 });
-backBtn.addEventListener('click', async ()=>{
-  showLoader(true); await animateProgress(600); showLoader(false);
-  window.location.href = 'index.html';
-});
-refreshBtn.addEventListener('click', async ()=>{
-  showLoader(true); await animateProgress(800); showLoader(false);
-});
 setupBtn.addEventListener('click', openSetup);
 
-// Boot
+/* Boot */
 (async function boot(){
   showLoader(true); await animateProgress(900); showLoader(false);
   openSetup(); renderScores();
