@@ -90,7 +90,8 @@
   .cell:hover{ transform: translateY(-2px); border-color: rgba(122,162,247,.42); box-shadow: 0 12px 24px rgba(122,162,247,.12); background: linear-gradient(180deg, #16203a, #111423) }
   .cell.played{ animation: pop .18s cubic-bezier(.2,.7,.2,1); filter: drop-shadow(0 6px 10px rgba(0,0,0,.25)) }
   @keyframes pop{ 0%{ transform: scale(.85) } 100%{ transform: scale(1) } }
-  .glyph{ position:relative; display:inline-block }
+  .glyph{ position:relative; display:inline-block; animation: glyphIn .24s ease-out }
+  @keyframes glyphIn{ 0%{ transform:translateY(6px) scale(.94); opacity:.0 } 100%{ transform:translateY(0) scale(1); opacity:1 } }
   .glyph.x{ color: var(--x); text-shadow: 0 0 12px rgba(122,162,247,.45) }
   .glyph.o{ color: var(--o); text-shadow: 0 0 12px rgba(201,210,126,.45) }
   .glyph.p3{ color: var(--p3); text-shadow: 0 0 12px rgba(255,159,111,.45) }
@@ -163,7 +164,15 @@
   }
   @keyframes effectPop{ 0%{ transform:scale(.92); opacity:.0 } 100%{ transform:scale(1); opacity:1 } }
   .effectTitle{ font-weight:700 }
-  .effectDesc{ font-size:12px; color:var(--muted); text-align:center; max-width:320px }
+  .effectDesc{ font-size:12px; color:var(--muted); text-align:center; max-width:360px }
+
+  /* Fog mask and highlights */
+  .fogMask{
+    position:absolute; inset:0; backdrop-filter: blur(10px) brightness(0.6);
+    background: radial-gradient(800px 400px at 50% 30%, rgba(10,12,18,.65), rgba(6,8,12,.85));
+    pointer-events:none; z-index:2; opacity:0; transition: opacity .25s ease;
+  }
+  .fogMask.active{ opacity:1 }
 
   /* Modals and loading reused */
   .loading{
@@ -212,6 +221,17 @@
     display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px;
     border:1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06); color:var(--muted); font-size:12px;
   }
+
+  /* Chess/checker piece marker */
+  .piece{
+    position:absolute; inset:auto auto 6px 6px; z-index:3;
+    font-size:12px; padding:2px 6px; border-radius:8px;
+    border:1px solid rgba(255,255,255,.18);
+    background: rgba(16,20,32,.88); color:#fff;
+    box-shadow: 0 6px 18px rgba(0,0,0,.4);
+    animation: pieceIn .2s ease-out;
+  }
+  @keyframes pieceIn{ from{ transform:translateY(6px); opacity:.0 } to{ transform:translateY(0); opacity:1 } }
 </style>
 </head>
 <body>
@@ -234,6 +254,7 @@
 
     <div class="board" id="board" aria-label="Tic-tac-toe board">
       <div class="ribbon" aria-hidden="true"></div>
+      <div class="fogMask" id="fogMask"></div>
     </div>
 
     <div class="bar">
@@ -280,8 +301,8 @@
         <div class="pill">Opponent</div>
         <div class="row-flex">
           <select class="select" id="opponent">
-            <option value="player">Local player</option>
-            <option value="bot">Bot</option>
+            <option value="player">Local players</option>
+            <option value="bot">Bots for all non-you players</option>
           </select>
           <div id="botRow" class="row-flex" style="display:none">
             <div class="pill">Difficulty (1–5, decimals ok)</div>
@@ -297,7 +318,7 @@
           <option value="casual">Casual (normal tic‑tac‑toe)</option>
           <option value="three">Triad Clash (three players)</option>
           <option value="four">Quad Arena (four players)</option>
-          <option value="blitz">Blitz (turn timer)</option>
+          <option value="blitz">Blitz (turn timer with carryover +1s)</option>
           <option value="randomizer">Chaos Deck (cards & random events)</option>
           <option value="mine">Minefield (hidden mines + eliminations)</option>
         </select>
@@ -314,7 +335,7 @@
             </select>
           </div>
           <div id="blitzRow" class="row-flex" style="display:none">
-            <div class="pill">Blitz timer (5–20s)</div>
+            <div class="pill">Blitz base (5–20s)</div>
             <input class="range" id="blitzSec" type="range" min="5" max="20" step="1" value="10" />
             <div class="pill"><span id="blitzLabel">10s</span></div>
           </div>
@@ -329,792 +350,1155 @@
   </div>
 
 <script>
-  // Elements
-  const boardEl = document.getElementById('board');
-  const statusEl = document.getElementById('status');
-  const resetBtn = document.getElementById('reset');
-  const backBtn = document.getElementById('back');
-  const refreshBtn = document.getElementById('refresh');
-  const setupBtn = document.getElementById('setup');
+// Elements
+const boardEl = document.getElementById('board');
+const statusEl = document.getElementById('status');
+const resetBtn = document.getElementById('reset');
+const backBtn = document.getElementById('back');
+const refreshBtn = document.getElementById('refresh');
+const setupBtn = document.getElementById('setup');
 
-  const loading = document.getElementById('loading');
-  const bar = document.getElementById('bar');
-  const label = document.getElementById('loaderLabel');
+const loading = document.getElementById('loading');
+const bar = document.getElementById('bar');
+const label = document.getElementById('loaderLabel');
 
-  const modal = document.getElementById('modal');
-  const opponentSel = document.getElementById('opponent');
-  const botRow = document.getElementById('botRow');
-  const difficultyRange = document.getElementById('difficulty');
-  const difficultyLabel = document.getElementById('difficultyLabel');
+const modal = document.getElementById('modal');
+const opponentSel = document.getElementById('opponent');
+const botRow = document.getElementById('botRow');
+const difficultyRange = document.getElementById('difficulty');
+const difficultyLabel = document.getElementById('difficultyLabel');
 
-  const modeSel = document.getElementById('mode');
-  const playersRow = document.getElementById('playersRow');
-  const playerCountSel = document.getElementById('playerCount');
+const modeSel = document.getElementById('mode');
+const playersRow = document.getElementById('playersRow');
+const playerCountSel = document.getElementById('playerCount');
 
-  const blitzRow = document.getElementById('blitzRow');
-  const blitzRange = document.getElementById('blitzSec');
-  const blitzLabel = document.getElementById('blitzLabel');
+const blitzRow = document.getElementById('blitzRow');
+const blitzRange = document.getElementById('blitzSec');
+const blitzLabel = document.getElementById('blitzLabel');
 
-  const cancelSetup = document.getElementById('cancelSetup');
-  const applySetup = document.getElementById('applySetup');
+const cancelSetup = document.getElementById('cancelSetup');
+const applySetup = document.getElementById('applySetup');
 
-  const timerBox = document.getElementById('timerBox');
-  const timeLeftEl = document.getElementById('timeLeft');
+const timerBox = document.getElementById('timerBox');
+const timeLeftEl = document.getElementById('timeLeft');
 
-  const cardsTray = document.getElementById('cardsTray');
+const cardsTray = document.getElementById('cardsTray');
 
-  const effectOverlay = document.getElementById('effectOverlay');
-  const effectTitle = document.getElementById('effectTitle');
-  const effectDesc = document.getElementById('effectDesc');
+const effectOverlay = document.getElementById('effectOverlay');
+const effectTitle = document.getElementById('effectTitle');
+const effectDesc = document.getElementById('effectDesc');
 
-  // State
-  let config = {
-    opponent: 'player',
-    difficulty: 2.5,
-    mode: 'casual',
-    players: 2,
-    blitzSec: 10
+const fogMask = document.getElementById('fogMask');
+
+// State
+let config = {
+  opponent: 'player',
+  difficulty: 2.5,
+  mode: 'casual',
+  players: 2,
+  blitzSec: 10
+};
+let state, scores = { X:0, O:0, P3:0, P4:0, D:0 };
+let timer = null;
+let baseTimer = 10;
+let eliminated = new Set(); // players removed (minefield)
+let perPlayerTimer = new Map(); // carryover timers per player
+let fogOwner = null; // player who owns fog visibility
+let fogRoundsLeft = 0;
+let revealedMinesRounds = 0;
+let revealedMinesOwner = null;
+
+// Loader
+function showLoader(flag){ loading.classList.toggle('active', !!flag) }
+function animateProgress(ms=900){
+  bar.style.width='0%'; label.textContent='Spinning up board…';
+  let p=0;
+  const step=()=>{
+    p=Math.min(100, p + Math.random()*24 + 6);
+    bar.style.width = p.toFixed(0)+'%';
+    if(p<40) label.textContent='Laying out grid…';
+    else if(p<70) label.textContent='Charging glow…';
+    else if(p<90) label.textContent='Binding events…';
+    else label.textContent='Ready to play!';
+    if(p<100) requestAnimationFrame(step);
   };
-  let state, scores = { X:0, O:0, P3:0, P4:0, D:0 };
-  let timer = null;
-  let baseTimer = 10;
-  let eliminated = new Set(); // players removed (minefield)
+  requestAnimationFrame(step);
+  return new Promise(res=>setTimeout(res, ms));
+}
 
-  // Loader
-  function showLoader(flag){ loading.classList.toggle('active', !!flag) }
-  function animateProgress(ms=900){
-    bar.style.width='0%'; label.textContent='Spinning up board…';
-    let p=0;
-    const step=()=>{
-      p=Math.min(100, p + Math.random()*24 + 6);
-      bar.style.width = p.toFixed(0)+'%';
-      if(p<40) label.textContent='Laying out grid…';
-      else if(p<70) label.textContent='Charging glow…';
-      else if(p<90) label.textContent='Binding events…';
-      else label.textContent='Ready to play!';
-      if(p<100) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-    return new Promise(res=>setTimeout(res, ms));
+// Modal behavior (conditional fields)
+function openSetup(){ modal.classList.add('active'); updateSetupLabels(); applyFieldVisibility(); }
+function closeSetup(){ modal.classList.remove('active'); }
+function updateSetupLabels(){
+  difficultyLabel.textContent = difficultyRange.value;
+  blitzLabel.textContent = blitzRange.value + 's';
+}
+function applyFieldVisibility(){
+  botRow.style.display = opponentSel.value==='bot' ? 'flex' : 'none';
+  blitzRow.style.display = modeSel.value==='blitz' ? 'flex' : 'none';
+  playersRow.style.display = (modeSel.value==='three' || modeSel.value==='four') ? 'none' : 'flex';
+  if(modeSel.value==='three') playerCountSel.value = '3';
+  if(modeSel.value==='four') playerCountSel.value = '4';
+}
+opponentSel.addEventListener('change', applyFieldVisibility);
+difficultyRange.addEventListener('input', updateSetupLabels);
+blitzRange.addEventListener('input', updateSetupLabels);
+modeSel.addEventListener('change', applyFieldVisibility);
+cancelSetup.addEventListener('click', closeSetup);
+applySetup.addEventListener('click', async ()=>{
+  config.opponent = opponentSel.value;
+  config.difficulty = parseFloat(difficultyRange.value);
+  config.mode = modeSel.value;
+  config.players = parseInt((modeSel.value==='three'||modeSel.value==='four') ? (modeSel.value==='three'? '3':'4') : playerCountSel.value, 10);
+  config.blitzSec = parseInt(blitzRange.value, 10);
+  closeSetup();
+  showLoader(true); await animateProgress(800); showLoader(false);
+  initGame(true);
+});
+
+function getBoardSize(){
+  // Randomizer uses larger grid; 3p -> 4x4, 4p -> 5x5
+  if (config.mode === 'randomizer') return 5;
+  if (config.mode === 'three' || config.players === 3) return 4;
+  if (config.mode === 'four' || config.players === 4) return 5;
+  return 3;
+}
+function getWinLength(){
+  const size = getBoardSize();
+  return size >= 4 ? 4 : 3;
+}
+function mineCount(){
+  if (config.mode!=='mine') return 0;
+  return config.players === 4 ? 6 : config.players === 3 ? 4 : 3;
+}
+
+function initGame(fromSetup=false){
+  const size = getBoardSize();
+  eliminated.clear();
+  fogOwner = null; fogRoundsLeft = 0;
+  revealedMinesRounds = 0; revealedMinesOwner = null;
+  perPlayerTimer.clear();
+  state = {
+    size,
+    grid: Array(size*size).fill(null),
+    blocked: new Set(),
+    order: getTurnOrder(config.players),
+    turnIndex: 0,
+    winner: null,
+    line: [],
+    moves: 0,
+    mines: new Set(),
+    chaosTick: 0,
+    deck: [],
+    hands: new Map(), // player -> array of cards
+    skip: {}, // turns to skip per player
+    shields: new Set(),
+    extraTurns: 0,
+    playBlockedOnce: false,
+    pieces: [] // temporary chess/checkers pieces on cells
+  };
+
+  // Mines
+  for(let m=0;m<mineCount();m++){
+    let idx;
+    do{ idx = randomInt(0, size*size-1) } while(state.mines.has(idx));
+    state.mines.add(idx);
   }
 
-  // Modal behavior (conditional fields)
-  function openSetup(){ modal.classList.add('active'); updateSetupLabels(); applyFieldVisibility(); }
-  function closeSetup(){ modal.classList.remove('active'); }
-  function updateSetupLabels(){
-    difficultyLabel.textContent = difficultyRange.value;
-    blitzLabel.textContent = blitzRange.value + 's';
-  }
-  function applyFieldVisibility(){
-    botRow.style.display = opponentSel.value==='bot' ? 'flex' : 'none';
-    blitzRow.style.display = modeSel.value==='blitz' ? 'flex' : 'none';
-    playersRow.style.display = (modeSel.value==='three' || modeSel.value==='four') ? 'none' : 'flex';
-    if(modeSel.value==='three') playerCountSel.value = '3';
-    if(modeSel.value==='four') playerCountSel.value = '4';
-  }
-  opponentSel.addEventListener('change', applyFieldVisibility);
-  difficultyRange.addEventListener('input', updateSetupLabels);
-  blitzRange.addEventListener('input', updateSetupLabels);
-  modeSel.addEventListener('change', applyFieldVisibility);
-  cancelSetup.addEventListener('click', closeSetup);
-  applySetup.addEventListener('click', async ()=>{
-    config.opponent = opponentSel.value;
-    config.difficulty = parseFloat(difficultyRange.value);
-    config.mode = modeSel.value;
-    config.players = parseInt((modeSel.value==='three'||modeSel.value==='four') ? (modeSel.value==='three'? '3':'4') : playerCountSel.value, 10);
-    config.blitzSec = parseInt(blitzRange.value, 10);
-    closeSetup();
-    showLoader(true); await animateProgress(800); showLoader(false);
-    initGame(true);
-  });
+  // Deck and starting hands
+  buildDeck();
+  dealStartingHands();
 
-  function getBoardSize(){
-    // Randomizer uses larger grid; 3p -> 4x4, 4p -> 5x5
-    if (config.mode === 'randomizer') return 5;
-    if (config.mode === 'three' || config.players === 3) return 4;
-    if (config.mode === 'four' || config.players === 4) return 5;
-    return 3;
-  }
-  function getWinLength(){
-    const size = getBoardSize();
-    return size >= 4 ? 4 : 3;
-  }
-  function mineCount(){
-    if (config.mode!=='mine') return 0;
-    return config.players === 4 ? 4 : config.players === 3 ? 3 : 2;
+  // Grid
+  boardEl.classList.remove('win');
+  boardEl.innerHTML = '<div class="ribbon" aria-hidden="true"></div><div class="fogMask" id="fogMask"></div>';
+  boardEl.style.gridTemplateColumns = `repeat(${size}, min(16vw, ${Math.max(84, Math.floor(540/size))}px))`;
+  boardEl.style.gridTemplateRows = `repeat(${size}, min(16vw, ${Math.max(84, Math.floor(540/size))}px))`;
+
+  for(let i=0;i<size*size;i++){
+    const cell=document.createElement('button');
+    cell.className='cell';
+    cell.setAttribute('aria-label', `Cell ${i+1}`);
+    cell.dataset.idx=i;
+    cell.addEventListener('click', onCellClick);
+    boardEl.appendChild(cell);
   }
 
-  function initGame(fromSetup=false){
-    const size = getBoardSize();
-    eliminated.clear();
-    state = {
-      size,
-      grid: Array(size*size).fill(null),
-      blocked: new Set(),
-      order: getTurnOrder(config.players),
-      turnIndex: 0,
-      winner: null,
-      line: [],
-      moves: 0,
-      mines: new Set(),
-      chaosTick: 0,
-      deck: [],
-      hands: new Map(), // player -> array of cards
-    };
+  updateStatus();
+  updateCardsTray(); // show only current player's cards
 
-    // Mines
-    for(let m=0;m<mineCount();m++){
-      let idx;
-      do{ idx = randomInt(0, size*size-1) } while(state.mines.has(idx));
-      state.mines.add(idx);
-    }
-
-    // Deck and starting hands
-    buildDeck();
-    dealStartingHands();
-
-    // Grid
-    boardEl.classList.remove('win');
-    boardEl.innerHTML = '<div class="ribbon" aria-hidden="true"></div>';
-    boardEl.style.gridTemplateColumns = `repeat(${size}, min(16vw, ${Math.max(84, Math.floor(480/size))}px))`;
-    boardEl.style.gridTemplateRows = `repeat(${size}, min(16vw, ${Math.max(84, Math.floor(480/size))}px))`;
-
-    for(let i=0;i<size*size;i++){
-      const cell=document.createElement('button');
-      cell.className='cell';
-      cell.setAttribute('aria-label', `Cell ${i+1}`);
-      cell.dataset.idx=i;
-      cell.addEventListener('click', onCellClick);
-      boardEl.appendChild(cell);
-    }
-
-    updateStatus();
-    updateCardsTray(); // show only current player's cards
-    if (config.mode==='blitz'){ baseTimer = config.blitzSec; startTurnTimer(baseTimer); } else { stopTurnTimer(); timerBox.style.display='none'; }
-
-    if (!fromSetup) renderScores();
-    maybeBotFirstMove();
+  if (config.mode==='blitz'){
+    baseTimer = config.blitzSec;
+    for(const p of state.order){ perPlayerTimer.set(p, baseTimer); }
+    startTurnTimer(perPlayerTimer.get(currentPlayer()));
+  } else {
+    stopTurnTimer(); timerBox.style.display='none';
   }
 
-  function getTurnOrder(players){
-    // 3‑player order: O → X → ■
-    // 4‑player order: O → X → ■ → ▲
-    if (players===4) return ['O','X','■','▲'];
-    if (players===3) return ['O','X','■'];
-    return ['X','O'];
-  }
-  function symbolClass(sym){
-    if (sym==='X') return 'x';
-    if (sym==='O') return 'o';
-    if (sym==='■') return 'p3';
-    if (sym==='▲') return 'p4';
-    return 'x';
-  }
+  if (!fromSetup) renderScores();
+  maybeBotFirstMove();
+}
 
-  // Cards system
-  const Rarity = { COMMON:'common', RARE:'rare', EPIC:'epic', LEGEND:'legend', MYTH:'myth' };
-  function buildDeck(){
-    const cards = [
-      // COMMON
-      card('+1 Skip', Rarity.COMMON, 'Target skips next turn', (ctx)=>skipTarget(ctx.target,1)),
-      card('Block', Rarity.COMMON, 'Block a chosen empty cell', (ctx)=>blockChosenCell(ctx)),
-      card('Clear', Rarity.COMMON, 'Clear a chosen mark', (ctx)=>clearChosenMark(ctx)),
-      card('Swap Order', Rarity.COMMON, 'Reverse turn order', ()=>reverseTurnOrder()),
-      card('Peek Mine', Rarity.COMMON, 'Reveal if a chosen cell is a mine', (ctx)=>peekMine(ctx)),
-      card('Fog', Rarity.COMMON, 'Fog a chosen cell', (ctx)=>fogChosenCell(ctx)),
-      card('Unfog', Rarity.COMMON, 'Remove fog from all cells', ()=>unfogBoard()),
-      card('+Timer', Rarity.COMMON, '+2s to your timer (Blitz)', ()=>boostTimer(+2)),
-      card('-Timer', Rarity.COMMON, '-2s to next player timer (Blitz)', ()=>drainNextTimer(2)),
+function getTurnOrder(players){
+  if (players===4) return ['O','X','■','▲'];
+  if (players===3) return ['O','X','■'];
+  return ['X','O'];
+}
+function symbolClass(sym){
+  if (sym==='X') return 'x';
+  if (sym==='O') return 'o';
+  if (sym==='■') return 'p3';
+  if (sym==='▲') return 'p4';
+  return 'x';
+}
 
-      // RARE
-      card('+2 Skip', Rarity.RARE, 'Target skips next 2 turns', (ctx)=>skipTarget(ctx.target,2)),
-      card('Double Block', Rarity.RARE, 'Block two chosen empty cells', (ctx)=>blockTwo(ctx)),
-      card('Undo', Rarity.RARE, 'Undo last move', ()=>undoLastMove()),
-      card('Disarm', Rarity.RARE, 'Remove one random mine', ()=>removeRandomMine()),
-      card('Plant', Rarity.RARE, 'Add one random mine', ()=>addRandomMine()),
-      card('Clone', Rarity.RARE, 'Play two marks this turn (adjacent)', ()=>clonePlay()),
-      card('Boost Draw', Rarity.RARE, 'Draw 1 extra card now', ()=>drawFor(currentPlayer(),1)),
+// Cards system
+const Rarity = { COMMON:'common', RARE:'rare', EPIC:'epic', LEGEND:'legend', MYTH:'myth' };
+function buildDeck(){
+  const cards = [
+    // COMMON
+    card('+1 Skip', Rarity.COMMON, 'Target skips next turn', (ctx)=>skipTarget(ctx.target,1)),
+    card('Block', Rarity.COMMON, 'Block a chosen empty cell', (ctx)=>blockChosenCell(ctx)),
+    card('Clear', Rarity.COMMON, 'Clear a chosen mark', (ctx)=>clearChosenMark(ctx)),
+    card('Swap Order', Rarity.COMMON, 'Reverse turn order', ()=>reverseTurnOrder()),
+    card('Peek Mine', Rarity.COMMON, 'Reveal if a chosen cell is a mine', (ctx)=>peekMine(ctx)),
+    card('Fog', Rarity.COMMON, 'Global fog for 2 rounds (only you see)', (ctx)=>applyFog(currentPlayer(),2)),
+    card('Unfog', Rarity.COMMON, 'Remove fog from all cells', ()=>unfogBoard(true)),
+    card('+Timer', Rarity.COMMON, '+2s to your timer (Blitz)', ()=>boostTimerFor(currentPlayer(),+2)),
+    card('-Timer', Rarity.COMMON, '-2s to next player timer (Blitz)', ()=>drainNextTimer(2)),
+    card('Reveal Mine Hint', Rarity.COMMON, 'Pulse a mine area', ()=>pulseMineTease()),
 
-      // EPIC
-      card('Teleport', Rarity.EPIC, 'Move one of your marks to another cell', (ctx)=>teleportMark(ctx)),
-      card('Shield', Rarity.EPIC, 'Protect one of your marks from clear/block', (ctx)=>shieldMark(ctx)),
-      card('Accelerate', Rarity.EPIC, 'You play again after this turn', ()=>extraTurn()),
-      card('Bridge', Rarity.EPIC, 'Connect two of your marks as a wildcard', (ctx)=>bridgeMarks(ctx)),
-      card('Expand', Rarity.EPIC, 'Increase board win length tendency', ()=>adjustWinLength(+1)),
+    // RARE
+    card('+2 Skip', Rarity.RARE, 'Target skips next 2 turns', (ctx)=>skipTarget(ctx.target,2)),
+    card('Double Block', Rarity.RARE, 'Block two chosen empty cells', (ctx)=>blockTwo(ctx)),
+    card('Undo', Rarity.RARE, 'Undo last move', ()=>undoLastMove()),
+    card('Disarm', Rarity.RARE, 'Remove one random mine', ()=>removeRandomMine()),
+    card('Plant', Rarity.RARE, 'Add one random mine', ()=>addRandomMine()),
+    card('Clone', Rarity.RARE, 'Play two marks this turn (adjacent)', ()=>clonePlay()),
+    card('Boost Draw', Rarity.RARE, 'Draw 1 extra card now', ()=>drawFor(currentPlayer(),1)),
+    card('Reveal Mines', Rarity.RARE, 'Show all mines for 2 rounds (you only)', ()=>revealMines(currentPlayer(),2)),
+    card('Swap Mine', Rarity.RARE, 'Move a mine to a chosen empty cell', (ctx)=>swapMineToEmpty()),
 
-      // LEGEND
-      card('Storm', Rarity.LEGEND, 'Clear 3 random opponent marks', ()=>clearRandomOpponentMarks(3)),
-      card('Quake', Rarity.LEGEND, 'Block 4 random empty cells', ()=>blockRandomCells(4)),
-      card('Time Warp', Rarity.LEGEND, 'Reset timers to 10s (Blitz)', ()=>resetTimers()),
-      card('Swap Mine', Rarity.LEGEND, 'Move a mine to a chosen empty cell', (ctx)=>moveMineTo(ctx)),
-      card('Specter', Rarity.LEGEND, 'Play on a blocked cell (once)', (ctx)=>playOnBlocked(ctx)),
+    // EPIC
+    card('Teleport', Rarity.EPIC, 'Move one of your marks to another cell', (ctx)=>teleportMark(ctx)),
+    card('Shield', Rarity.EPIC, 'Protect one of your marks from clear/block', (ctx)=>shieldMark(ctx)),
+    card('Accelerate', Rarity.EPIC, 'You play again after this turn', ()=>extraTurn()),
+    card('Bridge', Rarity.EPIC, 'Connect two of your marks as a wildcard (visual)', (ctx)=>bridgeMarks(ctx)),
+    card('Expand', Rarity.EPIC, 'Increase board size by 1 (adds layer)', ()=>expandBoard()),
+    card('Cover Zone', Rarity.EPIC, 'Cover a 2x2 zone temporarily', ()=>coverZone(2, randomInt(1,4))),
+    card('Knight Strike', Rarity.EPIC, 'Place a knight; removes marks like chess L for 2 rounds', ()=>spawnPiece('Knight', 2)),
+    card('Bishop Sweep', Rarity.EPIC, 'Place a bishop; clears diagonals for 3 rounds', ()=>spawnPiece('Bishop', 3)),
 
-      // MYTH (includes M87)
-      card('M87', Rarity.MYTH, 'Black hole resets the board and restarts the round', ()=>m87Reset()),
-      card('Singularity', Rarity.MYTH, 'Absorb all cards; everyone discards hand', ()=>absorbCards()),
-      card('Nova', Rarity.MYTH, 'Add glow; next win highlights across board', ()=>novaGlow()),
-      card('Anomaly', Rarity.MYTH, 'Random powerful effect', ()=>randomPower()),
-    ];
+    // LEGEND
+    card('Storm', Rarity.LEGEND, 'Clear 3 random opponent marks', ()=>clearRandomOpponentMarks(3)),
+    card('Quake', Rarity.LEGEND, 'Block 4 random empty cells', ()=>blockRandomCells(4)),
+    card('Time Warp', Rarity.LEGEND, 'Reset all timers baseline (Blitz)', ()=>resetTimers()),
+    card('Specter', Rarity.LEGEND, 'Play on a blocked cell (once)', (ctx)=>playOnBlocked(ctx)),
+    card('Rook Wall', Rarity.LEGEND, 'Place a rook; clears ranks/files for 2 rounds', ()=>spawnPiece('Rook', 2)),
+    card('Checkers Sweep', Rarity.LEGEND, 'Place checkers piece; clears adjacent diagonals for 2 rounds', ()=>spawnPiece('Checker', 2)),
+    card('Zone Freeze', Rarity.LEGEND, 'Freeze a 3x3 area (no plays) 2 rounds', ()=>coverZone(3,2)),
+    card('Expand+', Rarity.LEGEND, 'Increase board size by 2 (always adds layers)', ()=>expandBoard(2)),
 
-    // Expand to 25+ by cloning variants with different intensities
-    state.deck = cards.concat([
-      card('Block Trio', Rarity.RARE, 'Block 3 chosen empty cells', (ctx)=>blockChosenCells(ctx,3)),
-      card('Clear Duo', Rarity.RARE, 'Clear 2 chosen marks', (ctx)=>clearChosenMarks(ctx,2)),
-      card('Peek Trio', Rarity.RARE, 'Reveal 3 selected cells for mines', (ctx)=>peekMultiple(ctx,3)),
-      card('Bridge+', Rarity.EPIC, 'Bridge three marks (looser)', (ctx)=>bridgeMarks(ctx,true)),
-      card('Accelerate+', Rarity.EPIC, 'Take 2 extra turns (limited)', ()=>extraTurn(2)),
-      card('Storm+', Rarity.LEGEND, 'Clear 5 random opponent marks', ()=>clearRandomOpponentMarks(5)),
-      card('Quake+', Rarity.LEGEND, 'Block 6 random empty cells', ()=>blockRandomCells(6)),
-      card('Teleport+', Rarity.EPIC, 'Teleport two marks', (ctx)=>teleportMark(ctx,true)),
-      card('Clone+', Rarity.RARE, 'Play two marks anywhere', ()=>clonePlay(true)),
-      card('Shield+', Rarity.EPIC, 'Protect two of your marks', (ctx)=>shieldMark(ctx,true)),
-    ]);
-    shuffle(state.deck);
-  }
-  function card(name, rarity, desc, apply){
-    return { name, rarity, desc, apply };
-  }
-  function dealStartingHands(){
-    for(const p of state.order){
-      const cnt = randomInt(2,3);
-      state.hands.set(p, draw(cnt));
-    }
-  }
-  function draw(n){
-    const res = [];
-    for(let i=0;i<n;i++){
-      if (!state.deck.length) buildDeck();
-      res.push(state.deck.pop());
-    }
-    return res;
-  }
-  function drawFor(p, n){
-    const hand = state.hands.get(p) || [];
-    hand.push(...draw(n));
-    state.hands.set(p, hand);
-    updateCardsTray();
-  }
-  function shuffle(arr){
-    for(let i=arr.length-1;i>0;i--){
-      const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]];
-    }
-  }
+    // MYTH
+    card('M87', Rarity.MYTH, 'Black hole resets the board and restarts the round', ()=>m87Reset()),
+    card('Singularity', Rarity.MYTH, 'Absorb all cards; everyone discards hand', ()=>absorbCards()),
+    card('Nova', Rarity.MYTH, 'Add glow; next win highlights across board', ()=>novaGlow()),
+    card('Anomaly', Rarity.MYTH, 'Random powerful effect', ()=>randomPower()),
+    card('Mafia Night', Rarity.MYTH, 'Mini-event: randomly “vote” to clear a mark', ()=>mafiaMini()),
+    card('UNO Reverse', Rarity.MYTH, 'Reverse order and force next to draw 2 cards', ()=>unoReverse()),
+    card('Chess Rain', Rarity.MYTH, 'Spawn random chess pieces for 1–4 rounds', ()=>chessRain())
+  ];
 
-  // Cards tray shows only current player's hand
-  function updateCardsTray(){
-    const p = currentPlayer();
-    const hand = state.hands.get(p) || [];
-    if (config.mode!=='randomizer' || eliminated.has(p)){ cardsTray.style.display='none'; return; }
-    cardsTray.style.display='flex';
-    cardsTray.innerHTML='';
-    hand.forEach((c, idx)=>{
-      const el=document.createElement('div');
-      el.className='cardItem';
-      const rarClass = 'rar-' + c.rarity;
-      el.innerHTML = `
-        <div class="cardName">${c.name}</div>
-        <div class="cardTip">
-          <div style="font-weight:700; margin-bottom:6px">${c.name}</div>
-          <div>Rarity: ${c.rarity.toUpperCase()}</div>
-          <div style="margin-top:6px">${c.desc}</div>
-        </div>
-        <div class="rarBar ${rarClass}"></div>
-      `;
-      el.addEventListener('click', async ()=>{
-        if (state.winner) return;
-        const target = await chooseTargetIfNeeded(c.name);
-        playCardEffect(c, target);
-        // consume
-        hand.splice(idx,1);
-        state.hands.set(p, hand);
-        updateCardsTray();
-        // Some cards end turn, others grant extra turn; default: end turn
-        if (!state.extraTurns || state.extraTurns<=0) advanceTurn();
-        else state.extraTurns--;
-      });
-      cardsTray.appendChild(el);
+  // +25 more variants/intensities
+  state.deck = cards.concat([
+    card('Block Trio', Rarity.RARE, 'Block 3 chosen empty cells', (ctx)=>blockChosenCells(ctx,3)),
+    card('Clear Duo', Rarity.RARE, 'Clear 2 chosen marks', (ctx)=>clearChosenMarks(ctx,2)),
+    card('Peek Trio', Rarity.RARE, 'Reveal 3 selected cells for mines', (ctx)=>peekMultiple(ctx,3)),
+    card('Bridge+', Rarity.EPIC, 'Bridge three marks (looser)', (ctx)=>bridgeMarks(ctx,true)),
+    card('Accelerate+', Rarity.EPIC, 'Take 2 extra turns (limited)', ()=>extraTurn(2)),
+    card('Storm+', Rarity.LEGEND, 'Clear 5 random opponent marks', ()=>clearRandomOpponentMarks(5)),
+    card('Quake+', Rarity.LEGEND, 'Block 6 random empty cells', ()=>blockRandomCells(6)),
+    card('Teleport+', Rarity.EPIC, 'Teleport two marks', (ctx)=>teleportMark(ctx,true)),
+    card('Clone+', Rarity.RARE, 'Play two marks anywhere', ()=>clonePlay(true)),
+    card('Shield+', Rarity.EPIC, 'Protect two of your marks', (ctx)=>shieldMark(ctx,true)),
+    card('Reveal Mines+', Rarity.EPIC, 'Show mines 3 rounds', ()=>revealMines(currentPlayer(),3)),
+    card('Swap Mine+', Rarity.LEGEND, 'Swap two mines into empty cells', ()=>swapTwoMines()),
+    card('Expand++', Rarity.MYTH, 'Increase board size by 3', ()=>expandBoard(3)),
+    card('Fog+', Rarity.RARE, 'Global fog 3 rounds (you only)', ()=>applyFog(currentPlayer(),3)),
+    card('Cover Line', Rarity.EPIC, 'Cover one full row or column 2 rounds', ()=>coverLine(2)),
+    card('Knight+', Rarity.LEGEND, 'Knight lasts 4 rounds', ()=>spawnPiece('Knight',4)),
+    card('Bishop+', Rarity.LEGEND, 'Bishop lasts 4 rounds', ()=>spawnPiece('Bishop',4)),
+    card('Rook+', Rarity.LEGEND, 'Rook lasts 4 rounds', ()=>spawnPiece('Rook',4)),
+    card('Checker+', Rarity.LEGEND, 'Checker lasts 3 rounds', ()=>spawnPiece('Checker',3)),
+    card('Time Slice', Rarity.EPIC, 'Set your timer to next higher integer', ()=>ceilYourTimer()),
+    card('Drain Slice', Rarity.EPIC, 'Set next timer to lower integer', ()=>floorNextTimer()),
+    card('Wild Draw', Rarity.RARE, 'Draw 2 cards', ()=>drawFor(currentPlayer(),2)),
+    card('Mass Shield', Rarity.LEGEND, 'Shield 4 chosen marks', ()=>shieldMultiple(4)),
+    card('Purge', Rarity.LEGEND, 'Clear all unshielded marks in a 3x3', ()=>purgeArea(3)),
+    card('Pulse Mines', Rarity.RARE, 'Pulse outlines of mine cells for 2s', ()=>pulseAllMines())
+  ]);
+  shuffle(state.deck);
+}
+function card(name, rarity, desc, apply){
+  return { name, rarity, desc, apply };
+}
+function dealStartingHands(){
+  for(const p of state.order){
+    const cnt = randomInt(2,3);
+    state.hands.set(p, draw(cnt));
+  }
+}
+function draw(n){
+  const res = [];
+  for(let i=0;i<n;i++){
+    if (!state.deck.length) buildDeck();
+    res.push(state.deck.pop());
+  }
+  return res;
+}
+function drawFor(p, n){
+  const hand = state.hands.get(p) || [];
+  hand.push(...draw(n));
+  state.hands.set(p, hand);
+  updateCardsTray();
+}
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+}
+
+// Cards tray shows only current player's hand
+function updateCardsTray(){
+  const p = currentPlayer();
+  const hand = state.hands.get(p) || [];
+  if (config.mode!=='randomizer' || eliminated.has(p)){ cardsTray.style.display='none'; return; }
+  cardsTray.style.display='flex';
+  cardsTray.innerHTML='';
+  hand.forEach((c, idx)=>{
+    const el=document.createElement('div');
+    el.className='cardItem';
+    const rarClass = 'rar-' + c.rarity;
+    el.innerHTML = `
+      <div class="cardName">${c.name}</div>
+      <div class="cardTip">
+        <div style="font-weight:700; margin-bottom:6px">${c.name}</div>
+        <div>Rarity: ${c.rarity.toUpperCase()}</div>
+        <div style="margin-top:6px">${c.desc}</div>
+      </div>
+      <div class="rarBar ${rarClass}"></div>
+    `;
+    el.addEventListener('click', async ()=>{
+      if (state.winner) return;
+      const target = await chooseTargetIfNeeded(c.name);
+      playCardEffect(c, target);
+      // consume
+      hand.splice(idx,1);
+      state.hands.set(p, hand);
+      updateCardsTray();
+      // Some cards end turn, others grant extra turn; default: end turn
+      if (!state.extraTurns || state.extraTurns<=0) advanceTurn();
+      else state.extraTurns--;
     });
+    cardsTray.appendChild(el);
+  });
+}
+
+async function chooseTargetIfNeeded(cardName){
+  const targetingCards = ['+1 Skip','+2 Skip','Storm','Storm+','Specter','Mafia Night','UNO Reverse'];
+  if (!targetingCards.includes(cardName)) return null;
+  const others = state.order.filter(x=>x!==currentPlayer() && !eliminated.has(x));
+  if (!others.length) return null;
+  return others[0];
+}
+
+function playCardEffect(card, target){
+  showEffect(card.name, `Rarity: ${card.rarity.toUpperCase()} — ${card.desc}`);
+  try{
+    card.apply({ target });
+    animateBoardPulse();
+  }catch(e){}
+}
+
+function showEffect(title, desc){
+  effectTitle.textContent = title;
+  effectDesc.textContent = desc;
+  effectOverlay.style.display='grid';
+  setTimeout(()=>effectOverlay.style.display='none', 1200);
+}
+function animateBoardPulse(){
+  boardEl.classList.add('win');
+  setTimeout(()=>boardEl.classList.remove('win'), 700);
+}
+
+// Cell interactions
+async function onCellClick(e){
+  if (state.winner) return;
+  const i = Number(e.currentTarget.dataset.idx);
+  const player = currentPlayer();
+
+  if (eliminated.has(player)) return; // eliminated cannot play
+
+  // Fog visibility: if fog active and player != fogOwner, block interaction feedback but allow playing (chaos)
+  if (fogRoundsLeft>0 && player!==fogOwner){
+    showEffect('Fogged', 'You are moving in the dark.');
   }
 
-  async function chooseTargetIfNeeded(cardName){
-    // For cards that target a player; simple prompt UI
-    const targetingCards = ['+1 Skip','+2 Skip','Storm','Storm+','Specter'];
-    if (!targetingCards.includes(cardName)) return null;
-    const others = state.order.filter(x=>x!==currentPlayer() && !eliminated.has(x));
-    if (!others.length) return null;
-    // Basic picker: choose first available for now (can enhance with modal)
-    return others[0];
+  // Rule: bot turns blocked for humans
+  if (isBotTurn()) return;
+
+  // Play on blocked cell once
+  if (state.blocked.has(i) && !state.playBlockedOnce) return;
+
+  if (state.grid[i]) return;
+
+  // Minefield elimination
+  if (state.mines.has(i) && config.mode==='mine'){
+    placeGlyph(e.currentTarget, player);
+    eliminatePlayer(player, `Mine triggered by ${player}`);
+    return;
   }
 
-  function playCardEffect(card, target){
-    showEffect(card.name, `Rarity: ${card.rarity.toUpperCase()} — ${card.desc}`);
-    try{
-      card.apply({ target });
-    }catch(e){}
-  }
+  applyMove(i, player, e.currentTarget);
 
-  function showEffect(title, desc){
-    effectTitle.textContent = title;
-    effectDesc.textContent = desc;
-    effectOverlay.style.display='grid';
-    setTimeout(()=>effectOverlay.style.display='none', 1200);
-  }
+  // Randomizer frequent events
+  if (config.mode==='randomizer') processChaosEvent(true);
 
-  // Cell interactions
-  async function onCellClick(e){
-    if (state.winner) return;
-    const i = Number(e.currentTarget.dataset.idx);
-    const player = currentPlayer();
+  // Card draw every round end
+  drawFor(player, 1);
 
-    if (eliminated.has(player)) return; // eliminated cannot play
-    if (isBotTurn()) return;
-    if (state.grid[i] || state.blocked.has(i)) return;
+  await maybeBotReply();
+}
 
-    // Minefield elimination
-    if (state.mines.has(i) && config.mode==='mine'){
-      placeGlyph(e.currentTarget, player);
-      eliminatePlayer(player, `Mine triggered by ${player}`);
-      return;
+function eliminatePlayer(player, reason){
+  eliminated.add(player);
+  // Remove all their marks from board
+  for(let idx=0; idx<state.grid.length; idx++){
+    if (state.grid[idx]===player){
+      state.grid[idx]=null;
+      const el = boardEl.children[2 + idx]; // account for ribbon+fogMask
+      el.innerHTML='';
+      el.classList.remove('played','win');
     }
+  }
+  showEffect('Eliminated', `${player} removed: ${reason}`);
+  const activeLeft = state.order.filter(p=>!eliminated.has(p));
+  if (activeLeft.length===1){
+    endGame(activeLeft[0], [], false);
+    return;
+  }
+  advanceTurn();
+}
 
-    applyMove(i, player, e.currentTarget);
+function applyMove(i, player, cellEl){
+  state.grid[i] = player;
+  state.moves++;
+  placeGlyph(cellEl, player);
 
-    // Randomizer frequent events
-    if (config.mode==='randomizer') processChaosEvent(true);
-
-    // Card draw every round end
-    drawFor(player, 1);
-
-    await maybeBotReply();
+  const win = checkWin(state.grid, state.size, getWinLength());
+  if (win){
+    endGame(player, win.line, false);
+    return;
   }
 
-  function eliminatePlayer(player, reason){
-    eliminated.add(player);
-    // Remove all their marks from board
-    for(let idx=0; idx<state.grid.length; idx++){
-      if (state.grid[idx]===player){
-        state.grid[idx]=null;
-        const el = boardEl.children[1 + idx];
-        el.innerHTML='';
-        el.classList.remove('played','win');
-      }
+  if (state.moves + state.blocked.size === state.grid.length){
+    statusEl.textContent = 'Draw';
+    scores.D++; renderScores(); stopTurnTimer(); return;
+  }
+
+  state.playBlockedOnce = false; // if it was allowed for this turn, consume
+  advanceTurn();
+}
+
+function placeGlyph(el, player){
+  el.innerHTML = `<span class="glyph ${symbolClass(player)}">${player}</span>`;
+  el.classList.add('played');
+}
+
+function advanceTurn(){
+  // Skip eliminated players and apply skip counters
+  do {
+    state.turnIndex = (state.turnIndex + 1) % state.order.length;
+  } while (eliminated.has(currentPlayer()));
+
+  // Apply skip if tagged
+  const p = currentPlayer();
+  if (state.skip[p] && state.skip[p]>0){
+    state.skip[p]--;
+    return advanceTurn();
+  }
+
+  // Decrement piece durations and fog/mine reveals
+  tickDurations();
+
+  updateStatus();
+  updateCardsTray();
+
+  if (config.mode==='blitz'){
+    // Carryover model: next player's timer = max(1, prevRemaining + 1), capped to 60
+    const next = p;
+    let t = perPlayerTimer.get(next) ?? baseTimer;
+    t = Math.min(60, Math.max(1, Math.floor(t)+1));
+    perPlayerTimer.set(next, t);
+    startTurnTimer(t);
+  }
+}
+
+function updateStatus(){
+  const player = currentPlayer();
+  statusEl.textContent = `${player} to move`;
+  const color = player==='X' ? 'rgba(122,162,247,.25)'
+              : player==='O' ? 'rgba(201,210,126,.25)'
+              : player==='■' ? 'rgba(255,159,111,.25)'
+              : 'rgba(106,227,189,.25)';
+  statusEl.style.borderColor = color;
+  statusEl.style.boxShadow = `0 0 12px ${color} inset`;
+}
+
+function endGame(winner, line, byMine=false){
+  state.winner = winner;
+  state.line = line || [];
+  for(const idx of state.line){
+    const cell = boardEl.children[2 + idx];
+    cell && cell.classList.add('win');
+  }
+  statusEl.textContent = byMine ? `Mine! ${winner} wins` : `${winner} wins`;
+  boardEl.classList.add('win');
+  stopTurnTimer();
+  if (winner==='X') scores.X++;
+  else if (winner==='O') scores.O++;
+  else if (winner==='■') scores.P3++;
+  else if (winner==='▲') scores.P4++;
+  renderScores();
+}
+
+function renderScores(){
+  document.getElementById('scoreX').textContent = String(scores.X);
+  document.getElementById('scoreO').textContent = String(scores.O);
+  document.getElementById('scoreP3').textContent = String(scores.P3);
+  document.getElementById('scoreP4').textContent = String(scores.P4);
+  document.getElementById('scoreD').textContent = String(scores.D);
+}
+
+function currentPlayer(){
+  return state.order[state.turnIndex];
+}
+
+// NxN win detection
+function checkWin(g, size, winLen){
+  for(let r=0;r<size;r++){
+    for(let c=0;c<=size-winLen;c++){
+      const start = r*size+c; const first=g[start]; if(!first) continue;
+      const line=[]; let ok=true;
+      for(let k=0;k<winLen;k++){ const idx=r*size+(c+k); line.push(idx); if(g[idx]!==first){ ok=false; break; } }
+      if(ok) return {player:first, line};
     }
-    showEffect('Eliminated', `${player} removed: ${reason}`);
-    // If only one player left, that player wins immediately
-    const activeLeft = state.order.filter(p=>!eliminated.has(p));
-    if (activeLeft.length===1){
-      endGame(activeLeft[0], [], false);
-      return;
-    }
-    // If current eliminated, advance turn
-    advanceTurn();
   }
-
-  function applyMove(i, player, cellEl){
-    state.grid[i] = player;
-    state.moves++;
-    placeGlyph(cellEl, player);
-
-    const win = checkWin(state.grid, state.size, getWinLength());
-    if (win){
-      endGame(player, win.line, false);
-      return;
-    }
-
-    // Draw if all filled or blocked (and no winner)
-    if (state.moves + state.blocked.size === state.grid.length){
-      statusEl.textContent = 'Draw';
-      scores.D++; renderScores(); stopTurnTimer(); return;
-    }
-
-    advanceTurn();
-  }
-
-  function placeGlyph(el, player){
-    el.innerHTML = `<span class="glyph ${symbolClass(player)}">${player}</span>`;
-    el.classList.add('played');
-  }
-
-  function advanceTurn(){
-    // Skip eliminated players
-    do {
-      state.turnIndex = (state.turnIndex + 1) % state.order.length;
-    } while (eliminated.has(currentPlayer()));
-    updateStatus();
-    updateCardsTray();
-    if (config.mode==='blitz'){ baseTimer += 0.5; startTurnTimer(baseTimer); }
-  }
-
-  function updateStatus(){
-    const player = currentPlayer();
-    statusEl.textContent = `${player} to move`;
-    const color = player==='X' ? 'rgba(122,162,247,.25)'
-                : player==='O' ? 'rgba(201,210,126,.25)'
-                : player==='■' ? 'rgba(255,159,111,.25)'
-                : 'rgba(106,227,189,.25)';
-    statusEl.style.borderColor = color;
-    statusEl.style.boxShadow = `0 0 12px ${color} inset`;
-  }
-
-  function endGame(winner, line, byMine=false){
-    state.winner = winner;
-    state.line = line || [];
-    for(const idx of state.line){
-      const cell = boardEl.children[1 + idx];
-      cell && cell.classList.add('win');
-    }
-    statusEl.textContent = byMine ? `Mine! ${winner} wins` : `${winner} wins`;
-    boardEl.classList.add('win');
-    stopTurnTimer();
-    if (winner==='X') scores.X++;
-    else if (winner==='O') scores.O++;
-    else if (winner==='■') scores.P3++;
-    else if (winner==='▲') scores.P4++;
-    renderScores();
-  }
-
-  function renderScores(){
-    document.getElementById('scoreX').textContent = String(scores.X);
-    document.getElementById('scoreO').textContent = String(scores.O);
-    document.getElementById('scoreP3').textContent = String(scores.P3);
-    document.getElementById('scoreP4').textContent = String(scores.P4);
-    document.getElementById('scoreD').textContent = String(scores.D);
-  }
-
-  function currentPlayer(){
-    return state.order[state.turnIndex];
-  }
-
-  // NxN win detection
-  function checkWin(g, size, winLen){
-    for(let r=0;r<size;r++){
-      for(let c=0;c<=size-winLen;c++){
-        const start = r*size+c; const first=g[start]; if(!first) continue;
-        const line=[]; let ok=true;
-        for(let k=0;k<winLen;k++){ const idx=r*size+(c+k); line.push(idx); if(g[idx]!==first){ ok=false; break; } }
-        if(ok) return {player:first, line};
-      }
-    }
-    for(let c=0;c<size;c++){
-      for(let r=0;r<=size-winLen;r++){
-        const start=r*size+c; const first=g[start]; if(!first) continue;
-        const line=[]; let ok=true;
-        for(let k=0;k<winLen;k++){ const idx=(r+k)*size+c; line.push(idx); if(g[idx]!==first){ ok=false; break; } }
-        if(ok) return {player:first, line};
-      }
-    }
+  for(let c=0;c<size;c++){
     for(let r=0;r<=size-winLen;r++){
-      for(let c=0;c<=size-winLen;c++){
-        const start=r*size+c; const first=g[start]; if(!first) continue;
-        const line=[]; let ok=true;
-        for(let k=0;k<winLen;k++){ const idx=(r+k)*size+(c+k); line.push(idx); if(g[idx]!==first){ ok=false; break; } }
-        if(ok) return {player:first, line};
-      }
+      const start=r*size+c; const first=g[start]; if(!first) continue;
+      const line=[]; let ok=true;
+      for(let k=0;k<winLen;k++){ const idx=(r+k)*size+c; line.push(idx); if(g[idx]!==first){ ok=false; break; } }
+      if(ok) return {player:first, line};
     }
-    for(let r=winLen-1;r<size;r++){
-      for(let c=0;c<=size-winLen;c++){
-        const start=r*size+c; const first=g[start]; if(!first) continue;
-        const line=[]; let ok=true;
-        for(let k=0;k<winLen;k++){ const idx=(r-k)*size+(c+k); line.push(idx); if(g[idx]!==first){ ok=false; break; } }
-        if(ok) return {player:first, line};
-      }
-    }
-    return null;
   }
+  for(let r=0;r<=size-winLen;r++){
+    for(let c=0;c<=size-winLen;c++){
+      const start=r*size+c; const first=g[start]; if(!first) continue;
+      const line=[]; let ok=true;
+      for(let k=0;k<winLen;k++){ const idx=(r+k)*size+(c+k); line.push(idx); if(g[idx]!==first){ ok=false; break; } }
+      if(ok) return {player:first, line};
+    }
+  }
+  for(let r=winLen-1;r<size;r++){
+    for(let c=0;c<=size-winLen;c++){
+      const start=r*size+c; const first=g[start]; if(!first) continue;
+      const line=[]; let ok=true;
+      for(let k=0;k<winLen;k++){ const idx=(r-k)*size+(c+k); line.push(idx); if(g[idx]!==first){ ok=false; break; } }
+      if(ok) return {player:first, line};
+    }
+  }
+  return null;
+}
 
-  // Bot logic (2‑player only; O is bot)
-  function isBotTurn(){ return config.opponent==='bot' && config.players===2 && currentPlayer()==='O' }
-  async function maybeBotFirstMove(){ if (isBotTurn()) await botMove() }
-  async function maybeBotReply(){ if (isBotTurn()) await botMove() }
-  async function botMove(){
-    await sleep(220 + Math.random()*280);
-    const i = chooseBotMove();
-    if (i==null) return;
-    const cellEl = boardEl.children[1 + i];
-    applyMove(i, 'O', cellEl);
-  }
-  function chooseBotMove(){
-    const size = state.size, winLen = getWinLength();
-    const grid = state.grid.slice();
-    const d = config.difficulty;
-    const winMove = findLineCompletion(grid, size, winLen, 'O'); if (winMove!=null && Math.random()<(0.85*d/5)) return winMove;
-    const blockMove = findLineCompletion(grid, size, winLen, 'X'); if (blockMove!=null && Math.random()<(0.75*d/5)) return blockMove;
-    const centers = getCenterIndices(size); const centerPick = centers.find(i=>!grid[i]); if (centerPick!=null && Math.random()<(0.6*d/5)) return centerPick;
-    const empties = grid.map((v,idx)=>v?null:idx).filter(v=>v!=null);
-    if (!empties.length) return null;
-    if (Math.random()<(0.4*d/5)){
-      const oPos = grid.map((v,i)=>v==='O'?i:null).filter(v=>v!=null);
-      const scored = empties.map(i=>({i,score: adjacencyScore(i, oPos, size)})).sort((a,b)=>b.score-a.score);
-      return scored[0].i;
-    }
-    return empties[Math.floor(Math.random()*empties.length)];
-  }
-  function findLineCompletion(grid,size,winLen,player){
-    for(let i=0;i<grid.length;i++){ if(grid[i]) continue; grid[i]=player; const w=checkWin(grid,size,winLen); grid[i]=null; if(w&&w.player===player) return i; }
-    return null;
-  }
-  function getCenterIndices(size){
-    if(size%2===1){ return [Math.floor((size*size)/2)] }
-    const c1=(size/2-1)*size+(size/2-1); return [c1,c1+1,c1+size,c1+size+1];
-  }
-  function adjacencyScore(i,positions,size){
-    if(!positions.length) return 0;
-    const r=Math.floor(i/size), c=i%size; let s=0;
-    for(const p of positions){ const pr=Math.floor(p/size), pc=p%size; const d=Math.abs(pr-r)+Math.abs(pc-c); s+=Math.max(0,4-d) }
-    return s;
-  }
+/* Bot logic
+- If opponent=bot, all non-first local players are bots. Bots can play moves and cards.
+- Difficulty 1–5 adjusts aggressiveness, prediction depth, card usage frequency.
+*/
+function isBot(p){ return config.opponent==='bot' && !eliminated.has(p); }
+function isBotTurn(){ return config.opponent==='bot' && isBot(currentPlayer()); }
+async function maybeBotFirstMove(){ if (isBotTurn()) await botTurn(); }
+async function maybeBotReply(){ if (isBotTurn()) await botTurn(); }
 
-  // Blitz timer
-  function startTurnTimer(sec){
-    if (config.mode!=='blitz') return;
-    stopTurnTimer();
-    timerBox.style.display = 'inline-flex';
-    let t = Math.max(1, Math.round(sec));
-    timeLeftEl.textContent = t;
-    timer = setInterval(()=>{
-      t--; timeLeftEl.textContent = t;
-      if (t<=0){
-        const loser = currentPlayer();
-        // Next active player wins
-        let winnerSym = nextActive(loser);
-        endGame(winnerSym, [], false);
-        stopTurnTimer();
-      }
-    }, 1000);
-  }
-  function stopTurnTimer(){ if (timer){ clearInterval(timer); timer=null; } }
-  function nextActive(from){
-    let idx = state.order.indexOf(from);
-    do {
-      idx = (idx + 1) % state.order.length;
-    } while (eliminated.has(state.order[idx]));
-    return state.order[idx];
-  }
+async function botTurn(){
+  // Small think time scaled by difficulty and blitz
+  const d = config.difficulty;
+  const baseThink = config.mode==='blitz' ? 120 : 220;
+  await sleep(baseThink + Math.random()*160 + d*60);
 
-  // Chaos Deck events (frequent)
-  function processChaosEvent(often=false){
-    state.chaosTick++;
-    const interval = often ? 2 : 3;
-    if (state.chaosTick % interval !== 0) return;
-    // Frequent random event plus card draw
-    const ev = randomEvent();
-    showEffect(`Chaos: ${ev.name}`, ev.desc);
-    ev.apply();
-    drawFor(currentPlayer(), 1);
-  }
-  function randomEvent(){
-    const events = [
-      {name:'Block random cell', desc:'A random empty cell is blocked', apply:()=>blockRandomCells(1)},
-      {name:'Clear random mark', desc:'A random mark is cleared', apply:()=>clearRandomOpponentMarks(1)},
-      {name:'Reverse order', desc:'Turn order is reversed', apply:()=>reverseTurnOrder()},
-      {name:'+Timer', desc:'+2s to current timer (Blitz)', apply:()=>boostTimer(+2)},
-      {name:'-Timer', desc:'-2s to next timer (Blitz)', apply:()=>drainNextTimer(2)},
-      {name:'Add mine', desc:'A mine appears randomly', apply:()=>addRandomMine()},
-      {name:'Remove mine', desc:'A mine disappears', apply:()=>removeRandomMine()},
-      {name:'Reveal mine hint', desc:'A mine pulses somewhere…', apply:()=>pulseMineTease()},
-    ];
-    return events[Math.floor(Math.random()*events.length)];
-  }
-
-  // Card effects (helpers)
-  function skipTarget(target, n){
-    // Tag target with skip counter
-    state.skip = state.skip || {};
-    state.skip[target] = (state.skip[target] || 0) + n;
-  }
-  function reverseTurnOrder(){
-    state.order.reverse();
-    // Ensure current player index mapped correctly
-    const cp = currentPlayer();
-    state.turnIndex = state.order.indexOf(cp);
-    updateStatus();
-  }
-  function blockChosenCell(ctx){ pickCells(1, (indices)=>{ indices.forEach(i=>blockIndex(i)); }); }
-  function blockTwo(ctx){ pickCells(2, (idxs)=> idxs.forEach(i=>blockIndex(i)) ); }
-  function blockChosenCells(ctx, n){ pickCells(n, (idxs)=> idxs.forEach(i=>blockIndex(i)) ); }
-  function blockRandomCells(n){
-    const empties = emptyIndices();
-    for(let k=0;k<n && empties.length;k++){
-      const i = empties.splice(Math.floor(Math.random()*empties.length),1)[0];
-      blockIndex(i);
-    }
-  }
-  function blockIndex(i){
-    if (state.blocked.has(i)) return;
-    state.blocked.add(i);
-    const el = boardEl.children[1 + i];
-    el.setAttribute('disabled','true');
-    el.style.opacity = .45; el.style.filter = 'grayscale(0.3) brightness(0.8)';
-    el.title = 'Blocked';
-    // Draw check
-    if (state.moves + state.blocked.size === state.grid.length && !state.winner){
-      statusEl.textContent = 'Draw'; scores.D++; renderScores(); stopTurnTimer();
-    }
-  }
-  function clearChosenMark(ctx){ pickCells(1, (idxs)=> idxs.forEach(i=>clearMark(i)), true); }
-  function clearChosenMarks(ctx, n){ pickCells(n, (idxs)=> idxs.forEach(i=>clearMark(i)), true); }
-  function clearMark(i){
-    if (!state.grid[i]) return;
-    // Check shield
-    if (state.shields && state.shields.has(i)) return;
-    state.grid[i] = null;
-    const el = boardEl.children[1 + i];
-    el.innerHTML=''; el.classList.remove('played','win');
-  }
-  function undoLastMove(){
-    // naive: clear last played cell
-    for(let i=state.grid.length-1; i>=0; i--){
-      if (boardEl.children[1 + i].classList.contains('played')){
-        clearMark(i); break;
+  // Card usage: higher difficulty uses cards more strategically
+  if (config.mode==='randomizer'){
+    const useChance = Math.min(0.2 + d*0.12, 0.75);
+    if (Math.random() < useChance){
+      const hand = state.hands.get(currentPlayer()) || [];
+      // Prefer impactful cards
+      const prioritized = hand.sort((a,b)=>rarityWeight(b.rarity)-rarityWeight(a.rarity));
+      if (prioritized.length){
+        const card = prioritized[0];
+        playCardEffect(card, null);
+        // consume
+        hand.shift();
+        state.hands.set(currentPlayer(), hand);
+        updateCardsTray();
+        if (state.extraTurns && state.extraTurns>0) state.extraTurns--;
+        else { advanceTurn(); return; }
       }
     }
   }
-  function removeRandomMine(){
-    const arr = Array.from(state.mines);
-    if (!arr.length) return;
-    const i = arr[Math.floor(Math.random()*arr.length)];
-    state.mines.delete(i);
+
+  const i = chooseBotMove();
+  if (i==null) return;
+  const cellEl = boardEl.children[2 + i];
+  applyMove(i, currentPlayer(), cellEl);
+}
+function rarityWeight(r){
+  if (r===Rarity.COMMON) return 1;
+  if (r===Rarity.RARE) return 2;
+  if (r===Rarity.EPIC) return 3;
+  if (r===Rarity.LEGEND) return 4;
+  return 5;
+}
+function chooseBotMove(){
+  const size = state.size, winLen = getWinLength();
+  const grid = state.grid.slice();
+  const d = config.difficulty;
+  const me = currentPlayer();
+  const opp = state.order.filter(p=>p!==me);
+
+  // High level: try win, then block, then center/adjacent heuristic, then random.
+  const winMove = findLineCompletion(grid, size, winLen, me); if (winMove!=null && Math.random()<(0.9*d/5)) return winMove;
+  for (const o of opp){
+    const blockMove = findLineCompletion(grid, size, winLen, o); if (blockMove!=null && Math.random()<(0.8*d/5)) return blockMove;
   }
-  function addRandomMine(){
+
+  const centers = getCenterIndices(size);
+  const centerPick = centers.find(i=>!grid[i] && !state.blocked.has(i));
+  if (centerPick!=null && Math.random()<(0.7*d/5)) return centerPick;
+
+  // Cover ways: prefer cells that participate in many potential lines
+  const empties = grid.map((v,idx)=> (v||state.blocked.has(idx))?null:idx).filter(v=>v!=null);
+  if (!empties.length) return null;
+
+  if (Math.random()<(0.5*d/5)){
+    const scored = empties.map(i=>({i,score: linePotentialScore(i, grid, size, winLen, me)})).sort((a,b)=>b.score-a.score);
+    return scored[0].i;
+  }
+
+  return empties[Math.floor(Math.random()*empties.length)];
+}
+function findLineCompletion(grid,size,winLen,player){
+  for(let i=0;i<grid.length;i++){ if(grid[i] || state.blocked.has(i)) continue; grid[i]=player; const w=checkWin(grid,size,winLen); grid[i]=null; if(w&&w.player===player) return i; }
+  return null;
+}
+function getCenterIndices(size){
+  if(size%2===1){ return [Math.floor((size*size)/2)] }
+  const c1=(size/2-1)*size+(size/2-1); return [c1,c1+1,c1+size,c1+size+1];
+}
+function adjacencyScore(i,positions,size){
+  if(!positions.length) return 0;
+  const r=Math.floor(i/size), c=i%size; let s=0;
+  for(const p of positions){ const pr=Math.floor(p/size), pc=p%size; const d=Math.abs(pr-r)+Math.abs(pc-c); s+=Math.max(0,4-d) }
+  return s;
+}
+function linePotentialScore(i, grid, size, winLen, player){
+  // Count potential lines through i for player
+  let score = 0;
+  const dirs = [[1,0],[0,1],[1,1],[1,-1]];
+  for(const [dr,dc] of dirs){
+    let chain=1;
+    for(let k=1;k<winLen;k++){
+      const rr = Math.floor(i/size)+dr*k, cc=i%size+dc*k;
+      const idx = rr*size+cc;
+      if (rr<0||cc<0||rr>=size||cc>=size) break;
+      if (!grid[idx] && !state.blocked.has(idx)) chain++;
+    }
+    score += chain;
+  }
+  // Favor adjacency to own marks
+  const oPos = grid.map((v,ii)=>v===player?ii:null).filter(v=>v!=null);
+  score += adjacencyScore(i, oPos, size);
+  return score;
+}
+
+// Blitz timer (carryover per player)
+function startTurnTimer(sec){
+  if (config.mode!=='blitz') return;
+  stopTurnTimer();
+  timerBox.style.display = 'inline-flex';
+  let t = Math.max(1, Math.round(sec));
+  timeLeftEl.textContent = t;
+  timer = setInterval(()=>{
+    t--; timeLeftEl.textContent = t;
+    perPlayerTimer.set(currentPlayer(), t);
+    if (t<=0){
+      const loser = currentPlayer();
+      // Next active player wins
+      let winnerSym = nextActive(loser);
+      endGame(winnerSym, [], false);
+      stopTurnTimer();
+    }
+  }, 1000);
+}
+function stopTurnTimer(){ if (timer){ clearInterval(timer); timer=null; } }
+function nextActive(from){
+  let idx = state.order.indexOf(from);
+  do {
+    idx = (idx + 1) % state.order.length;
+  } while (eliminated.has(state.order[idx]));
+  return state.order[idx];
+}
+
+// Chaos Deck events (frequent)
+function processChaosEvent(often=false){
+  state.chaosTick++;
+  const interval = often ? 2 : 3;
+  if (state.chaosTick % interval !== 0) return;
+  const ev = randomEvent();
+  showEffect(`Chaos: ${ev.name}`, ev.desc);
+  ev.apply();
+  drawFor(currentPlayer(), 1);
+}
+function randomEvent(){
+  const events = [
+    {name:'Block random cell', desc:'A random empty cell is blocked', apply:()=>blockRandomCells(1)},
+    {name:'Clear random mark', desc:'A random mark is cleared', apply:()=>clearRandomOpponentMarks(1)},
+    {name:'Reverse order', desc:'Turn order is reversed', apply:()=>reverseTurnOrder()},
+    {name:'+Timer', desc:'+2s to current timer (Blitz)', apply:()=>boostTimerFor(currentPlayer(),+2)},
+    {name:'-Timer', desc:'-2s to next timer (Blitz)', apply:()=>drainNextTimer(2)},
+    {name:'Add mine', desc:'A mine appears randomly', apply:()=>addRandomMine()},
+    {name:'Remove mine', desc:'A mine disappears', apply:()=>removeRandomMine()},
+    {name:'Reveal mine hint', desc:'A mine pulses somewhere…', apply:()=>pulseMineTease()},
+  ];
+  return events[Math.floor(Math.random()*events.length)];
+}
+
+// Card effects (helpers)
+function skipTarget(target, n){
+  state.skip = state.skip || {};
+  state.skip[target] = (state.skip[target] || 0) + n;
+}
+function reverseTurnOrder(){
+  const cp = currentPlayer();
+  state.order.reverse();
+  state.turnIndex = state.order.indexOf(cp);
+  updateStatus();
+}
+function blockChosenCell(ctx){ pickCells(1, (indices)=>{ indices.forEach(i=>blockIndex(i)); }); }
+function blockTwo(ctx){ pickCells(2, (idxs)=> idxs.forEach(i=>blockIndex(i)) ); }
+function blockChosenCells(ctx, n){ pickCells(n, (idxs)=> idxs.forEach(i=>blockIndex(i)) ); }
+function blockRandomCells(n){
+  const empties = emptyIndices();
+  for(let k=0;k<n && empties.length;k++){
+    const i = empties.splice(Math.floor(Math.random()*empties.length),1)[0];
+    blockIndex(i);
+  }
+}
+function blockIndex(i){
+  if (state.blocked.has(i)) return;
+  state.blocked.add(i);
+  const el = boardEl.children[2 + i];
+  el.setAttribute('disabled','true');
+  el.style.opacity = .45; el.style.filter = 'grayscale(0.3) brightness(0.8)';
+  el.title = 'Blocked';
+  el.animate([{transform:'scale(1)'},{transform:'scale(.95)'},{transform:'scale(1)'}], {duration:180, easing:'ease-out'});
+  if (state.moves + state.blocked.size === state.grid.length && !state.winner){
+    statusEl.textContent = 'Draw'; scores.D++; renderScores(); stopTurnTimer();
+  }
+}
+function clearChosenMark(ctx){ pickCells(1, (idxs)=> idxs.forEach(i=>clearMark(i)), true); }
+function clearChosenMarks(ctx, n){ pickCells(n, (idxs)=> idxs.forEach(i=>clearMark(i)), true); }
+function clearMark(i){
+  if (!state.grid[i]) return;
+  if (state.shields && state.shields.has(i)) return;
+  state.grid[i] = null;
+  const el = boardEl.children[2 + i];
+  el.innerHTML=''; el.classList.remove('played','win');
+  el.animate([{filter:'brightness(1)'},{filter:'brightness(.7)'},{filter:'brightness(1)'}], {duration:200, easing:'ease-out'});
+}
+function undoLastMove(){
+  for(let i=state.grid.length-1; i>=0; i--){
+    if (boardEl.children[2 + i].classList.contains('played')){
+      clearMark(i); break;
+    }
+  }
+}
+function removeRandomMine(){
+  const arr = Array.from(state.mines);
+  if (!arr.length) return;
+  const i = arr[Math.floor(Math.random()*arr.length)];
+  state.mines.delete(i);
+}
+function addRandomMine(){
+  const empties = emptyIndices();
+  if (!empties.length) return;
+  const i = empties[Math.floor(Math.random()*empties.length)];
+  state.mines.add(i);
+}
+function swapMineToEmpty(){
+  const mines = Array.from(state.mines);
+  const empties = emptyIndices();
+  if (!mines.length || !empties.length) return;
+  const m = mines[Math.floor(Math.random()*mines.length)];
+  const dest = empties[Math.floor(Math.random()*empties.length)];
+  state.mines.delete(m);
+  state.mines.add(dest);
+  pulseCell(dest, 'var(--danger)');
+}
+function swapTwoMines(){
+  swapMineToEmpty(); swapMineToEmpty();
+}
+function clonePlay(free=false){
+  state.extraTurns = (state.extraTurns||0) + (free?2:1);
+}
+function teleportMark(ctx, two=false){
+  pickCells(two?2:1, (idxs)=>{
+    idxs.forEach(i=>{
+      if (!state.grid[i]) return;
+      const p = state.grid[i];
+      const empties = emptyIndices();
+      if (!empties.length) return;
+      const dest = empties[Math.floor(Math.random()*empties.length)];
+      state.grid[i]=null;
+      const srcEl = boardEl.children[2 + i];
+      srcEl.innerHTML=''; srcEl.classList.remove('played');
+      state.grid[dest]=p;
+      const dstEl = boardEl.children[2 + dest];
+      placeGlyph(dstEl, p);
+      pulseCell(dest, 'var(--accent)');
+    });
+  }, true);
+}
+function shieldMark(ctx, two=false){
+  state.shields = state.shields || new Set();
+  pickCells(two?2:1, (idxs)=> idxs.forEach(i=> state.shields.add(i)), true);
+}
+function shieldMultiple(n){
+  pickCells(n, (idxs)=> idxs.forEach(i=> state.shields.add(i)), true);
+}
+function extraTurn(times=1){ state.extraTurns = (state.extraTurns||0) + times; }
+function bridgeMarks(ctx, loose=false){ /* visual only */ }
+function clearRandomOpponentMarks(n){
+  const opponents = state.order.filter(p=>p!==currentPlayer());
+  const marks = [];
+  for(let i=0;i<state.grid.length;i++){
+    if (state.grid[i] && opponents.includes(state.grid[i])) marks.push(i);
+  }
+  shuffle(marks);
+  for(let k=0;k<n && marks.length;k++){ clearMark(marks.pop()); }
+}
+function peekMine(ctx){
+  pickCells(1, (idxs)=>{
+    idxs.forEach(i=>{
+      const mine = state.mines.has(i);
+      const el = boardEl.children[2 + i];
+      el.style.outline = mine ? '2px solid var(--danger)' : '2px solid var(--win)';
+      setTimeout(()=> el.style.outline='', 1200);
+    });
+  });
+}
+function peekMultiple(ctx, n){ pickCells(n, (idxs)=> idxs.forEach(i=>peekMine({target:null, i})) ); }
+function fogChosenCell(ctx){ /* superseded by global fog cards */ }
+function applyFog(owner, rounds){
+  fogOwner = owner; fogRoundsLeft = rounds;
+  fogMask.classList.add('active');
+  showEffect('Fog', `Only ${owner} sees clearly for ${rounds} rounds`);
+}
+function unfogBoard(force=false){
+  fogRoundsLeft = 0; fogOwner = null;
+  fogMask.classList.remove('active');
+  if (force) showEffect('Fog cleared', 'Visibility restored');
+}
+function revealMines(owner, rounds){
+  revealedMinesOwner = owner;
+  revealedMinesRounds = rounds;
+  pulseAllMines();
+}
+function moveMineTo(ctx){ swapMineToEmpty(); }
+function playOnBlocked(ctx){ state.playBlockedOnce = true; }
+function m87Reset(){
+  showEffect('M87 — Black Hole', 'The board collapses. Round restarts.');
+  initGame(true);
+}
+function absorbCards(){
+  for(const p of state.order){ state.hands.set(p, []); }
+  updateCardsTray();
+}
+function novaGlow(){
+  boardEl.classList.add('win');
+  setTimeout(()=>boardEl.classList.remove('win'), 1200);
+}
+function randomPower(){
+  const powers = [m87Reset, novaGlow, ()=>blockRandomCells(4), ()=>clearRandomOpponentMarks(3), ()=>extraTurn(2), ()=>expandBoard()];
+  powers[Math.floor(Math.random()*powers.length)]();
+}
+function boostTimerFor(player, delta){
+  if (config.mode!=='blitz') return;
+  const t = Math.max(1, (perPlayerTimer.get(player) ?? baseTimer) + delta);
+  perPlayerTimer.set(player, t);
+  if (currentPlayer()===player) startTurnTimer(t);
+}
+function drainNextTimer(delta){
+  if (config.mode!=='blitz') return;
+  // Applied on next turn start via carryover (we store negative delta on next)
+  const next = nextActive(currentPlayer());
+  const t = Math.max(1, (perPlayerTimer.get(next) ?? baseTimer) - delta);
+  perPlayerTimer.set(next, t);
+}
+function resetTimers(){
+  if (config.mode!=='blitz') return;
+  for(const p of state.order){ perPlayerTimer.set(p, baseTimer); }
+  startTurnTimer(perPlayerTimer.get(currentPlayer()));
+}
+function ceilYourTimer(){
+  if (config.mode!=='blitz') return;
+  const p = currentPlayer();
+  const t = Math.ceil(perPlayerTimer.get(p) ?? baseTimer);
+  perPlayerTimer.set(p, t);
+  startTurnTimer(t);
+}
+function floorNextTimer(){
+  if (config.mode!=='blitz') return;
+  const next = nextActive(currentPlayer());
+  const t = Math.max(1, Math.floor(perPlayerTimer.get(next) ?? baseTimer));
+  perPlayerTimer.set(next, t);
+}
+function pulseMineTease(){
+  if (!state.mines.size) return;
+  const i = Array.from(state.mines)[Math.floor(Math.random()*state.mines.size)];
+  pulseCell(i, 'var(--danger)');
+}
+function pulseAllMines(){
+  Array.from(state.mines).forEach(i=>pulseCell(i, 'var(--danger)'));
+}
+function purgeArea(size){
+  // pick center cell then clear within size x size
+  pickCells(1, (idxs)=>{
+    const center = idxs[0];
+    const s = state.size;
+    const cr = Math.floor(center/s), cc=center%s;
+    const half = Math.floor(size/2);
+    for(let r=cr-half;r<=cr+half;r++){
+      for(let c=cc-half;c<=cc+half;c++){
+        if (r<0||c<0||r>=s||c>=s) continue;
+        const i=r*s+c; clearMark(i);
+      }
+    }
+  });
+}
+function coverZone(size, rounds){
+  pickCells(1, (idxs)=>{
+    const center = idxs[0];
+    const s = state.size;
+    const cr = Math.floor(center/s), cc=center%s;
+    const half = Math.floor(size/2);
+    for(let r=cr-half;r<=cr+half;r++){
+      for(let c=cc-half;c<=cc+half;c++){
+        if (r<0||c<0||r>=s||c>=s) continue;
+        const i=r*s+c; blockIndex(i);
+      }
+    }
+    // auto-unblock after rounds
+    setTimeout(()=>unblockAll(), rounds*900);
+  });
+}
+function coverLine(rounds){
+  // choose any cell, then freeze its row (demo)
+  pickCells(1, (idxs)=>{
+    const i = idxs[0], s=state.size, r=Math.floor(i/s);
+    for(let c=0;c<s;c++){ blockIndex(r*s+c); }
+    setTimeout(()=>unblockAll(), rounds*900);
+  });
+}
+function unblockAll(){
+  const newSet = new Set();
+  state.blocked = newSet;
+  Array.from(boardEl.children).slice(2).forEach(el=>{
+    el.removeAttribute('disabled');
+    el.style.opacity = '';
+    el.style.filter = '';
+    el.title = '';
+  });
+}
+function expandBoard(layers=1){
+  // Increase board size by layers, always adds a new border ring
+  const targetSize = state.size + layers;
+  // Preserve marks roughly centered
+  const oldGrid = state.grid.slice();
+  const oldSize = state.size;
+  state.size = targetSize;
+  state.grid = Array(targetSize*targetSize).fill(null);
+  // map old into center of new
+  const startOffset = Math.floor((targetSize-oldSize)/2);
+  for(let r=0;r<oldSize;r++){
+    for(let c=0;c<oldSize;c++){
+      const oldIdx=r*oldSize+c;
+      const newIdx=(r+startOffset)*targetSize+(c+startOffset);
+      state.grid[newIdx]=oldGrid[oldIdx];
+    }
+  }
+  // Re-render board
+  boardEl.innerHTML = '<div class="ribbon" aria-hidden="true"></div><div class="fogMask" id="fogMask"></div>';
+  boardEl.style.gridTemplateColumns = `repeat(${targetSize}, min(16vw, ${Math.max(84, Math.floor(540/targetSize))}px))`;
+  boardEl.style.gridTemplateRows = `repeat(${targetSize}, min(16vw, ${Math.max(84, Math.floor(540/targetSize))}px))`;
+  for(let i=0;i<state.grid.length;i++){
+    const cell=document.createElement('button');
+    cell.className='cell';
+    cell.dataset.idx=i;
+    cell.addEventListener('click', onCellClick);
+    if (state.grid[i]){
+      placeGlyph(cell, state.grid[i]);
+    }
+    boardEl.appendChild(cell);
+  }
+  // Mines positions expand randomly to keep count
+  while(state.mines.size<mineCount()){
     const i = randomInt(0, state.grid.length-1);
     state.mines.add(i);
   }
-  function clonePlay(free=false){
-    // Allow a second move; if free, anywhere; else adjacent to first
-    state.extraTurns = (state.extraTurns||0) + (free?2:1);
+  showEffect('Expand', `Board size is now ${state.size}x${state.size}`);
+}
+function spawnPiece(type, rounds){
+  // place a piece marker on chosen cell; effect applies on advanceTurn tick
+  pickCells(1, (idxs)=>{
+    const i = idxs[0];
+    state.pieces.push({type, idx:i, rounds});
+    const el = boardEl.children[2 + i];
+    const badge = document.createElement('div');
+    badge.className='piece';
+    badge.textContent = type;
+    el.appendChild(badge);
+  }, false);
+}
+function chessRain(){
+  const count = randomInt(2,4);
+  const types = ['Knight','Bishop','Rook','Checker'];
+  for(let k=0;k<count;k++){
+    spawnPiece(types[Math.floor(Math.random()*types.length)], randomInt(1,4));
   }
-  function teleportMark(ctx, two=false){
-    pickCells(two?2:1, (idxs)=>{
-      idxs.forEach(i=>{
-        if (!state.grid[i]) return;
-        const p = state.grid[i];
-        // choose empty destination
-        const empties = emptyIndices();
-        if (!empties.length) return;
-        const dest = empties[Math.floor(Math.random()*empties.length)];
-        state.grid[i]=null;
-        const srcEl = boardEl.children[1 + i];
-        srcEl.innerHTML=''; srcEl.classList.remove('played');
-        state.grid[dest]=p;
-        const dstEl = boardEl.children[1 + dest];
-        placeGlyph(dstEl, p);
-      });
-    }, true);
+}
+function mafiaMini(){
+  // Random "vote": clear a random non-current player's mark
+  const opp = state.order.filter(p=>p!==currentPlayer());
+  const marks = [];
+  for(let i=0;i<state.grid.length;i++){
+    if (state.grid[i] && opp.includes(state.grid[i])) marks.push(i);
   }
-  function shieldMark(ctx, two=false){
-    state.shields = state.shields || new Set();
-    pickCells(two?2:1, (idxs)=> idxs.forEach(i=> state.shields.add(i)), true);
+  if (!marks.length) return;
+  clearMark(marks[Math.floor(Math.random()*marks.length)]);
+}
+function unoReverse(){
+  reverseTurnOrder();
+  const next = nextActive(currentPlayer());
+  drawFor(next,2);
+}
+
+function tickDurations(){
+  // Fog/mine reveal durations
+  if (fogRoundsLeft>0){
+    fogRoundsLeft--;
+    if (fogRoundsLeft<=0) unfogBoard();
   }
-  function extraTurn(times=1){ state.extraTurns = (state.extraTurns||0) + times; }
-  function bridgeMarks(ctx, loose=false){
-    // Visual effect only: showEffect already done; complex wildcard omitted in demo
+  if (revealedMinesRounds>0){
+    revealedMinesRounds--;
+    if (revealedMinesRounds<=0) { revealedMinesOwner=null; }
   }
-  function clearRandomOpponentMarks(n){
-    const opponents = state.order.filter(p=>p!==currentPlayer());
-    const marks = [];
-    for(let i=0;i<state.grid.length;i++){
-      if (state.grid[i] && opponents.includes(state.grid[i])) marks.push(i);
+
+  // Pieces act then decay
+  for (const piece of state.pieces){
+    actPiece(piece);
+    piece.rounds--;
+  }
+  state.pieces = state.pieces.filter(p=>p.rounds>0);
+  // Remove badges for expired pieces
+  Array.from(boardEl.children).slice(2).forEach(el=>{
+    const badge = el.querySelector('.piece');
+    if (badge){
+      const idx = Number(el.dataset.idx);
+      const alive = state.pieces.find(p=>p.idx===idx);
+      if (!alive) badge.remove();
     }
-    shuffle(marks);
-    for(let k=0;k<n && marks.length;k++){ clearMark(marks.pop()); }
-  }
-  function peekMine(ctx){
-    pickCells(1, (idxs)=>{
-      idxs.forEach(i=>{
-        const mine = state.mines.has(i);
-        const el = boardEl.children[1 + i];
-        el.style.outline = mine ? '2px solid var(--danger)' : '2px solid var(--win)';
-        setTimeout(()=> el.style.outline='', 1200);
-      });
-    });
-  }
-  function peekMultiple(ctx, n){ pickCells(n, (idxs)=> idxs.forEach(i=>peekMine({target:null, i})) ); }
-  function fogChosenCell(ctx){ pickCells(1, (idxs)=> idxs.forEach(i=> { const el = boardEl.children[1 + i]; el.style.filter='blur(2px) brightness(0.9)'; })); }
-  function unfogBoard(){ Array.from(boardEl.children).slice(1).forEach(el=> el.style.filter=''); }
-  function moveMineTo(ctx){
-    pickCells(1, (idxs)=> idxs.forEach(i=> { if (!state.grid[i]) { addRandomMine(); /* simple demo */ } }));
-  }
-  function playOnBlocked(ctx){
-    // Allow one move on any blocked cell for current player this turn
-    state.playBlockedOnce = true;
-  }
-  function m87Reset(){
-    showEffect('M87 — Black Hole', 'The board collapses. Round restarts.');
-    initGame(true);
-  }
-  function absorbCards(){
-    for(const p of state.order){ state.hands.set(p, []); }
-    updateCardsTray();
-  }
-  function novaGlow(){
-    boardEl.classList.add('win');
-    setTimeout(()=>boardEl.classList.remove('win'), 1200);
-  }
-  function randomPower(){
-    const powers = [m87Reset, novaGlow, ()=>blockRandomCells(4), ()=>clearRandomOpponentMarks(3), ()=>extraTurn(2)];
-    powers[Math.floor(Math.random()*powers.length)]();
-  }
-  function boostTimer(delta){
-    if (config.mode!=='blitz') return;
-    baseTimer = Math.max(5, baseTimer + delta);
-    startTurnTimer(baseTimer);
-  }
-  function drainNextTimer(delta){
-    if (config.mode!=='blitz') return;
-    // visual only; actual enforcement on next turn start
-  }
-  function resetTimers(){
-    if (config.mode!=='blitz') return;
-    baseTimer = 10;
-    startTurnTimer(baseTimer);
-  }
-
-  // Target/cell picker (simplified)
-  function pickCells(n, done, requireHasMark=false){
-    // naive inline picker: click the highlighted cells
-    let picked = [];
-    const cells = Array.from(boardEl.children).slice(1);
-    cells.forEach((el, idx)=>{
-      const hasMark = !!state.grid[idx];
-      const ok = requireHasMark ? hasMark : !requireHasMark;
-      if (!ok) return;
-      el.style.outline='2px solid var(--gold)';
-      const h = ()=>{
-        picked.push(idx);
-        el.style.outline='';
-        el.removeEventListener('click', h);
-        if (picked.length===n){
-          cells.forEach(c=> c.style.outline='');
-          done(picked);
-        }
-      };
-      el.addEventListener('click', h, {once:true});
-    });
-  }
-
-  // Utils
-  function emptyIndices(){ return state.grid.map((v,i)=> v||state.blocked.has(i)?null:i).filter(v=>v!=null); }
-  function randomInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min }
-  function sleep(ms){ return new Promise(res=>setTimeout(res, ms)) }
-
-  // Controls
-  resetBtn.addEventListener('click', async ()=>{
-    showLoader(true); await animateProgress(700); showLoader(false); initGame();
   });
-  backBtn.addEventListener('click', async ()=>{
-    showLoader(true); await animateProgress(600); showLoader(false);
-    window.location.href = 'index.html';
-  });
-  refreshBtn.addEventListener('click', async ()=>{
-    showLoader(true); await animateProgress(800); showLoader(false);
-  });
-  setupBtn.addEventListener('click', openSetup);
+}
+function actPiece(piece){
+  const s = state.size;
+  const origin = piece.idx;
+  const r=Math.floor(origin/s), c=origin%s;
+  const hit = (ri,ci)=>{
+    if (ri<0||ci<0||ri>=s||ci>=s) return;
+    const i=ri*s+ci; clearMark(i);
+  };
+  if (piece.type==='Knight'){
+    const deltas=[[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]];
+    deltas.forEach(([dr,dc])=>hit(r+dr,c+dc));
+  } else if (piece.type==='Bishop'){
+    for (let k=1;k<s;k++){ hit(r+k,c+k); hit(r-k,c-k); hit(r+k,c-k); hit(r-k,c+k); }
+  } else if (piece.type==='Rook'){
+    for (let k=1;k<s;k++){ hit(r+k,c); hit(r-k,c); hit(r,c+k); hit(r,c-k); }
+  } else if (piece.type==='Checker'){
+    [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([dr,dc])=>hit(r+dr,c+dc));
+  }
+}
 
-  // Boot
-  (async function boot(){
-    showLoader(true); await animateProgress(900); showLoader(false);
-    openSetup(); renderScores();
-  })();
+// Target/cell picker (simplified)
+function pickCells(n, done, requireHasMark=false){
+  let picked = [];
+  const cells = Array.from(boardEl.children).slice(2);
+  cells.forEach((el, idx)=>{
+    const hasMark = !!state.grid[idx];
+    const ok = requireHasMark ? hasMark : !requireHasMark || hasMark || true;
+    if (!ok) return;
+    el.style.outline='2px solid var(--gold)';
+    const h = ()=>{
+      picked.push(idx);
+      el.style.outline='';
+      el.removeEventListener('click', h);
+      if (picked.length===n){
+        cells.forEach(c=> c.style.outline='');
+        done(picked);
+      }
+    };
+    el.addEventListener('click', h, {once:true});
+  });
+}
+
+// Utils
+function emptyIndices(){ return state.grid.map((v,i)=> v||state.blocked.has(i)?null:i).filter(v=>v!=null); }
+function pulseCell(i, color){
+  const el = boardEl.children[2 + i];
+  el.style.outline=`2px solid ${color}`;
+  setTimeout(()=> el.style.outline='', 800);
+}
+function randomInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min }
+function sleep(ms){ return new Promise(res=>setTimeout(res, ms)) }
+
+// Controls
+resetBtn.addEventListener('click', async ()=>{
+  showLoader(true); await animateProgress(700); showLoader(false); initGame();
+});
+backBtn.addEventListener('click', async ()=>{
+  showLoader(true); await animateProgress(600); showLoader(false);
+  window.location.href = 'index.html';
+});
+refreshBtn.addEventListener('click', async ()=>{
+  showLoader(true); await animateProgress(800); showLoader(false);
+});
+setupBtn.addEventListener('click', openSetup);
+
+// Boot
+(async function boot(){
+  showLoader(true); await animateProgress(900); showLoader(false);
+  openSetup(); renderScores();
+})();
 </script>
 </body>
 </html>
