@@ -15,7 +15,7 @@ class TicTacToe:
             self.board[position] = self.current_player
             return True
         return False
-
+        
     def switch_player(self):
         self.current_player = "O" if self.current_player == "X" else "X"
 
