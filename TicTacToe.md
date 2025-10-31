@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>X and O — Chaos Deck Deluxe (Fixed)</title>
+<title>X and O — Chaos Deck Deluxe</title>
 <style>
   :root{
     --bg:#0b0e14; --text:#e6e6e6; --muted:#a7b0c0;
@@ -25,6 +25,8 @@
       radial-gradient(900px 420px at 12% 120%, #1a1f35 0%, transparent 65%) fixed;
     display:grid; grid-template-rows:auto 1fr auto;
   }
+
+  /* Topbar */
   .topbar{
     display:flex; align-items:center; gap:12px;
     padding:14px 18px; backdrop-filter: blur(10px);
@@ -45,8 +47,9 @@
     box-shadow: 0 6px 16px rgba(122,162,247,.12);
   }
   .btn:hover{ border-color: rgba(122,162,247,.38); background: linear-gradient(180deg, #14182a, #0f1325); box-shadow: 0 10px 24px rgba(122,162,247,.22); transform: translateY(-1px) }
-  .btn:disabled{ opacity:.45; cursor:not-allowed }
+  .btn:disabled{ opacity:.4; cursor:not-allowed }
 
+  /* Layout */
   .wrap{ display:grid; justify-items:center; align-content:start; gap:16px; padding: 24px 20px 28px; }
   .row{ display:flex; gap:12px; align-items:center; flex-wrap:wrap }
   .status{
@@ -69,6 +72,7 @@
   .dot.p3{ color:var(--p3); background: var(--p3) }
   .dot.p4{ color:var(--p4); background: var(--p4) }
 
+  /* Board */
   .board{
     position:relative; display:grid; gap:12px; padding:16px;
     border-radius: 18px; border: 1px solid var(--border);
@@ -80,7 +84,7 @@
     border: 1px solid rgba(122,162,247,.22); border-radius: 14px;
     background: linear-gradient(180deg, #14182a, #101423); color: var(--text);
     cursor: pointer; user-select:none;
-    transition: transform .12s ease, border-color .15s ease, box-shadow .18s ease, background .22s ease, color .2s ease, filter .2s ease, opacity .2s ease;
+    transition: transform .12s ease, border-color .15s ease, box-shadow .18s ease, background .22s ease, color .2s ease, filter .2s ease;
     overflow:hidden;
   }
   .cell:hover{ transform: translateY(-2px); border-color: rgba(122,162,247,.42); box-shadow: 0 12px 24px rgba(122,162,247,.12); background: linear-gradient(180deg, #16203a, #111423) }
@@ -114,7 +118,7 @@
   .score .p4{ color:var(--p4); font-weight:600 }
   .score .d{ color:#c7cbd6; font-weight:600 }
 
-  /* Cards tray (only visible in randomizer mode, and only current player's hand) */
+  /* Cards tray (private per current player) */
   .cardsTray{
     position:fixed; left:50%; transform:translateX(-50%);
     bottom:16px; display:flex; gap:10px; padding:10px 12px;
@@ -123,18 +127,12 @@
     min-height: 120px;
   }
   .cardItem{
-    width:88px; height:128px; border-radius:12px; border:1px solid rgba(255,255,255,.14);
-    background: linear-gradient(180deg, #1b2033, #121626); color:#fff; display:grid; grid-template-rows:auto 1fr auto; place-items:center;
-    cursor:pointer; transition: transform .18s ease, box-shadow .22s ease; position:relative; padding:8px;
+    width:78px; height:112px; border-radius:12px; border:1px solid rgba(255,255,255,.14);
+    background: linear-gradient(180deg, #1b2033, #121626); color:#fff; display:grid; place-items:center;
+    cursor:pointer; transition: transform .15s ease, box-shadow .2s ease; position:relative; padding:6px;
   }
-  .cardItem:hover{ transform:translateY(-6px) scale(1.03); box-shadow:0 14px 30px rgba(0,0,0,.48) }
-  .cardItem.playing{ animation: playCard 0.8s ease forwards }
-  @keyframes playCard{
-    0% { transform: scale(1) translateY(0); opacity:1 }
-    50% { transform: scale(1.15) translateY(-40px); opacity:1 }
-    100%{ transform: scale(0.9) translateY(0); opacity:0 }
-  }
-  .cardName{ font-size:12px; text-align:center; font-weight:700 }
+  .cardItem:hover{ transform:translateY(-6px); box-shadow:0 12px 28px rgba(0,0,0,.45) }
+  .cardName{ font-size:12px; text-align:center }
   .rarBar{ position:absolute; inset:auto 0 0 0; height:6px; border-radius:0 0 12px 12px }
   .rar-common{ background: linear-gradient(90deg, var(--rar-common), #8a8f99) }
   .rar-rare{ background: linear-gradient(90deg, var(--rar-rare), #87b0ff) }
@@ -142,14 +140,15 @@
   .rar-legend{ background: linear-gradient(90deg, var(--rar-legend), #ffe18e) }
   .rar-myth{ background: linear-gradient(90deg, var(--rar-myth), #ff9aa7) }
   .cardTip{
-    position:absolute; bottom:136%; left:50%; transform:translateX(-50%);
-    white-space:normal; width:240px; font-size:11px; color:var(--muted);
+    position:absolute; bottom:118%; left:50%; transform:translateX(-50%);
+    white-space:normal; width:220px; font-size:11px; color:var(--muted);
     border:1px solid rgba(255,255,255,.14); background: rgba(16,20,32,.95);
     padding:8px 10px; border-radius:8px; box-shadow: var(--shadow); opacity:0; pointer-events:none;
-    transition: opacity .18s ease;
+    transition: opacity .15s ease;
   }
   .cardItem:hover .cardTip{ opacity:1 }
 
+  /* Card effect overlay */
   .effectOverlay{
     position:fixed; inset:0; display:grid; place-items:center; z-index:1002;
     pointer-events:none;
@@ -163,9 +162,10 @@
     animation: effectPop .18s ease-out;
   }
   @keyframes effectPop{ 0%{ transform:scale(.92); opacity:.0 } 100%{ transform:scale(1); opacity:1 } }
-  .effectTitle{ font-weight:800; font-size:14px }
-  .effectDesc{ font-size:12px; color:var(--muted); text-align:center; max-width:360px }
+  .effectTitle{ font-weight:700 }
+  .effectDesc{ font-size:12px; color:var(--muted); text-align:center; max-width:320px }
 
+  /* Modals and loading reused */
   .loading{
     position:fixed; inset:0; display:grid; place-items:center;
     background: radial-gradient(800px 400px at 50% 30%, rgba(20,24,34,.88), rgba(10,12,18,.95));
@@ -212,9 +212,6 @@
     display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px;
     border:1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06); color:var(--muted); font-size:12px;
   }
-
-  .fogMask { position:absolute; inset:0; backdrop-filter: blur(10px) brightness(0.8); background: rgba(10,12,18,.65); border-radius:18px; opacity:0; pointer-events:none; transition:.25s ease; }
-  .fogMask.active { opacity:1 }
 </style>
 </head>
 <body>
@@ -237,7 +234,6 @@
 
     <div class="board" id="board" aria-label="Tic-tac-toe board">
       <div class="ribbon" aria-hidden="true"></div>
-      <div class="fogMask" id="fogMask"></div>
     </div>
 
     <div class="bar">
@@ -255,8 +251,10 @@
     </div>
   </section>
 
+  <!-- Private cards tray (only current player's cards are shown) -->
   <div class="cardsTray" id="cardsTray" style="display:none"></div>
 
+  <!-- Effect overlay -->
   <div class="effectOverlay" id="effectOverlay" style="display:none">
     <div class="effectBubble" id="effectBubble">
       <div class="effectTitle" id="effectTitle"></div>
@@ -264,6 +262,7 @@
     </div>
   </div>
 
+  <!-- Loading overlay -->
   <div id="loading" class="loading" aria-live="polite" aria-busy="true">
     <div class="loader">
       <div class="ring" aria-hidden="true"></div>
@@ -272,6 +271,7 @@
     </div>
   </div>
 
+  <!-- Setup modal -->
   <div id="modal" class="modal" aria-modal="true" role="dialog">
     <div class="sheet">
       <h3>Game setup</h3>
@@ -280,13 +280,13 @@
         <div class="pill">Opponent</div>
         <div class="row-flex">
           <select class="select" id="opponent">
-            <option value="player">Local player(s)</option>
-            <option value="bot">Bots</option>
+            <option value="player">Local player</option>
+            <option value="bot">Bot</option>
           </select>
           <div id="botRow" class="row-flex" style="display:none">
-            <div class="pill">Bot difficulty (1–5, decimals ok)</div>
-            <input class="range" id="difficulty" type="range" min="1" max="5" step="0.1" value="3.0" />
-            <div class="pill"><span id="difficultyLabel">3.0</span></div>
+            <div class="pill">Difficulty (1–5, decimals ok)</div>
+            <input class="range" id="difficulty" type="range" min="1" max="5" step="0.1" value="2.5" />
+            <div class="pill"><span id="difficultyLabel">2.5</span></div>
           </div>
         </div>
       </div>
@@ -294,11 +294,11 @@
       <div class="group">
         <div class="pill">Gamemode</div>
         <select class="select" id="mode">
-          <option value="casual">Casual (classic rules)</option>
+          <option value="casual">Casual (normal tic‑tac‑toe)</option>
           <option value="three">Triad Clash (three players)</option>
           <option value="four">Quad Arena (four players)</option>
           <option value="blitz">Blitz (turn timer)</option>
-          <option value="randomizer">Chaos Deck (cards & events)</option>
+          <option value="randomizer">Chaos Deck (cards & random events)</option>
           <option value="mine">Minefield (hidden mines + eliminations)</option>
         </select>
       </div>
@@ -314,7 +314,7 @@
             </select>
           </div>
           <div id="blitzRow" class="row-flex" style="display:none">
-            <div class="pill">Blitz base timer (5–20s)</div>
+            <div class="pill">Blitz timer (5–20s)</div>
             <input class="range" id="blitzSec" type="range" min="5" max="20" step="1" value="10" />
             <div class="pill"><span id="blitzLabel">10s</span></div>
           </div>
@@ -329,12 +329,14 @@
   </div>
 
 <script>
+  // Elements
   const boardEl = document.getElementById('board');
   const statusEl = document.getElementById('status');
   const resetBtn = document.getElementById('reset');
   const backBtn = document.getElementById('back');
   const refreshBtn = document.getElementById('refresh');
   const setupBtn = document.getElementById('setup');
+
   const loading = document.getElementById('loading');
   const bar = document.getElementById('bar');
   const label = document.getElementById('loaderLabel');
@@ -360,17 +362,25 @@
   const timeLeftEl = document.getElementById('timeLeft');
 
   const cardsTray = document.getElementById('cardsTray');
+
   const effectOverlay = document.getElementById('effectOverlay');
   const effectTitle = document.getElementById('effectTitle');
   const effectDesc = document.getElementById('effectDesc');
-  const fogMask = document.getElementById('fogMask');
 
-  let config = { opponent:'player', difficulty:3.0, mode:'casual', players:2, blitzSec:10 };
+  // State
+  let config = {
+    opponent: 'player',
+    difficulty: 2.5,
+    mode: 'casual',
+    players: 2,
+    blitzSec: 10
+  };
   let state, scores = { X:0, O:0, P3:0, P4:0, D:0 };
-  let timer=null, baseTimer=10;
-  let eliminated = new Set();
-  let visibility = { fogOwner:null, fogRoundsLeft:0, revealMinesRoundsLeft:0 };
+  let timer = null;
+  let baseTimer = 10;
+  let eliminated = new Set(); // players removed (minefield)
 
+  // Loader
   function showLoader(flag){ loading.classList.toggle('active', !!flag) }
   function animateProgress(ms=900){
     bar.style.width='0%'; label.textContent='Spinning up board…';
@@ -388,6 +398,7 @@
     return new Promise(res=>setTimeout(res, ms));
   }
 
+  // Modal behavior (conditional fields)
   function openSetup(){ modal.classList.add('active'); updateSetupLabels(); applyFieldVisibility(); }
   function closeSetup(){ modal.classList.remove('active'); }
   function updateSetupLabels(){
@@ -417,21 +428,25 @@
     initGame(true);
   });
 
-  function baseBoardSizeByMode(){
-    if (config.mode==='randomizer') return 5;
-    if (config.mode==='three' || config.players===3) return 4;
-    if (config.mode==='four' || config.players===4) return 5;
+  function getBoardSize(){
+    // Randomizer uses larger grid; 3p -> 4x4, 4p -> 5x5
+    if (config.mode === 'randomizer') return 5;
+    if (config.mode === 'three' || config.players === 3) return 4;
+    if (config.mode === 'four' || config.players === 4) return 5;
     return 3;
   }
-  function getBoardSize(){ return state?.size ?? baseBoardSizeByMode(); }
-  function setBoardSize(n){ state.size = Math.max(3, n); }
-  function getWinLength(){ return getBoardSize()>=4 ? 4 : 3; }
-  function mineCount(){ return config.mode==='mine' ? config.players : 0; }
+  function getWinLength(){
+    const size = getBoardSize();
+    return size >= 4 ? 4 : 3;
+  }
+  function mineCount(){
+    if (config.mode!=='mine') return 0;
+    return config.players === 4 ? 4 : config.players === 3 ? 3 : 2;
+  }
 
   function initGame(fromSetup=false){
-    const size = baseBoardSizeByMode(); // start at base for mode (no oversized casual)
+    const size = getBoardSize();
     eliminated.clear();
-    visibility = { fogOwner:null, fogRoundsLeft:0, revealMinesRoundsLeft:0 };
     state = {
       size,
       grid: Array(size*size).fill(null),
@@ -444,34 +459,25 @@
       mines: new Set(),
       chaosTick: 0,
       deck: [],
-      hands: new Map(),
-      shields: new Set(),
-      extraTurns: 0,
-      skip: {},
-      pendingDrain: 0,
-      playBlockedOnce: false,
-      mafiaRounds: 0,
-      jamRounds: 0,
+      hands: new Map(), // player -> array of cards
     };
 
-    // Mines (present in minefield mode)
+    // Mines
     for(let m=0;m<mineCount();m++){
       let idx;
       do{ idx = randomInt(0, size*size-1) } while(state.mines.has(idx));
       state.mines.add(idx);
     }
 
-    // Deck & hands only in randomizer mode
-    if (config.mode==='randomizer'){
-      buildDeck();
-      dealStartingHands();
-    }
+    // Deck and starting hands
+    buildDeck();
+    dealStartingHands();
 
+    // Grid
     boardEl.classList.remove('win');
-    boardEl.innerHTML = '<div class="ribbon" aria-hidden="true"></div><div class="fogMask" id="fogMask"></div>';
-    const cellSize = Math.max(84, Math.floor(520/state.size));
-    boardEl.style.gridTemplateColumns = `repeat(${state.size}, min(16vw, ${cellSize}px))`;
-    boardEl.style.gridTemplateRows = `repeat(${state.size}, min(16vw, ${cellSize}px))`;
+    boardEl.innerHTML = '<div class="ribbon" aria-hidden="true"></div>';
+    boardEl.style.gridTemplateColumns = `repeat(${size}, min(16vw, ${Math.max(84, Math.floor(480/size))}px))`;
+    boardEl.style.gridTemplateRows = `repeat(${size}, min(16vw, ${Math.max(84, Math.floor(480/size))}px))`;
 
     for(let i=0;i<size*size;i++){
       const cell=document.createElement('button');
@@ -483,15 +489,16 @@
     }
 
     updateStatus();
-    updateFogMask();
-    updateCardsTray();
-    if (config.mode==='blitz'){ baseTimer = config.blitzSec; startTurnTimer(baseTimer,true); } else { stopTurnTimer(); timerBox.style.display='none'; }
+    updateCardsTray(); // show only current player's cards
+    if (config.mode==='blitz'){ baseTimer = config.blitzSec; startTurnTimer(baseTimer); } else { stopTurnTimer(); timerBox.style.display='none'; }
 
     if (!fromSetup) renderScores();
     maybeBotFirstMove();
   }
 
   function getTurnOrder(players){
+    // 3‑player order: O → X → ■
+    // 4‑player order: O → X → ■ → ▲
     if (players===4) return ['O','X','■','▲'];
     if (players===3) return ['O','X','■'];
     return ['X','O'];
@@ -503,83 +510,75 @@
     if (sym==='▲') return 'p4';
     return 'x';
   }
-  function currentPlayer(){ return state.order[state.turnIndex]; }
 
-  // Cards
+  // Cards system
   const Rarity = { COMMON:'common', RARE:'rare', EPIC:'epic', LEGEND:'legend', MYTH:'myth' };
-  function card(name, rarity, desc, apply){ return { name, rarity, desc, apply }; }
-
   function buildDeck(){
-    const deck = [
-      // COMMON (12)
-      card('+1 Skip', Rarity.COMMON, 'Target skips next turn', ctx=>skipTarget(ctx.target,1)),
-      card('Block', Rarity.COMMON, 'Block a chosen empty cell', ctx=>blockChosenCells(ctx,1)),
-      card('Clear', Rarity.COMMON, 'Clear a chosen mark', ctx=>clearChosenMarks(ctx,1)),
-      card('Reverse', Rarity.COMMON, 'Reverse turn order', ()=>reverseTurnOrder()),
-      card('Peek Mine', Rarity.COMMON, 'Reveal if a chosen cell is a mine', ctx=>peekMineOnce(ctx)),
-      card('Fog Cell', Rarity.COMMON, 'Blur one chosen cell', ctx=>fogChosenCell(ctx)),
+    const cards = [
+      // COMMON
+      card('+1 Skip', Rarity.COMMON, 'Target skips next turn', (ctx)=>skipTarget(ctx.target,1)),
+      card('Block', Rarity.COMMON, 'Block a chosen empty cell', (ctx)=>blockChosenCell(ctx)),
+      card('Clear', Rarity.COMMON, 'Clear a chosen mark', (ctx)=>clearChosenMark(ctx)),
+      card('Swap Order', Rarity.COMMON, 'Reverse turn order', ()=>reverseTurnOrder()),
+      card('Peek Mine', Rarity.COMMON, 'Reveal if a chosen cell is a mine', (ctx)=>peekMine(ctx)),
+      card('Fog', Rarity.COMMON, 'Fog a chosen cell', (ctx)=>fogChosenCell(ctx)),
       card('Unfog', Rarity.COMMON, 'Remove fog from all cells', ()=>unfogBoard()),
       card('+Timer', Rarity.COMMON, '+2s to your timer (Blitz)', ()=>boostTimer(+2)),
       card('-Timer', Rarity.COMMON, '-2s to next player timer (Blitz)', ()=>drainNextTimer(2)),
-      card('Draw', Rarity.COMMON, 'Draw 1 card', ()=>drawFor(currentPlayer(),1)),
-      card('Swap Order', Rarity.COMMON, 'Mirror turn order', ()=>reverseTurnOrder()),
-      card('Nudge', Rarity.COMMON, 'Slight glow pulse', ()=>novaGlow()),
 
-      // RARE (12)
-      card('+2 Skip', Rarity.RARE, 'Target skips next 2 turns', ctx=>skipTarget(ctx.target,2)),
-      card('Double Block', Rarity.RARE, 'Block two empty cells', ctx=>blockChosenCells(ctx,2)),
-      card('Clear Duo', Rarity.RARE, 'Clear two marks', ctx=>clearChosenMarks(ctx,2)),
+      // RARE
+      card('+2 Skip', Rarity.RARE, 'Target skips next 2 turns', (ctx)=>skipTarget(ctx.target,2)),
+      card('Double Block', Rarity.RARE, 'Block two chosen empty cells', (ctx)=>blockTwo(ctx)),
       card('Undo', Rarity.RARE, 'Undo last move', ()=>undoLastMove()),
       card('Disarm', Rarity.RARE, 'Remove one random mine', ()=>removeRandomMine()),
       card('Plant', Rarity.RARE, 'Add one random mine', ()=>addRandomMine()),
-      card('Clone', Rarity.RARE, 'Gain one extra move', ()=>extraTurn(1)),
-      card('Bridge', Rarity.RARE, 'Visual bridge effect', ()=>bridgeMarks()),
-      card('Fog of War', Rarity.RARE, 'Hide board for others 2 rounds', ()=>fogForOthers(currentPlayer(),2)),
-      card('Reveal Mines', Rarity.RARE, 'Show all mines for 2 rounds', ()=>revealMines(2)),
-      card('Overdraw', Rarity.RARE, 'Draw 2 cards', ()=>drawFor(currentPlayer(),2)),
-      card('Pulse Mines', Rarity.RARE, 'Mines pulse briefly', ()=>pulseMineTease()),
+      card('Clone', Rarity.RARE, 'Play two marks this turn (adjacent)', ()=>clonePlay()),
+      card('Boost Draw', Rarity.RARE, 'Draw 1 extra card now', ()=>drawFor(currentPlayer(),1)),
 
-      // EPIC (12)
-      card('Teleport', Rarity.EPIC, 'Teleport one of your marks', ()=>teleportMarks(1)),
-      card('Shield', Rarity.EPIC, 'Protect one mark', ()=>shieldMarks(1)),
-      card('Accelerate', Rarity.EPIC, 'Take 1 extra turn after this', ()=>extraTurn(1)),
-      card('Expand Board', Rarity.EPIC, 'Add +1 layer to board', ()=>expandBoard()),
-      card('Swap Mine', Rarity.EPIC, 'Swap a mine with an empty cell', ()=>swapMineAnywhere()),
-      card('Knight', Rarity.EPIC, 'Chess knight clears 2 opponent marks', ()=>spawnChessPiece('knight',3)),
-      card('Bishop', Rarity.EPIC, 'Chess bishop clears 2 opponent marks', ()=>spawnChessPiece('bishop',3)),
-      card('Rook', Rarity.EPIC, 'Chess rook clears 3 opponent marks', ()=>spawnChessPiece('rook',3)),
-      card('Beacon', Rarity.EPIC, 'Reveal mines to you 3 rounds', ()=>revealMinesFor(currentPlayer(),3)),
-      card('Gravity', Rarity.EPIC, 'Shift marks down where possible', ()=>gravityFall()),
-      card('Specter', Rarity.EPIC, 'Play once on blocked cell', ()=>playOnBlockedOnce()),
-      card('Cascade', Rarity.EPIC, 'Random event chain', ()=>randomPower()),
+      // EPIC
+      card('Teleport', Rarity.EPIC, 'Move one of your marks to another cell', (ctx)=>teleportMark(ctx)),
+      card('Shield', Rarity.EPIC, 'Protect one of your marks from clear/block', (ctx)=>shieldMark(ctx)),
+      card('Accelerate', Rarity.EPIC, 'You play again after this turn', ()=>extraTurn()),
+      card('Bridge', Rarity.EPIC, 'Connect two of your marks as a wildcard', (ctx)=>bridgeMarks(ctx)),
+      card('Expand', Rarity.EPIC, 'Increase board win length tendency', ()=>adjustWinLength(+1)),
 
-      // LEGEND (12)
+      // LEGEND
       card('Storm', Rarity.LEGEND, 'Clear 3 random opponent marks', ()=>clearRandomOpponentMarks(3)),
       card('Quake', Rarity.LEGEND, 'Block 4 random empty cells', ()=>blockRandomCells(4)),
-      card('Time Warp', Rarity.LEGEND, 'Reset Blitz base to 10s', ()=>resetTimers()),
-      card('Mafia', Rarity.LEGEND, 'Hidden roles 2 rounds (chaos boost)', ()=>mafiaMini(2)),
-      card('Uno +2', Rarity.LEGEND, 'Next player draws 2 cards', ()=>drawFor(nextActive(currentPlayer()),2)),
-      card('Checkers', Rarity.LEGEND, 'Jump removes marks (2 rounds)', ()=>spawnCheckersPiece(2)),
-      card('Jammer', Rarity.LEGEND, 'Opponents cannot use cards 1 round', ()=>jamOpponent(1)),
-      card('Tide', Rarity.LEGEND, 'Glow board; next win pulses stronger', ()=>novaGlow()),
-      card('Cleanse', Rarity.LEGEND, 'Remove all blocks', ()=>removeAllBlocks()),
-      card('Overclock', Rarity.LEGEND, '+4s to your timer', ()=>boostTimer(+4)),
-      card('Drain', Rarity.LEGEND, '-4s to next timer', ()=>drainNextTimer(4)),
-      card('Echo', Rarity.LEGEND, 'Play last card again (if any)', ()=>echoLastCard()),
+      card('Time Warp', Rarity.LEGEND, 'Reset timers to 10s (Blitz)', ()=>resetTimers()),
+      card('Swap Mine', Rarity.LEGEND, 'Move a mine to a chosen empty cell', (ctx)=>moveMineTo(ctx)),
+      card('Specter', Rarity.LEGEND, 'Play on a blocked cell (once)', (ctx)=>playOnBlocked(ctx)),
 
-      // MYTH (7)
-      card('M87', Rarity.MYTH, 'Black hole resets board & restarts round', ()=>m87Reset()),
-      card('Singularity', Rarity.MYTH, 'Absorb all cards; discard hands', ()=>absorbCards()),
+      // MYTH (includes M87)
+      card('M87', Rarity.MYTH, 'Black hole resets the board and restarts the round', ()=>m87Reset()),
+      card('Singularity', Rarity.MYTH, 'Absorb all cards; everyone discards hand', ()=>absorbCards()),
+      card('Nova', Rarity.MYTH, 'Add glow; next win highlights across board', ()=>novaGlow()),
       card('Anomaly', Rarity.MYTH, 'Random powerful effect', ()=>randomPower()),
-      card('Infinity Expand', Rarity.MYTH, 'Always add +1 layer', ()=>expandBoard()),
-      card('Oracle', Rarity.MYTH, 'Perfect mine map to you 3 rounds', ()=>revealMinesFor(currentPlayer(),3)),
-      card('Architect', Rarity.MYTH, 'Remove all mines & blocks', ()=>resetHazards()),
-      card('Stasis', Rarity.MYTH, 'Freeze board one round (no moves)', ()=>stasisOneRound()),
     ];
-    state.deck = shuffle(deck);
+
+    // Expand to 25+ by cloning variants with different intensities
+    state.deck = cards.concat([
+      card('Block Trio', Rarity.RARE, 'Block 3 chosen empty cells', (ctx)=>blockChosenCells(ctx,3)),
+      card('Clear Duo', Rarity.RARE, 'Clear 2 chosen marks', (ctx)=>clearChosenMarks(ctx,2)),
+      card('Peek Trio', Rarity.RARE, 'Reveal 3 selected cells for mines', (ctx)=>peekMultiple(ctx,3)),
+      card('Bridge+', Rarity.EPIC, 'Bridge three marks (looser)', (ctx)=>bridgeMarks(ctx,true)),
+      card('Accelerate+', Rarity.EPIC, 'Take 2 extra turns (limited)', ()=>extraTurn(2)),
+      card('Storm+', Rarity.LEGEND, 'Clear 5 random opponent marks', ()=>clearRandomOpponentMarks(5)),
+      card('Quake+', Rarity.LEGEND, 'Block 6 random empty cells', ()=>blockRandomCells(6)),
+      card('Teleport+', Rarity.EPIC, 'Teleport two marks', (ctx)=>teleportMark(ctx,true)),
+      card('Clone+', Rarity.RARE, 'Play two marks anywhere', ()=>clonePlay(true)),
+      card('Shield+', Rarity.EPIC, 'Protect two of your marks', (ctx)=>shieldMark(ctx,true)),
+    ]);
+    shuffle(state.deck);
+  }
+  function card(name, rarity, desc, apply){
+    return { name, rarity, desc, apply };
   }
   function dealStartingHands(){
-    for(const p of state.order){ state.hands.set(p, draw(randomInt(2,3))); }
+    for(const p of state.order){
+      const cnt = randomInt(2,3);
+      state.hands.set(p, draw(cnt));
+    }
   }
   function draw(n){
     const res = [];
@@ -595,15 +594,19 @@
     state.hands.set(p, hand);
     updateCardsTray();
   }
-  function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+  }
 
+  // Cards tray shows only current player's hand
   function updateCardsTray(){
-    const isChaos = config.mode==='randomizer';
     const p = currentPlayer();
     const hand = state.hands.get(p) || [];
-    cardsTray.style.display = isChaos && !eliminated.has(p) && hand.length ? 'flex' : 'none';
+    if (config.mode!=='randomizer' || eliminated.has(p)){ cardsTray.style.display='none'; return; }
+    cardsTray.style.display='flex';
     cardsTray.innerHTML='';
-    if (!isChaos) return; // No cards shown in non-randomizer
     hand.forEach((c, idx)=>{
       const el=document.createElement('div');
       el.className='cardItem';
@@ -611,7 +614,7 @@
       el.innerHTML = `
         <div class="cardName">${c.name}</div>
         <div class="cardTip">
-          <div style="font-weight:800; margin-bottom:6px">${c.name}</div>
+          <div style="font-weight:700; margin-bottom:6px">${c.name}</div>
           <div>Rarity: ${c.rarity.toUpperCase()}</div>
           <div style="margin-top:6px">${c.desc}</div>
         </div>
@@ -619,112 +622,55 @@
       `;
       el.addEventListener('click', async ()=>{
         if (state.winner) return;
-        if (eliminated.has(p)) return;
-        if (config.mode!=='randomizer') return;
-        if (state.jamRounds>0){ showEffect('Jammed', 'Cards disabled this round'); return; }
         const target = await chooseTargetIfNeeded(c.name);
-        playCardEffect(el, c, target);
+        playCardEffect(c, target);
+        // consume
+        hand.splice(idx,1);
+        state.hands.set(p, hand);
+        updateCardsTray();
+        // Some cards end turn, others grant extra turn; default: end turn
+        if (!state.extraTurns || state.extraTurns<=0) advanceTurn();
+        else state.extraTurns--;
       });
       cardsTray.appendChild(el);
     });
   }
 
   async function chooseTargetIfNeeded(cardName){
-    const targeting = ['+1 Skip','+2 Skip','Uno +2','Jammer'];
-    if (!targeting.includes(cardName)) return null;
+    // For cards that target a player; simple prompt UI
+    const targetingCards = ['+1 Skip','+2 Skip','Storm','Storm+','Specter'];
+    if (!targetingCards.includes(cardName)) return null;
     const others = state.order.filter(x=>x!==currentPlayer() && !eliminated.has(x));
-    return others[0] || null;
+    if (!others.length) return null;
+    // Basic picker: choose first available for now (can enhance with modal)
+    return others[0];
   }
 
-  function playCardEffect(el, card, target){
-    el.classList.add('playing');
+  function playCardEffect(card, target){
     showEffect(card.name, `Rarity: ${card.rarity.toUpperCase()} — ${card.desc}`);
-    setTimeout(()=>{ try{ card.apply({ target }); }catch(e){}; consumeCard(card); }, 300);
-    state.lastCardPlayed = card;
-  }
-  function consumeCard(card){
-    const p = currentPlayer();
-    const hand = state.hands.get(p) || [];
-    const i = hand.findIndex(h=>h===card);
-    if (i>=0){ hand.splice(i,1); state.hands.set(p,hand); }
-    updateCardsTray();
-    if (!state.extraTurns || state.extraTurns<=0) advanceTurn();
-    else { state.extraTurns--; updateStatus(); updateCardsTray(); }
+    try{
+      card.apply({ target });
+    }catch(e){}
   }
 
   function showEffect(title, desc){
     effectTitle.textContent = title;
     effectDesc.textContent = desc;
     effectOverlay.style.display='grid';
-    setTimeout(()=>effectOverlay.style.display='none', 1300);
+    setTimeout(()=>effectOverlay.style.display='none', 1200);
   }
 
-  function fogForOthers(owner, rounds){
-    visibility.fogOwner = owner;
-    visibility.fogRoundsLeft = Math.max(visibility.fogRoundsLeft, rounds);
-    updateFogMask();
-  }
-  function updateFogMask(){
-    const cp = currentPlayer();
-    if (config.mode!=='randomizer'){ fogMask.classList.remove('active'); return; }
-    if (visibility.fogRoundsLeft>0 && cp !== visibility.fogOwner){
-      fogMask.classList.add('active');
-      Array.from(boardEl.children).slice(2).forEach(el=>{
-        el.style.opacity = 0.1;
-        el.style.filter = 'blur(3px) brightness(0.6)';
-      });
-    } else {
-      fogMask.classList.remove('active');
-      Array.from(boardEl.children).slice(2).forEach(el=>{
-        el.style.opacity = '';
-        el.style.filter = '';
-      });
-    }
-  }
-  function tickFog(){
-    if (visibility.fogRoundsLeft>0){
-      visibility.fogRoundsLeft--;
-      if (visibility.fogRoundsLeft<=0){ visibility.fogOwner=null; }
-    }
-    updateFogMask();
-  }
-
-  function revealMines(rounds){ visibility.revealMinesRoundsLeft = Math.max(visibility.revealMinesRoundsLeft, rounds); revealMineVisual(true); }
-  function revealMinesFor(player, rounds){ revealMines(rounds); }
-  function revealMineVisual(on){
-    Array.from(boardEl.children).slice(2).forEach((el, idx)=>{
-      const isMine = state.mines.has(idx);
-      if (on && isMine){
-        el.style.outline = '2px solid var(--danger)';
-        el.style.boxShadow = '0 0 12px rgba(247,118,142,.35)';
-      } else {
-        el.style.outline = '';
-        el.style.boxShadow = '';
-      }
-    });
-  }
-  function tickRevealMines(){
-    if (visibility.revealMinesRoundsLeft>0){
-      visibility.revealMinesRoundsLeft--;
-      if (visibility.revealMinesRoundsLeft<=0) revealMineVisual(false);
-    }
-  }
-
+  // Cell interactions
   async function onCellClick(e){
     if (state.winner) return;
-    if (state.stasis){ showEffect('Stasis', 'Board frozen this round'); return; }
     const i = Number(e.currentTarget.dataset.idx);
     const player = currentPlayer();
 
-    if (eliminated.has(player)) return;
+    if (eliminated.has(player)) return; // eliminated cannot play
     if (isBotTurn()) return;
+    if (state.grid[i] || state.blocked.has(i)) return;
 
-    const blockedCell = state.blocked.has(i);
-    if (state.grid[i] || blockedCell){
-      if (!(state.playBlockedOnce && blockedCell)) return;
-      state.playBlockedOnce = false;
-    }
-
+    // Minefield elimination
     if (state.mines.has(i) && config.mode==='mine'){
       placeGlyph(e.currentTarget, player);
       eliminatePlayer(player, `Mine triggered by ${player}`);
@@ -733,24 +679,34 @@
 
     applyMove(i, player, e.currentTarget);
 
+    // Randomizer frequent events
     if (config.mode==='randomizer') processChaosEvent(true);
-    if (config.mode==='randomizer') drawFor(player, 1);
+
+    // Card draw every round end
+    drawFor(player, 1);
 
     await maybeBotReply();
   }
 
   function eliminatePlayer(player, reason){
     eliminated.add(player);
+    // Remove all their marks from board
     for(let idx=0; idx<state.grid.length; idx++){
       if (state.grid[idx]===player){
         state.grid[idx]=null;
-        const el = boardEl.children[2 + idx];
-        el.innerHTML=''; el.classList.remove('played','win');
+        const el = boardEl.children[1 + idx];
+        el.innerHTML='';
+        el.classList.remove('played','win');
       }
     }
     showEffect('Eliminated', `${player} removed: ${reason}`);
+    // If only one player left, that player wins immediately
     const activeLeft = state.order.filter(p=>!eliminated.has(p));
-    if (activeLeft.length===1){ endGame(activeLeft[0], [], false); return; }
+    if (activeLeft.length===1){
+      endGame(activeLeft[0], [], false);
+      return;
+    }
+    // If current eliminated, advance turn
     advanceTurn();
   }
 
@@ -760,10 +716,15 @@
     placeGlyph(cellEl, player);
 
     const win = checkWin(state.grid, state.size, getWinLength());
-    if (win){ endGame(player, win.line, false); return; }
+    if (win){
+      endGame(player, win.line, false);
+      return;
+    }
 
+    // Draw if all filled or blocked (and no winner)
     if (state.moves + state.blocked.size === state.grid.length){
-      statusEl.textContent = 'Draw'; scores.D++; renderScores(); stopTurnTimer(); return;
+      statusEl.textContent = 'Draw';
+      scores.D++; renderScores(); stopTurnTimer(); return;
     }
 
     advanceTurn();
@@ -775,26 +736,13 @@
   }
 
   function advanceTurn(){
+    // Skip eliminated players
     do {
       state.turnIndex = (state.turnIndex + 1) % state.order.length;
-      const p = currentPlayer();
-      if (state.skip[p]>0){ state.skip[p]--; }
-      else break;
-    } while (true);
-
-    tickFog();
-    tickRevealMines();
-    if (state.mafiaRounds>0) state.mafiaRounds--;
-    if (state.jamRounds>0) state.jamRounds--;
-
+    } while (eliminated.has(currentPlayer()));
     updateStatus();
     updateCardsTray();
-
-    if (config.mode==='blitz'){
-      baseTimer = Math.max(5, Math.round(baseTimer) + 1);
-      if (state.pendingDrain>0){ baseTimer = Math.max(5, baseTimer - state.pendingDrain); state.pendingDrain=0; }
-      startTurnTimer(baseTimer,false);
-    }
+    if (config.mode==='blitz'){ baseTimer += 0.5; startTurnTimer(baseTimer); }
   }
 
   function updateStatus(){
@@ -806,36 +754,38 @@
                 : 'rgba(106,227,189,.25)';
     statusEl.style.borderColor = color;
     statusEl.style.boxShadow = `0 0 12px ${color} inset`;
-    updateFogMask();
   }
 
   function endGame(winner, line, byMine=false){
     state.winner = winner;
     state.line = line || [];
     for(const idx of state.line){
-      const cell = boardEl.children[2 + idx];
+      const cell = boardEl.children[1 + idx];
       cell && cell.classList.add('win');
     }
     statusEl.textContent = byMine ? `Mine! ${winner} wins` : `${winner} wins`;
     boardEl.classList.add('win');
     stopTurnTimer();
-    if (winner==='X') scores.X++; else if (winner==='O') scores.O++; else if (winner==='■') scores.P3++; else if (winner==='▲') scores.P4++;
+    if (winner==='X') scores.X++;
+    else if (winner==='O') scores.O++;
+    else if (winner==='■') scores.P3++;
+    else if (winner==='▲') scores.P4++;
     renderScores();
   }
 
   function renderScores(){
-    scoreX.textContent = String(scores.X);
-    scoreO.textContent = String(scores.O);
-    scoreP3.textContent = String(scores.P3);
-    scoreP4.textContent = String(scores.P4);
-    scoreD.textContent = String(scores.D);
+    document.getElementById('scoreX').textContent = String(scores.X);
+    document.getElementById('scoreO').textContent = String(scores.O);
+    document.getElementById('scoreP3').textContent = String(scores.P3);
+    document.getElementById('scoreP4').textContent = String(scores.P4);
+    document.getElementById('scoreD').textContent = String(scores.D);
   }
-  const scoreX = document.getElementById('scoreX');
-  const scoreO = document.getElementById('scoreO');
-  const scoreP3 = document.getElementById('scoreP3');
-  const scoreP4 = document.getElementById('scoreP4');
-  const scoreD = document.getElementById('scoreD');
 
+  function currentPlayer(){
+    return state.order[state.turnIndex];
+  }
+
+  // NxN win detection
   function checkWin(g, size, winLen){
     for(let r=0;r<size;r++){
       for(let c=0;c<=size-winLen;c++){
@@ -872,83 +822,35 @@
     return null;
   }
 
-  // Bots: multi-bot in 3–4 player games; bots can use cards
-  function isBotTurn(){
-    if (config.opponent!=='bot') return false;
-    const p = currentPlayer();
-    // If bot mode: every seat is a bot (for multi-bot), except we can make X human optionally; to keep deterministic, all bots:
-    return true;
-  }
-  async function maybeBotFirstMove(){ if (isBotTurn()) await botAct(); }
-  async function maybeBotReply(){ if (isBotTurn()) await botAct(); }
-
-  async function botAct(){
-    const d = config.difficulty;
-    // expert bots think faster; beginners slower and random mistakes
-    const think = d>=4 ? 130 : d>=3 ? 220 : 320;
-    // Cards usage only in randomizer mode
-    if (config.mode==='randomizer' && state.jamRounds<=0){
-      const hand = state.hands.get(currentPlayer()) || [];
-      if (hand.length && Math.random() < d/5){
-        hand.sort((a,b)=>rarityRank(b.rarity)-rarityRank(a.rarity));
-        const c = hand[0];
-        playCardEffect(document.createElement('div'), c, pickBotTarget());
-        await sleep(120);
-        return;
-      }
-    }
-    await sleep(think + Math.random()*240);
-    if (state.stasis) return;
-
+  // Bot logic (2‑player only; O is bot)
+  function isBotTurn(){ return config.opponent==='bot' && config.players===2 && currentPlayer()==='O' }
+  async function maybeBotFirstMove(){ if (isBotTurn()) await botMove() }
+  async function maybeBotReply(){ if (isBotTurn()) await botMove() }
+  async function botMove(){
+    await sleep(220 + Math.random()*280);
     const i = chooseBotMove();
     if (i==null) return;
-    const cellEl = boardEl.children[2 + i];
-    applyMove(i, currentPlayer(), cellEl);
+    const cellEl = boardEl.children[1 + i];
+    applyMove(i, 'O', cellEl);
   }
-  function rarityRank(r){ return {common:1, rare:2, epic:3, legend:4, myth:5}[r]||1; }
-  function pickBotTarget(){
-    const others = state.order.filter(x=>x!==currentPlayer() && !eliminated.has(x));
-    return others[0] || null;
-  }
-
   function chooseBotMove(){
     const size = state.size, winLen = getWinLength();
     const grid = state.grid.slice();
     const d = config.difficulty;
-
-    const me = currentPlayer();
-    const winMove = findLineCompletion(grid, size, winLen, me);
-    if (winMove!=null && Math.random()<(0.9*d/5)) return winMove;
-
-    for (const opp of state.order){
-      if (opp===me) continue;
-      const blockMove = findLineCompletion(grid, size, winLen, opp);
-      if (blockMove!=null && Math.random()<(0.85*d/5)) return blockMove;
-    }
-
-    const centers = getCenterIndices(size);
-    const centerPick = centers.find(i=>!grid[i] && !state.blocked.has(i));
-    if (centerPick!=null && Math.random()<(0.7*d/5)) return centerPick;
-
-    const empties = grid.map((v,idx)=> v || state.blocked.has(idx) ? null : idx).filter(v=>v!=null);
+    const winMove = findLineCompletion(grid, size, winLen, 'O'); if (winMove!=null && Math.random()<(0.85*d/5)) return winMove;
+    const blockMove = findLineCompletion(grid, size, winLen, 'X'); if (blockMove!=null && Math.random()<(0.75*d/5)) return blockMove;
+    const centers = getCenterIndices(size); const centerPick = centers.find(i=>!grid[i]); if (centerPick!=null && Math.random()<(0.6*d/5)) return centerPick;
+    const empties = grid.map((v,idx)=>v?null:idx).filter(v=>v!=null);
     if (!empties.length) return null;
-    const mineSafe = empties.filter(i=>!state.mines.has(i));
-    const pool = mineSafe.length ? mineSafe : empties;
-    const myPositions = grid.map((v,i)=>v===me?i:null).filter(v=>v!=null);
-    const scored = pool.map(i=>({i,score: adjacencyScore(i,myPositions,size) + forkPotential(i, grid, size, winLen, me)})).sort((a,b)=>b.score-a.score);
-    const pick = scored[0]?.i ?? pool[0];
-    // beginners may make mistakes
-    if (config.difficulty<2 && Math.random()<0.25){ return pool[Math.floor(Math.random()*pool.length)] }
-    return pick;
-  }
-  function findLineCompletion(grid, size, winLen, player){
-    for(let i=0;i<grid.length;i++){
-      if(grid[i] || state.blocked.has(i)) continue;
-      grid[i]=player;
-      const w=checkWin(grid,size,winLen);
-      grid[i]=null;
-      if(w&&w.player===player) return i;
+    if (Math.random()<(0.4*d/5)){
+      const oPos = grid.map((v,i)=>v==='O'?i:null).filter(v=>v!=null);
+      const scored = empties.map(i=>({i,score: adjacencyScore(i, oPos, size)})).sort((a,b)=>b.score-a.score);
+      return scored[0].i;
     }
+    return empties[Math.floor(Math.random()*empties.length)];
+  }
+  function findLineCompletion(grid,size,winLen,player){
+    for(let i=0;i<grid.length;i++){ if(grid[i]) continue; grid[i]=player; const w=checkWin(grid,size,winLen); grid[i]=null; if(w&&w.player===player) return i; }
     return null;
   }
   function getCenterIndices(size){
@@ -961,16 +863,9 @@
     for(const p of positions){ const pr=Math.floor(p/size), pc=p%size; const d=Math.abs(pr-r)+Math.abs(pc-c); s+=Math.max(0,4-d) }
     return s;
   }
-  function forkPotential(i, grid, size, winLen, player){
-    if (grid[i]) return 0;
-    grid[i]=player;
-    let potentials=0;
-    if (findLineCompletion(grid,size,winLen,player)!=null) potentials+=1;
-    grid[i]=null;
-    return potentials;
-  }
 
-  function startTurnTimer(sec, first=false){
+  // Blitz timer
+  function startTurnTimer(sec){
     if (config.mode!=='blitz') return;
     stopTurnTimer();
     timerBox.style.display = 'inline-flex';
@@ -980,6 +875,7 @@
       t--; timeLeftEl.textContent = t;
       if (t<=0){
         const loser = currentPlayer();
+        // Next active player wins
         let winnerSym = nextActive(loser);
         endGame(winnerSym, [], false);
         stopTurnTimer();
@@ -995,11 +891,12 @@
     return state.order[idx];
   }
 
+  // Chaos Deck events (frequent)
   function processChaosEvent(often=false){
-    if (config.mode!=='randomizer') return;
     state.chaosTick++;
     const interval = often ? 2 : 3;
     if (state.chaosTick % interval !== 0) return;
+    // Frequent random event plus card draw
     const ev = randomEvent();
     showEffect(`Chaos: ${ev.name}`, ev.desc);
     ev.apply();
@@ -1014,17 +911,27 @@
       {name:'-Timer', desc:'-2s to next timer (Blitz)', apply:()=>drainNextTimer(2)},
       {name:'Add mine', desc:'A mine appears randomly', apply:()=>addRandomMine()},
       {name:'Remove mine', desc:'A mine disappears', apply:()=>removeRandomMine()},
-      {name:'Reveal mines pulse', desc:'Mines pulse briefly', apply:()=>pulseMineTease()},
-      {name:'Expand board', desc:'Board grows by 1 layer', apply:()=>expandBoard()},
+      {name:'Reveal mine hint', desc:'A mine pulses somewhere…', apply:()=>pulseMineTease()},
     ];
     return events[Math.floor(Math.random()*events.length)];
   }
 
-  // Helpers
-  function skipTarget(target, n){ if (!target) return; state.skip[target] = (state.skip[target]||0)+n; }
-  function reverseTurnOrder(){ state.order.reverse(); const cp = currentPlayer(); state.turnIndex = state.order.indexOf(cp); updateStatus(); }
-
-  function blockChosenCells(ctx, n){ pickCells(n, (idxs)=> idxs.forEach(i=>blockIndex(i)), false); }
+  // Card effects (helpers)
+  function skipTarget(target, n){
+    // Tag target with skip counter
+    state.skip = state.skip || {};
+    state.skip[target] = (state.skip[target] || 0) + n;
+  }
+  function reverseTurnOrder(){
+    state.order.reverse();
+    // Ensure current player index mapped correctly
+    const cp = currentPlayer();
+    state.turnIndex = state.order.indexOf(cp);
+    updateStatus();
+  }
+  function blockChosenCell(ctx){ pickCells(1, (indices)=>{ indices.forEach(i=>blockIndex(i)); }); }
+  function blockTwo(ctx){ pickCells(2, (idxs)=> idxs.forEach(i=>blockIndex(i)) ); }
+  function blockChosenCells(ctx, n){ pickCells(n, (idxs)=> idxs.forEach(i=>blockIndex(i)) ); }
   function blockRandomCells(n){
     const empties = emptyIndices();
     for(let k=0;k<n && empties.length;k++){
@@ -1035,34 +942,31 @@
   function blockIndex(i){
     if (state.blocked.has(i)) return;
     state.blocked.add(i);
-    const el = boardEl.children[2 + i];
+    const el = boardEl.children[1 + i];
     el.setAttribute('disabled','true');
     el.style.opacity = .45; el.style.filter = 'grayscale(0.3) brightness(0.8)';
     el.title = 'Blocked';
+    // Draw check
     if (state.moves + state.blocked.size === state.grid.length && !state.winner){
       statusEl.textContent = 'Draw'; scores.D++; renderScores(); stopTurnTimer();
     }
   }
-  function removeAllBlocks(){
-    state.blocked.clear();
-    Array.from(boardEl.children).slice(2).forEach(el=>{
-      el.removeAttribute('disabled');
-      el.style.opacity=''; el.style.filter=''; el.title='';
-    });
-  }
-
+  function clearChosenMark(ctx){ pickCells(1, (idxs)=> idxs.forEach(i=>clearMark(i)), true); }
   function clearChosenMarks(ctx, n){ pickCells(n, (idxs)=> idxs.forEach(i=>clearMark(i)), true); }
   function clearMark(i){
     if (!state.grid[i]) return;
-    if (state.shields.has(i)) return;
-    const el = boardEl.children[2 + i];
+    // Check shield
+    if (state.shields && state.shields.has(i)) return;
     state.grid[i] = null;
+    const el = boardEl.children[1 + i];
     el.innerHTML=''; el.classList.remove('played','win');
   }
   function undoLastMove(){
+    // naive: clear last played cell
     for(let i=state.grid.length-1; i>=0; i--){
-      const el = boardEl.children[2 + i];
-      if (el.classList.contains('played') && state.grid[i]){ clearMark(i); break; }
+      if (boardEl.children[1 + i].classList.contains('played')){
+        clearMark(i); break;
+      }
     }
   }
   function removeRandomMine(){
@@ -1070,128 +974,117 @@
     if (!arr.length) return;
     const i = arr[Math.floor(Math.random()*arr.length)];
     state.mines.delete(i);
-    revealMineVisual(visibility.revealMinesRoundsLeft>0);
   }
   function addRandomMine(){
-    const empties = emptyIndices();
-    if (!empties.length) return;
-    const i = empties[Math.floor(Math.random()*empties.length)];
+    const i = randomInt(0, state.grid.length-1);
     state.mines.add(i);
-    revealMineVisual(visibility.revealMinesRoundsLeft>0);
   }
-  function swapMineAnywhere(){
-    const mines = Array.from(state.mines);
-    const empties = emptyIndices();
-    if (!mines.length || !empties.length) return;
-    const m = mines[Math.floor(Math.random()*mines.length)];
-    const e = empties[Math.floor(Math.random()*empties.length)];
-    state.mines.delete(m);
-    state.mines.add(e);
-    revealMineVisual(visibility.revealMinesRoundsLeft>0);
+  function clonePlay(free=false){
+    // Allow a second move; if free, anywhere; else adjacent to first
+    state.extraTurns = (state.extraTurns||0) + (free?2:1);
   }
-
-  function extraTurn(times){ state.extraTurns = (state.extraTurns||0) + times; }
-  function teleportMarks(count){ pickCells(count, (idxs)=> idxs.forEach(i=>teleportOne(i)), true); }
-  function teleportOne(i){
-    if (!state.grid[i]) return;
-    const p = state.grid[i];
-    const empties = emptyIndices();
-    if (!empties.length) return;
-    const dest = empties[Math.floor(Math.random()*empties.length)];
-    state.grid[i]=null;
-    const srcEl = boardEl.children[2 + i];
-    srcEl.innerHTML=''; srcEl.classList.remove('played');
-    state.grid[dest]=p;
-    const dstEl = boardEl.children[2 + dest];
-    placeGlyph(dstEl, p);
+  function teleportMark(ctx, two=false){
+    pickCells(two?2:1, (idxs)=>{
+      idxs.forEach(i=>{
+        if (!state.grid[i]) return;
+        const p = state.grid[i];
+        // choose empty destination
+        const empties = emptyIndices();
+        if (!empties.length) return;
+        const dest = empties[Math.floor(Math.random()*empties.length)];
+        state.grid[i]=null;
+        const srcEl = boardEl.children[1 + i];
+        srcEl.innerHTML=''; srcEl.classList.remove('played');
+        state.grid[dest]=p;
+        const dstEl = boardEl.children[1 + dest];
+        placeGlyph(dstEl, p);
+      });
+    }, true);
   }
-  function shieldMarks(n){ pickCells(n, (idxs)=> idxs.forEach(i=> state.shields.add(i)), true); }
-  function bridgeMarks(){ novaGlow(); }
-  function peekMineOnce(ctx){ pickCells(1, (idxs)=> idxs.forEach(i=>pulseIndexMine(i))); }
-  function pulseIndexMine(i){
-    const mine = state.mines.has(i);
-    const el = boardEl.children[2 + i];
-    el.style.outline = mine ? '2px solid var(--danger)' : '2px solid var(--win)';
-    setTimeout(()=> el.style.outline='', 1200);
+  function shieldMark(ctx, two=false){
+    state.shields = state.shields || new Set();
+    pickCells(two?2:1, (idxs)=> idxs.forEach(i=> state.shields.add(i)), true);
   }
-  function fogChosenCell(ctx){ pickCells(1, (idxs)=> idxs.forEach(i=> { const el = boardEl.children[2 + i]; el.style.filter='blur(2px) brightness(0.9)'; })); }
-  function unfogBoard(){ Array.from(boardEl.children).slice(2).forEach(el=> el.style.filter=''); }
-
-  function playOnBlockedOnce(){ state.playBlockedOnce = true; }
-  function m87Reset(){ showEffect('M87 — Black Hole', 'Board collapses. Round restarts.'); initGame(true); }
-  function absorbCards(){ for(const p of state.order){ state.hands.set(p, []); } updateCardsTray(); }
+  function extraTurn(times=1){ state.extraTurns = (state.extraTurns||0) + times; }
+  function bridgeMarks(ctx, loose=false){
+    // Visual effect only: showEffect already done; complex wildcard omitted in demo
+  }
+  function clearRandomOpponentMarks(n){
+    const opponents = state.order.filter(p=>p!==currentPlayer());
+    const marks = [];
+    for(let i=0;i<state.grid.length;i++){
+      if (state.grid[i] && opponents.includes(state.grid[i])) marks.push(i);
+    }
+    shuffle(marks);
+    for(let k=0;k<n && marks.length;k++){ clearMark(marks.pop()); }
+  }
+  function peekMine(ctx){
+    pickCells(1, (idxs)=>{
+      idxs.forEach(i=>{
+        const mine = state.mines.has(i);
+        const el = boardEl.children[1 + i];
+        el.style.outline = mine ? '2px solid var(--danger)' : '2px solid var(--win)';
+        setTimeout(()=> el.style.outline='', 1200);
+      });
+    });
+  }
+  function peekMultiple(ctx, n){ pickCells(n, (idxs)=> idxs.forEach(i=>peekMine({target:null, i})) ); }
+  function fogChosenCell(ctx){ pickCells(1, (idxs)=> idxs.forEach(i=> { const el = boardEl.children[1 + i]; el.style.filter='blur(2px) brightness(0.9)'; })); }
+  function unfogBoard(){ Array.from(boardEl.children).slice(1).forEach(el=> el.style.filter=''); }
+  function moveMineTo(ctx){
+    pickCells(1, (idxs)=> idxs.forEach(i=> { if (!state.grid[i]) { addRandomMine(); /* simple demo */ } }));
+  }
+  function playOnBlocked(ctx){
+    // Allow one move on any blocked cell for current player this turn
+    state.playBlockedOnce = true;
+  }
+  function m87Reset(){
+    showEffect('M87 — Black Hole', 'The board collapses. Round restarts.');
+    initGame(true);
+  }
+  function absorbCards(){
+    for(const p of state.order){ state.hands.set(p, []); }
+    updateCardsTray();
+  }
+  function novaGlow(){
+    boardEl.classList.add('win');
+    setTimeout(()=>boardEl.classList.remove('win'), 1200);
+  }
   function randomPower(){
-    const powers = [m87Reset, novaGlow, ()=>blockRandomCells(6), ()=>clearRandomOpponentMarks(5), ()=>extraTurn(2), ()=>expandBoard()];
+    const powers = [m87Reset, novaGlow, ()=>blockRandomCells(4), ()=>clearRandomOpponentMarks(3), ()=>extraTurn(2)];
     powers[Math.floor(Math.random()*powers.length)]();
   }
-  function novaGlow(){ boardEl.classList.add('win'); setTimeout(()=>boardEl.classList.remove('win'), 1200); }
-
-  function resetTimers(){ if (config.mode!=='blitz') return; baseTimer = 10; startTurnTimer(baseTimer,false); }
   function boostTimer(delta){
     if (config.mode!=='blitz') return;
-    baseTimer = Math.max(5, Math.round(baseTimer) + delta);
-    startTurnTimer(baseTimer,false);
+    baseTimer = Math.max(5, baseTimer + delta);
+    startTurnTimer(baseTimer);
   }
   function drainNextTimer(delta){
     if (config.mode!=='blitz') return;
-    state.pendingDrain = Math.max(0, (state.pendingDrain||0) + delta);
+    // visual only; actual enforcement on next turn start
+  }
+  function resetTimers(){
+    if (config.mode!=='blitz') return;
+    baseTimer = 10;
+    startTurnTimer(baseTimer);
   }
 
-  function expandBoard(){
-    setBoardSize(getBoardSize()+1);
-    const prevScores = {...scores};
-    const prevMode = config.mode;
-    initGame(true);
-    config.mode = prevMode; // keep mode
-    scores = prevScores;
-    renderScores();
-  }
-
-  function spawnChessPiece(type, rounds){
-    showEffect(`Chess ${type}`, `Piece active for ${rounds} rounds`);
-    clearRandomOpponentMarks(type==='rook'?3 : 2);
-  }
-  function spawnCheckersPiece(rounds){
-    showEffect('Checkers', `Jump removes marks for ${rounds} rounds`);
-    clearRandomOpponentMarks(2);
-  }
-  function gravityFall(){
-    const size = state.size;
-    for (let r=size-2; r>=0; r--){
-      for (let c=0; c<size; c++){
-        const i = r*size+c, below = (r+1)*size+c;
-        if (state.grid[i] && !state.grid[below] && !state.blocked.has(below)){
-          state.grid[below] = state.grid[i];
-          state.grid[i] = null;
-          const srcEl = boardEl.children[2 + i];
-          const dstEl = boardEl.children[2 + below];
-          srcEl.innerHTML=''; srcEl.classList.remove('played');
-          placeGlyph(dstEl, state.grid[below]);
-        }
-      }
-    }
-  }
-  function mafiaMini(rounds){ showEffect('Mafia', `Hidden roles active for ${rounds} rounds`); state.mafiaRounds = rounds; }
-  function jamOpponent(rounds){ showEffect('Jammer', `Opponents cannot use cards for ${rounds} round(s)`); state.jamRounds = rounds; }
-  function resetHazards(){ state.mines.clear(); removeAllBlocks(); revealMineVisual(false); }
-  function stasisOneRound(){ state.stasis = true; setTimeout(()=> state.stasis=false, 800); } // brief demo freeze
-  function echoLastCard(){ const lc=state.lastCardPlayed; if (!lc) return; lc.apply({target:null}); }
-
+  // Target/cell picker (simplified)
   function pickCells(n, done, requireHasMark=false){
+    // naive inline picker: click the highlighted cells
     let picked = [];
-    const cells = Array.from(boardEl.children).slice(2);
-    const pickable = cells.map((el, idx)=>({el, idx}))
-      .filter(({el,idx})=> requireHasMark ? !!state.grid[idx] : !state.grid[idx] && !state.blocked.has(idx));
-    if (!pickable.length){ return; }
-    pickable.forEach(({el, idx})=>{
+    const cells = Array.from(boardEl.children).slice(1);
+    cells.forEach((el, idx)=>{
+      const hasMark = !!state.grid[idx];
+      const ok = requireHasMark ? hasMark : !requireHasMark;
+      if (!ok) return;
       el.style.outline='2px solid var(--gold)';
-      el.style.boxShadow='0 0 12px rgba(255,206,99,.35)';
       const h = ()=>{
         picked.push(idx);
-        el.style.outline=''; el.style.boxShadow='';
+        el.style.outline='';
         el.removeEventListener('click', h);
         if (picked.length===n){
-          cells.forEach(c=> { c.style.outline=''; c.style.boxShadow=''; });
+          cells.forEach(c=> c.style.outline='');
           done(picked);
         }
       };
@@ -1199,10 +1092,12 @@
     });
   }
 
-  function emptyIndices(){ return state.grid.map((v,i)=> v || state.blocked.has(i)?null:i).filter(v=>v!=null); }
+  // Utils
+  function emptyIndices(){ return state.grid.map((v,i)=> v||state.blocked.has(i)?null:i).filter(v=>v!=null); }
   function randomInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min }
   function sleep(ms){ return new Promise(res=>setTimeout(res, ms)) }
 
+  // Controls
   resetBtn.addEventListener('click', async ()=>{
     showLoader(true); await animateProgress(700); showLoader(false); initGame();
   });
@@ -1215,6 +1110,7 @@
   });
   setupBtn.addEventListener('click', openSetup);
 
+  // Boot
   (async function boot(){
     showLoader(true); await animateProgress(900); showLoader(false);
     openSetup(); renderScores();
