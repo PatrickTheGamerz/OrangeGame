@@ -6,10 +6,10 @@
   <title>Games — Selector</title>
   <style>
     :root{
-      --bg: #0a0c12;
+      --bg: #080b12;
       --panel: rgba(20, 24, 34, 0.7);
       --panel-solid: #151822;
-      --border: rgba(122, 162, 247, 0.2);
+      --border: rgba(122, 162, 247, 0.24);
       --text: #e6e6e6;
       --muted: #a7b0c0;
       --accent: #7aa2f7;
@@ -17,92 +17,86 @@
       --lime: #73d13d;
       --gold: #ffce63;
       --danger: #f7768e;
-      --shadow: 0 10px 30px rgba(0,0,0,0.4);
+      --shadow: 0 12px 36px rgba(0,0,0,0.45);
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
+    *{ box-sizing:border-box }
+    html,body{ height:100% }
     body{
-      margin:0;
-      color:var(--text);
+      margin:0; color:var(--text);
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
-      background: radial-gradient(1200px 600px at 70% -20%, #14203a 0%, #0a0c12 55%) fixed;
+      background:
+        radial-gradient(1100px 520px at 75% -20%, #16223d 0%, var(--bg) 58%) fixed,
+        radial-gradient(800px 400px at 15% 120%, #1a1f35 0%, transparent 65%) fixed;
       overflow-x:hidden;
     }
 
-    /* Animated ambient backdrop */
+    /* Ambient blobs */
     .ambient{
-      position:fixed; inset:-20vmax;
-      filter: blur(60px) saturate(120%);
-      z-index:-1;
-      pointer-events:none;
+      position:fixed; inset:-30vmax; z-index:-1; pointer-events:none;
+      filter: blur(70px) saturate(130%); opacity:.35;
       animation: float 18s ease-in-out infinite;
-      opacity:.35;
       background:
         radial-gradient(closest-side at 40% 45%, #183061, transparent 60%),
         radial-gradient(closest-side at 70% 60%, #4b2a8b, transparent 60%),
         radial-gradient(closest-side at 30% 70%, #0f6aa8, transparent 60%);
     }
-    @keyframes float {
-      0%   { transform: translate3d(0,0,0) scale(1); }
-      50%  { transform: translate3d(-2%, -1%, 0) scale(1.05); }
-      100% { transform: translate3d(0,0,0) scale(1); }
+    @keyframes float{
+      0%{ transform: translate3d(0,0,0) scale(1) }
+      50%{ transform: translate3d(-2%, -1%, 0) scale(1.05) }
+      100%{ transform: translate3d(0,0,0) scale(1) }
     }
 
     /* Topbar */
     .topbar{
       display:flex; align-items:center; gap:12px;
       padding:14px 18px;
-      position:sticky; top:0;
+      position:sticky; top:0; z-index:3;
       backdrop-filter: blur(10px);
-      background: linear-gradient(0deg, rgba(16,18,28,.55), rgba(16,18,28,.75));
-      border-bottom: 1px solid rgba(122,162,247,.15);
+      background: linear-gradient(0deg, rgba(16,18,28,.55), rgba(16,18,28,.78));
+      border-bottom: 1px solid rgba(122,162,247,.18);
       box-shadow: var(--shadow);
-      z-index: 3;
     }
     .brand{
-      font-weight:700; letter-spacing:.2px;
+      font-weight:800; letter-spacing:.3px;
       background: linear-gradient(90deg, var(--accent), var(--accent-2));
       -webkit-background-clip: text; background-clip: text; color: transparent;
     }
-    .spacer{flex:1}
+    .spacer{ flex:1 }
     .btn{
       border: 1px solid var(--border);
       background: linear-gradient(180deg, #111423, #0d1120);
       color: var(--text);
-      padding: 8px 12px;
-      border-radius: 10px;
+      padding: 10px 14px;
+      border-radius: 12px;
       cursor: pointer;
       transition: transform .08s ease, box-shadow .15s ease, border-color .15s ease, background .2s ease;
-      box-shadow: 0 6px 16px rgba(122,162,247,.08);
+      box-shadow: 0 6px 16px rgba(122,162,247,.1);
     }
     .btn:hover{
-      border-color: rgba(122,162,247,.3);
-      box-shadow: 0 8px 20px rgba(122,162,247,.18);
+      border-color: rgba(122,162,247,.35);
       background: linear-gradient(180deg, #14182a, #0f1325);
+      box-shadow: 0 10px 24px rgba(122,162,247,.22);
+      transform: translateY(-1px);
     }
     .btn:active{ transform: translateY(1px) }
-    .btn[disabled]{opacity:.4; cursor:not-allowed}
+    .btn[disabled]{ opacity:.38; cursor:not-allowed }
 
-    /* Section titles */
     h2.section{
-      margin: 16px 20px 12px 20px;
-      font-size: 18px;
-      color: var(--muted);
-      font-weight: 600;
+      margin: 16px 20px 8px 20px;
+      font-size: 18px; color: var(--muted); font-weight: 600;
     }
 
     /* Cards grid */
     .grid{
       display:grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 18px;
-      padding: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px; padding: 20px;
     }
     .card{
       position:relative;
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
+      border-radius: 18px;
+      padding: 16px 16px 48px;
       background: var(--panel);
       backdrop-filter: blur(10px);
       box-shadow: var(--shadow);
@@ -111,29 +105,27 @@
     }
     .card::before{
       content:"";
-      position:absolute; inset:-1px;
-      border-radius: 16px;
-      background: linear-gradient(120deg, rgba(122,162,247,.18), rgba(194,143,255,.18));
-      opacity:.0; pointer-events:none;
-      transition: opacity .25s ease;
+      position:absolute; inset:-1px; border-radius: 18px;
+      background: conic-gradient(from 0deg, rgba(122,162,247,.22), rgba(194,143,255,.22), rgba(106,227,189,.22), rgba(122,162,247,.22));
+      opacity:.0; pointer-events:none; transition: opacity .28s ease;
+      mix-blend-mode: screen;
     }
     .card:hover{
       transform: translateY(-3px);
-      box-shadow: 0 18px 38px rgba(0,0,0,.45);
-      border-color: rgba(122,162,247,.35);
+      box-shadow: 0 18px 42px rgba(0,0,0,.5);
+      border-color: rgba(122,162,247,.42);
     }
-    .card:hover::before{opacity:.6}
+    .card:hover::before{ opacity:.6 }
     .card h3{ margin:0; font-size:16px }
     .card p{ margin:8px 0 0 0; color:var(--muted); font-size:13px; line-height:1.5 }
-    .actions{ display:flex; gap:10px; margin-top:12px }
 
-    /* Micro badge */
+    .actions{ display:flex; gap:10px; margin-top:14px }
     .badge{
       display:inline-flex; align-items:center; gap:7px;
       font-size:12px; color:var(--muted);
-      border:1px solid rgba(255,255,255,.08);
-      background: rgba(255,255,255,.04);
-      padding:4px 8px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      padding:4px 10px; border-radius:999px;
     }
     .pulse-dot{
       width:8px; height:8px; border-radius:50%;
@@ -147,10 +139,34 @@
       100%{ transform:scale(.9); opacity:.9 }
     }
 
-    /* Deluxe Loading overlay */
+    /* Player count badge (bottom-right) */
+    .player-count{
+      position:absolute; right:12px; bottom:12px;
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: var(--muted); font-size:12px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.35);
+      backdrop-filter: blur(8px);
+    }
+    .player-dot{
+      width:10px; height:10px; border-radius:50%;
+      background: linear-gradient(180deg, var(--accent), var(--accent-2));
+      box-shadow: 0 0 12px rgba(122,162,247,.6);
+    }
+
+    /* Non-selectable text */
+    .unselectable{
+      user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+    }
+
+    /* Loading overlay */
     .loading{
       position:fixed; inset:0; display:grid; place-items:center;
-      background: radial-gradient(800px 400px at 50% 30%, rgba(20,24,34,.85), rgba(10,12,18,.92));
+      background: radial-gradient(800px 400px at 50% 30%, rgba(20,24,34,.88), rgba(10,12,18,.95));
       backdrop-filter: blur(6px);
       z-index:1000;
       opacity:0; pointer-events:none;
@@ -158,17 +174,13 @@
     }
     .loading.active{ opacity:1; pointer-events:auto }
     .loader{
-      position:relative;
-      display:grid; gap:12px; justify-items:center;
-      padding: 26px 28px;
-      border: 1px solid rgba(122,162,247,.25);
-      border-radius: 16px;
-      background: linear-gradient(180deg, rgba(16,20,32,.75), rgba(14,18,30,.85));
-      box-shadow: var(--shadow);
-      overflow:hidden;
+      position:relative; display:grid; gap:12px; justify-items:center;
+      padding: 26px 28px; border: 1px solid rgba(122,162,247,.28);
+      border-radius: 16px; background: linear-gradient(180deg, rgba(16,20,32,.78), rgba(14,18,30,.88));
+      box-shadow: var(--shadow); overflow:hidden;
     }
     .ring{
-      width: 60px; height: 60px; border-radius: 50%;
+      width: 64px; height: 64px; border-radius: 50%;
       background:
         conic-gradient(from 0deg,
           var(--accent) 0% 30%,
@@ -179,42 +191,14 @@
               mask: radial-gradient(closest-side, transparent 66%, black 67%);
       animation: spin .9s linear infinite;
     }
-    .progress{
-      width: 220px; height: 8px; border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.1);
-      background: rgba(255,255,255,.06);
-      overflow:hidden;
-    }
-    .bar{
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      width: 0%;
-      transition: width .3s ease;
-    }
+    @keyframes spin{ to{ transform: rotate(360deg) } }
+    .progress{ width:240px; height:8px; border-radius:999px; border:1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.06); overflow:hidden }
+    .bar{ height:100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); width:0%; transition: width .28s ease }
     .loader-label{ font-size:12px; color:var(--muted) }
 
-    /* Sparkles */
-    .sparkles{
-      position:absolute; inset:0; pointer-events:none;
-    }
-    .sparkles i{
-      position:absolute; width:6px; height:6px; border-radius:50%;
-      background: radial-gradient(circle, #fff, rgba(255,255,255,.6));
-      opacity:.0;
-      animation: sparkle 2.2s ease-in-out infinite;
-    }
-    @keyframes sparkle{
-      0%{ transform: translateY(0) scale(.9); opacity:0 }
-      20%{ opacity:.7 }
-      60%{ opacity:.2 }
-      100%{ transform: translateY(-24px) scale(1.2); opacity:0 }
-    }
-
-    /* Footer note */
+    /* Footer tip */
     .footer{
-      padding: 8px 20px 20px;
-      color: var(--muted);
-      font-size: 12px;
+      padding: 8px 20px 20px; color: var(--muted); font-size: 12px;
     }
   </style>
 </head>
@@ -222,39 +206,46 @@
   <div class="ambient"></div>
 
   <header class="topbar">
-    <div class="brand">Games Hub</div>
-    <span class="badge"><span class="pulse-dot"></span>Live selector</span>
+    <div class="brand unselectable">Games Hub</div>
+    <span class="badge unselectable"><span class="pulse-dot"></span>Live selector</span>
     <div class="spacer"></div>
     <button class="btn" id="refresh">Refresh</button>
   </header>
 
-  <h2 class="section">Choose a game</h2>
+  <h2 class="section unselectable">Choose a game</h2>
   <main class="grid">
     <article class="card">
-      <h3>X and O (Tic‑Tac‑Toe)</h3>
-      <p>Classic 3×3. Two players: X starts, O follows. First to align three wins.</p>
+      <h3 class="unselectable">X and O (Tic‑Tac‑Toe)</h3>
+      <p class="unselectable">Classic 3×3. Two players: X starts, O follows. First to align three wins.</p>
       <div class="actions">
         <button class="btn" id="load-ttt">Load</button>
         <button class="btn" id="play-ttt">Play</button>
       </div>
+      <div class="player-count" aria-label="Players online">
+        <span class="player-dot" aria-hidden="true"></span>
+        <span id="tttCount">Players online: 0</span>
+      </div>
     </article>
 
     <article class="card">
-      <h3>Coming soon</h3>
-      <p>Add more games here. The shell handles loading, glow, and navigation.</p>
+      <h3 class="unselectable">Coming soon</h3>
+      <p class="unselectable">Add more games here. The shell handles loading, glow, and navigation.</p>
       <div class="actions">
         <button class="btn" disabled>Load</button>
         <button class="btn" disabled>Play</button>
       </div>
+      <div class="player-count" aria-label="Players online">
+        <span class="player-dot" aria-hidden="true"></span>
+        <span id="soonCount">Players online: 0</span>
+      </div>
     </article>
   </main>
 
-  <div class="footer">Tip: Load preps the game with that sweet glow. Play jumps right in.</div>
+  <div class="footer unselectable">Tip: Load preps the game with that sweet glow. Play jumps right in.</div>
 
   <!-- Loading overlay -->
   <div id="loading" class="loading" aria-live="polite" aria-busy="true">
     <div class="loader">
-      <div class="sparkles" id="sparkles"></div>
       <div class="ring" aria-hidden="true"></div>
       <div class="progress"><div class="bar" id="bar"></div></div>
       <div class="loader-label" id="loaderLabel">Preparing assets…</div>
@@ -265,62 +256,48 @@
     const loading = document.getElementById('loading');
     const bar = document.getElementById('bar');
     const label = document.getElementById('loaderLabel');
-    const sparkles = document.getElementById('sparkles');
+
+    // Simulated player counts (bottom-right badges)
+    const tttCountEl = document.getElementById('tttCount');
+    const soonCountEl = document.getElementById('soonCount');
+    function randomInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min }
+    function tickPlayers(){
+      tttCountEl.textContent = 'Players online: ' + randomInt(3, 18);
+      soonCountEl.textContent = 'Players online: ' + randomInt(0, 4);
+    }
+    setInterval(tickPlayers, 1600);
+    tickPlayers();
 
     function showLoader(flag){
       loading.classList.toggle('active', !!flag);
     }
     function animateProgress(ms=1200){
-      bar.style.width = '0%';
-      label.textContent = 'Preparing assets…';
-      let p = 0;
-      const step = () => {
-        p = Math.min(100, p + Math.random()*22 + 6);
-        bar.style.width = p.toFixed(0) + '%';
-        if (p < 40) label.textContent = 'Warming up shaders…';
-        else if (p < 70) label.textContent = 'Linking modules…';
-        else if (p < 90) label.textContent = 'Polishing UI…';
-        else label.textContent = 'Almost there…';
-        if (p < 100) requestAnimationFrame(step);
+      bar.style.width='0%';
+      label.textContent='Preparing assets…';
+      let p=0;
+      const step=()=>{
+        p=Math.min(100, p + Math.random()*24 + 6);
+        bar.style.width = p.toFixed(0)+'%';
+        if(p<35) label.textContent='Warming up shaders…';
+        else if(p<65) label.textContent='Linking modules…';
+        else if(p<90) label.textContent='Polishing UI…';
+        else label.textContent='Almost there…';
+        if(p<100) requestAnimationFrame(step);
       };
       requestAnimationFrame(step);
-      return new Promise(res => setTimeout(res, ms));
-    }
-    function seedSparkles(count=18){
-      sparkles.innerHTML = '';
-      const rect = sparkles.getBoundingClientRect();
-      for(let i=0;i<count;i++){
-        const s = document.createElement('i');
-        s.style.left = Math.random()*rect.width + 'px';
-        s.style.top = (Math.random()*rect.height*0.6 + rect.height*0.2) + 'px';
-        s.style.animationDelay = (Math.random()*1.6).toFixed(2) + 's';
-        sparkles.appendChild(s);
-      }
+      return new Promise(res=>setTimeout(res, ms));
     }
 
-    // Controls
     document.getElementById('refresh').addEventListener('click', async ()=>{
-      seedSparkles();
-      showLoader(true);
-      await animateProgress(1200);
-      showLoader(false);
+      showLoader(true); await animateProgress(1000); showLoader(false);
     });
     document.getElementById('load-ttt').addEventListener('click', async ()=>{
-      seedSparkles();
-      showLoader(true);
-      await animateProgress(1400);
-      showLoader(false);
+      showLoader(true); await animateProgress(1400); showLoader(false);
     });
     document.getElementById('play-ttt').addEventListener('click', async ()=>{
-      seedSparkles();
-      showLoader(true);
-      await animateProgress(900);
-      showLoader(false);
+      showLoader(true); await animateProgress(900); showLoader(false);
       window.location.href = 'TicTacToe.html';
     });
-
-    // Initial ambient sparkle
-    seedSparkles();
   </script>
 </body>
 </html>
