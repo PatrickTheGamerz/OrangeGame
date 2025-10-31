@@ -1,101 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Tic Tac Toe</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Games — Selector</title>
   <style>
     body {
+      margin: 0;
       font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 50px;
+      background: #0f1115;
+      color: #e6e6e6;
     }
-    h1 { margin-bottom: 20px; }
-    #board {
+    .topbar {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      background: #151822;
+      border-bottom: 1px solid #232638;
+    }
+    .brand { font-weight: bold; }
+    .grid {
       display: grid;
-      grid-template-columns: repeat(3, 100px);
-      grid-template-rows: repeat(3, 100px);
-      gap: 5px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      padding: 20px;
     }
-    .cell {
-      width: 100px;
-      height: 100px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.5em;
-      background: #f0f0f0;
+    .card {
+      background: #151822;
+      border: 1px solid #232638;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .card h3 { margin: 0 0 8px 0; }
+    .actions { margin-top: 12px; display: flex; gap: 8px; }
+    .btn {
+      border: 1px solid #232638;
+      background: #111423;
+      color: #e6e6e6;
+      padding: 8px 12px;
+      border-radius: 8px;
       cursor: pointer;
-      user-select: none;
     }
-    .cell.taken { cursor: not-allowed; }
-    #status { margin-top: 20px; font-size: 1.2em; }
-    button { margin-top: 15px; padding: 8px 16px; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .loading {
+      position: fixed; inset: 0;
+      display: grid; place-items: center;
+      background: rgba(10,12,18,0.85);
+      backdrop-filter: blur(2px);
+      opacity: 0; pointer-events: none;
+      transition: opacity .2s ease;
+    }
+    .loading.active { opacity: 1; pointer-events: all; }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid #2a3045;
+      border-top-color: #7aa2f7;
+      border-radius: 50%;
+      animation: spin .9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
-  <h1>Tic Tac Toe</h1>
-  <div id="board"></div>
-  <div id="status">Player X's turn</div>
-  <button onclick="resetGame()">Restart</button>
+  <header class="topbar">
+    <div class="brand">Games Hub</div>
+  </header>
+
+  <main>
+    <h2 style="padding:20px 20px 0 20px;">Choose a game</h2>
+    <div class="grid">
+      <article class="card">
+        <h3>X and O (Tic‑Tac‑Toe)</h3>
+        <p>Classic 3×3. Two players: X starts, O follows. First to align three wins.</p>
+        <div class="actions">
+          <button class="btn" id="load">Load</button>
+          <button class="btn" id="play">Play</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <h3>Coming soon</h3>
+        <p>Placeholder for future games.</p>
+        <div class="actions">
+          <button class="btn" disabled>Load</button>
+          <button class="btn" disabled>Play</button>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+  </div>
 
   <script>
-    const boardEl = document.getElementById("board");
-    const statusEl = document.getElementById("status");
-    let board = Array(9).fill("");
-    let currentPlayer = "X";
-    let gameOver = false;
-
-    function renderBoard() {
-      boardEl.innerHTML = "";
-      board.forEach((val, i) => {
-        const cell = document.createElement("div");
-        cell.className = "cell" + (val ? " taken" : "");
-        cell.textContent = val;
-        cell.addEventListener("click", () => makeMove(i));
-        boardEl.appendChild(cell);
-      });
+    const loading = document.getElementById('loading');
+    function showLoader(flag) {
+      loading.classList.toggle('active', !!flag);
     }
-
-    function makeMove(i) {
-      if (board[i] || gameOver) return;
-      board[i] = currentPlayer;
-      if (checkWinner()) {
-        statusEl.textContent = `Player ${currentPlayer} wins!`;
-        gameOver = true;
-      } else if (board.every(c => c)) {
-        statusEl.textContent = "It's a tie!";
-        gameOver = true;
-      } else {
-        currentPlayer = currentPlayer === "X" ? "O" : "X";
-        statusEl.textContent = `Player ${currentPlayer}'s turn`;
-      }
-      renderBoard();
+    function fakeLoad(ms=700) {
+      return new Promise(res => setTimeout(res, ms));
     }
-
-    function checkWinner() {
-      const wins = [
-        [0,1,2],[3,4,5],[6,7,8],
-        [0,3,6],[1,4,7],[2,5,8],
-        [0,4,8],[2,4,6]
-      ];
-      return wins.some(([a,b,c]) =>
-        board[a] && board[a] === board[b] && board[a] === board[c]
-      );
-    }
-
-    function resetGame() {
-      board = Array(9).fill("");
-      currentPlayer = "X";
-      gameOver = false;
-      statusEl.textContent = "Player X's turn";
-      renderBoard();
-    }
-
-    // initial render
-    renderBoard();
+    document.getElementById('load').addEventListener('click', async () => {
+      showLoader(true);
+      await fakeLoad(900);
+      showLoader(false);
+    });
+    document.getElementById('play').addEventListener('click', async () => {
+      showLoader(true);
+      await fakeLoad(600);
+      showLoader(false);
+      // Navigate to TicTacToe.html (from TicTacToe.md)
+      window.location.href = "TicTacToe.html";
+    });
   </script>
 </body>
 </html>
-
