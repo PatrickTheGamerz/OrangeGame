@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>X and O — Chaos Deck Mafia</title>
+<title>X and O — Chaos Deck Deluxe</title>
 <style>
   :root{
     --bg:#0b0e14; --text:#e6e6e6; --muted:#a7b0c0;
@@ -13,7 +13,6 @@
     --x:#7aa2f7; --o:#c9d27e; --p3:#ff9f6f; --p4:#6ae3bd;
     --win:#73d13d; --danger:#f7768e; --gold:#ffce63;
     --shadow:0 12px 36px rgba(0,0,0,.5);
-
     --rar-common:#9aa0aa; --rar-rare:#7aa2f7; --rar-epic:#c28fff; --rar-legend:#ffce63; --rar-myth:#f7768e;
   }
   *{box-sizing:border-box}
@@ -44,7 +43,7 @@
     border:1px solid var(--border);
     background: linear-gradient(180deg, #111423, #0d1120);
     color:var(--text); padding:10px 14px; border-radius:12px; cursor:pointer;
-    transition: transform .1s ease, box-shadow .15s ease, border-color .15s ease, background .2s ease;
+    transition: transform .08s ease, box-shadow .15s ease, border-color .15s ease, background .2s ease;
     box-shadow: 0 6px 16px rgba(122,162,247,.12);
   }
   .btn:hover{ border-color: rgba(122,162,247,.38); background: linear-gradient(180deg, #14182a, #0f1325); box-shadow: 0 10px 24px rgba(122,162,247,.22); transform: translateY(-1px) }
@@ -85,7 +84,7 @@
     border: 1px solid rgba(122,162,247,.22); border-radius: 14px;
     background: linear-gradient(180deg, #14182a, #101423); color: var(--text);
     cursor: pointer; user-select:none;
-    transition: transform .14s ease, border-color .15s ease, box-shadow .18s ease, background .22s ease, color .2s ease, filter .2s ease;
+    transition: transform .12s ease, border-color .15s ease, box-shadow .18s ease, background .22s ease, color .2s ease, filter .2s ease;
     overflow:hidden;
   }
   .cell:hover{ transform: translateY(-2px); border-color: rgba(122,162,247,.42); box-shadow: 0 12px 24px rgba(122,162,247,.12); background: linear-gradient(180deg, #16203a, #111423) }
@@ -110,15 +109,13 @@
 
   /* Win-line beam */
   .beam{
-    position:absolute; height:4px; border-radius:999px;
-    background: linear-gradient(90deg, rgba(115,209,61,0), var(--win), rgba(115,209,61,0));
-    box-shadow: 0 0 16px rgba(115,209,61,.9);
+    position:absolute; height:4px; background: linear-gradient(90deg, rgba(115,209,61,0), var(--win), rgba(115,209,61,0));
+    box-shadow: 0 0 14px rgba(115,209,61,.8);
     transform-origin:left center;
-    animation: beamDraw 1s ease-out forwards, beamHold .6s linear 1s forwards, beamFade .8s ease-in 1.6s forwards;
+    animation: beamDraw 1.1s ease-out forwards, beamFade 1.8s ease-in 1.1s forwards;
     pointer-events:none; z-index:3;
   }
   @keyframes beamDraw{ from{ width:0; opacity:.0 } to{ width:100%; opacity:1 } }
-  @keyframes beamHold{ from{ opacity:1 } to{ opacity:1 } }
   @keyframes beamFade{ from{ opacity:1 } to{ opacity:.0 } }
 
   .bar{ display:flex; gap:10px; align-items:center; flex-wrap:wrap }
@@ -163,33 +160,22 @@
   }
   .cardItem:hover .cardTip{ opacity:1 }
 
-  /* Overlays */
+  /* Card effect overlay */
   .effectOverlay{
-    position:fixed; inset:0; display:grid; place-items:center; z-index:1002; pointer-events:none;
+    position:fixed; inset:0; display:grid; place-items:center; z-index:1002;
+    pointer-events:none;
   }
   .effectBubble{
     display:grid; gap:8px; justify-items:center;
-    padding:16px 20px; border-radius:12px; color:#fff;
-    border:1px solid rgba(255,255,255,.2);
-    background: radial-gradient(280px 140px at 50% 40%, rgba(20,24,34,.96), rgba(16,20,32,.92));
-    box-shadow: 0 14px 40px rgba(0,0,0,.6);
-    animation: effectPop .22s ease-out;
-  }
-  @keyframes effectPop{ 0%{ transform:scale(.92); opacity:.0 } 100%{ transform:scale(1); opacity:1 } }
-
-  .turnOverlay{
-    position:fixed; inset:0; display:grid; place-items:center; z-index:1001; pointer-events:none;
-    opacity:0; transition: opacity .22s ease;
-  }
-  .turnOverlay.active{ opacity:1 }
-  .turnBubble{
     padding:14px 18px; border-radius:12px; color:#fff;
     border:1px solid rgba(255,255,255,.2);
-    background: radial-gradient(280px 140px at 50% 40%, rgba(20,24,34,.92), rgba(16,20,32,.88));
-    box-shadow: 0 10px 28px rgba(0,0,0,.5);
-    animation: effectPop .2s ease-out;
-    font-weight:700;
+    background: radial-gradient(240px 120px at 50% 40%, rgba(20,24,34,.96), rgba(16,20,32,.92));
+    box-shadow: 0 14px 40px rgba(0,0,0,.6);
+    animation: effectPop .18s ease-out;
   }
+  @keyframes effectPop{ 0%{ transform:scale(.92); opacity:.0 } 100%{ transform:scale(1); opacity:1 } }
+  .effectTitle{ font-weight:700 }
+  .effectDesc{ font-size:12px; color:var(--muted); text-align:center; max-width:360px }
 
   /* Fog mask */
   .fogMask{
@@ -199,7 +185,56 @@
   }
   .fogMask.active{ opacity:1 }
 
-  /* Chess/checker piece marker + move hint */
+  /* Modals and loading reused */
+  .loading{
+    position:fixed; inset:0; display:grid; place-items:center;
+    background: radial-gradient(800px 400px at 50% 30%, rgba(20,24,34,.88), rgba(10,12,18,.95));
+    backdrop-filter: blur(6px); z-index:1000; opacity:0; pointer-events:none; transition: opacity .28s ease;
+  }
+  .loading.active{ opacity:1; pointer-events:auto }
+  .loader{
+    display:grid; gap:12px; justify-items:center;
+    padding: 24px 26px; border: 1px solid rgba(122,162,247,.28);
+    border-radius: 16px; background: linear-gradient(180deg, rgba(16,20,32,.78), rgba(14,18,30,.88));
+    box-shadow: var(--shadow);
+  }
+  .ring{
+    width:62px; height:62px; border-radius:50%;
+    background: conic-gradient(from 0deg, var(--accent) 0% 30%, var(--accent2) 30% 60%, #6ae3bd 60% 85%, transparent 85% 100%);
+    -webkit-mask: radial-gradient(closest-side, transparent 66%, black 67%); mask: radial-gradient(closest-side, transparent 66%); 
+    animation: spin .9s linear infinite;
+  }
+  @keyframes spin{ to{ transform: rotate(360deg) } }
+  .progress{ width:240px; height:8px; border-radius:999px; border:1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.06); overflow:hidden }
+  .bar{ height:100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); width:0%; transition: width .28s ease }
+  .loader-label{ font-size:12px; color:var(--muted) }
+
+  .modal{
+    position:fixed; inset:0; display:grid; place-items:center;
+    background: radial-gradient(800px 400px at 50% 30%, rgba(20,24,34,.86), rgba(10,12,18,.92));
+    backdrop-filter: blur(6px); z-index:1001; opacity:0; pointer-events:none; transition: opacity .28s ease;
+  }
+  .modal.active{ opacity:1; pointer-events:auto }
+  .sheet{
+    width:min(760px, 92vw); display:grid; gap:14px;
+    padding: 18px 18px 20px; border: 1px solid rgba(122,162,247,.28);
+    border-radius: 14px; background: linear-gradient(180deg, rgba(16,20,32,.78), rgba(14,18,30,.88));
+    box-shadow: var(--shadow);
+  }
+  .sheet h3{ margin:0; font-size:18px }
+  .group{ display:grid; gap:8px }
+  .row-flex{ display:flex; gap:12px; align-items:center; flex-wrap:wrap }
+  .select,.range{
+    width:100%; background:#101423; border:1px solid rgba(255,255,255,.12); color:var(--text);
+    border-radius:10px; padding:8px 10px;
+  }
+  .range{ accent-color: var(--accent) }
+  .pill{
+    display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px;
+    border:1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06); color:var(--muted); font-size:12px;
+  }
+
+  /* Chess/checker piece marker */
   .piece{
     position:absolute; inset:auto auto 6px 6px; z-index:3;
     font-size:12px; padding:2px 6px; border-radius:8px;
@@ -209,11 +244,6 @@
     animation: pieceIn .2s ease-out;
   }
   @keyframes pieceIn{ from{ transform:translateY(6px); opacity:.0 } to{ transform:translateY(0); opacity:1 } }
-  .moveHint{
-    position:absolute; inset:0; outline:2px solid rgba(115,209,61,.85); border-radius:14px; pointer-events:none; opacity:.9;
-    animation: hintPulse 1s ease-in-out infinite;
-  }
-  @keyframes hintPulse{ 0%{opacity:.35} 50%{opacity:1} 100%{opacity:.35} }
 </style>
 </head>
 <body>
@@ -264,47 +294,67 @@
       <div class="effectDesc" id="effectDesc"></div>
     </div>
   </div>
-  <!-- Turn overlay -->
-  <div class="turnOverlay" id="turnOverlay"><div class="turnBubble" id="turnBubble">Your Turn</div></div>
 
   <!-- Loading overlay -->
-  <div id="loading" class="loading" aria-live="polite" aria-busy="true" style="display:none"></div>
+  <div id="loading" class="loading" aria-live="polite" aria-busy="true">
+    <div class="loader">
+      <div class="ring" aria-hidden="true"></div>
+      <div class="progress"><div class="bar" id="bar"></div></div>
+      <div class="loader-label" id="loaderLabel">Spinning up board…</div>
+    </div>
+  </div>
 
   <!-- Setup modal -->
-  <div id="modal" class="modal" aria-modal="true" role="dialog" style="display:none">
-    <div class="sheet" style="width:min(580px,92vw);display:grid;gap:14px;padding:18px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(180deg, rgba(16,20,32,.78), rgba(14,18,30,.88));box-shadow:var(--shadow)">
-      <h3 style="margin:0;font-size:18px">Game setup</h3>
+  <div id="modal" class="modal" aria-modal="true" role="dialog">
+    <div class="sheet">
+      <h3>Game setup</h3>
 
       <div class="group">
         <div class="pill">Opponent</div>
-        <div class="row-flex" style="display:flex;gap:12px;align-items:center">
-          <select class="select" id="opponent" style="flex:1;background:#101423;border:1px solid rgba(255,255,255,.12);color:var(--text);border-radius:10px;padding:8px 10px">
+        <div class="row-flex">
+          <select class="select" id="opponent">
             <option value="player">Local players</option>
-            <option value="bot">Bot</option>
+            <option value="bot">Bots for all non-you players</option>
           </select>
+          <div id="botRow" class="row-flex" style="display:none">
+            <div class="pill">Difficulty (1–5, decimals ok)</div>
+            <input class="range" id="difficulty" type="range" min="1" max="5" step="0.1" value="2.5" />
+            <div class="pill"><span id="difficultyLabel">2.5</span></div>
+          </div>
         </div>
       </div>
 
       <div class="group">
         <div class="pill">Gamemode</div>
-        <select class="select" id="mode" style="background:#101423;border:1px solid rgba(255,255,255,.12);color:var(--text);border-radius:10px;padding:8px 10px">
+        <select class="select" id="mode">
           <option value="casual">Casual (normal tic‑tac‑toe)</option>
+          <option value="three">Triad Clash (three players)</option>
+          <option value="four">Quad Arena (four players)</option>
+          <option value="blitz">Blitz (turn timer with carryover +1s)</option>
           <option value="randomizer">Chaos Deck (cards & random events)</option>
           <option value="mine">Minefield (hidden mines + eliminations)</option>
-          <option value="blitz">Blitz (turn timer with carryover +1s)</option>
         </select>
       </div>
 
       <div class="group">
         <div class="pill">Players</div>
-        <select class="select" id="playerCount" style="background:#101423;border:1px solid rgba(255,255,255,.12);color:var(--text);border-radius:10px;padding:8px 10px">
-          <option value="2">2 players</option>
-          <option value="3">3 players</option>
-          <option value="4">4 players</option>
-        </select>
+        <div class="row-flex">
+          <div id="playersRow" class="row-flex">
+            <select class="select" id="playerCount">
+              <option value="2">2 players</option>
+              <option value="3">3 players</option>
+              <option value="4">4 players</option>
+            </select>
+          </div>
+          <div id="blitzRow" class="row-flex" style="display:none">
+            <div class="pill">Blitz base (5–20s)</div>
+            <input class="range" id="blitzSec" type="range" min="5" max="20" step="1" value="10" />
+            <div class="pill"><span id="blitzLabel">10s</span></div>
+          </div>
+        </div>
       </div>
 
-      <div class="row-flex" style="justify-content:flex-end;display:flex;gap:12px">
+      <div class="row-flex" style="justify-content:flex-end">
         <button class="btn" id="cancelSetup">Cancel</button>
         <button class="btn" id="applySetup">Start</button>
       </div>
@@ -319,10 +369,27 @@ const resetBtn = document.getElementById('reset');
 const backBtn = document.getElementById('back');
 const refreshBtn = document.getElementById('refresh');
 const setupBtn = document.getElementById('setup');
+
+const loading = document.getElementById('loading');
+const bar = document.getElementById('bar');
+const label = document.getElementById('loaderLabel');
+
 const modal = document.getElementById('modal');
 const opponentSel = document.getElementById('opponent');
+const botRow = document.getElementById('botRow');
+const difficultyRange = document.getElementById('difficulty');
+const difficultyLabel = document.getElementById('difficultyLabel');
+
 const modeSel = document.getElementById('mode');
+const playersRow = document.getElementById('playersRow');
 const playerCountSel = document.getElementById('playerCount');
+
+const blitzRow = document.getElementById('blitzRow');
+const blitzRange = document.getElementById('blitzSec');
+const blitzLabel = document.getElementById('blitzLabel');
+
+const cancelSetup = document.getElementById('cancelSetup');
+const applySetup = document.getElementById('applySetup');
 
 const timerBox = document.getElementById('timerBox');
 const timeLeftEl = document.getElementById('timeLeft');
@@ -335,20 +402,14 @@ const effectDesc = document.getElementById('effectDesc');
 
 const fogMask = document.getElementById('fogMask');
 
-const turnOverlay = document.getElementById('turnOverlay');
-const turnBubble = document.getElementById('turnBubble');
-
-const cancelSetup = document.getElementById('cancelSetup');
-const applySetup = document.getElementById('applySetup');
-
 // State
 let config = {
-  opponent: 'player', // 'player' or 'bot'
+  opponent: 'player',
+  difficulty: 2.5,
   mode: 'casual',
   players: 2,
   blitzSec: 10
 };
-
 let state, scores = { X:0, O:0, P3:0, P4:0, D:0 };
 let timer = null;
 let baseTimer = 10;
@@ -356,125 +417,434 @@ let eliminated = new Set();
 let perPlayerTimer = new Map();
 let fogOwner = null;
 let fogRoundsLeft = 0;
+let revealedMinesRounds = 0;
+let revealedMinesOwner = null;
 
-// Round tracking (for Mafia cadence)
-let roundCount = 0; // increments when turn cycles back to first player
+// Loader
+function showLoader(flag){ loading.classList.toggle('active', !!flag) }
+function animateProgress(ms=900){
+  bar.style.width='0%'; label.textContent='Spinning up board…';
+  let p=0;
+  const step=()=>{
+    p=Math.min(100, p + Math.random()*24 + 6);
+    bar.style.width = p.toFixed(0)+'%';
+    if(p<40) label.textContent='Laying out grid…';
+    else if(p<70) label.textContent='Charging glow…';
+    else if(p<90) label.textContent='Binding events…';
+    else label.textContent='Ready to play!';
+    if(p<100) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+  return new Promise(res=>setTimeout(res, ms));
+}
 
-// Mafia
-let mafiaCardUsed = false; // one-time obtain/use rule
-let mafiaRole = null;      // symbol of mafia (hidden)
-let mafiaPhase = false;    // dark phase active
-let sheriffRevealed = null; // last sheriff check target
-let votes = new Map();     // player -> votes count
-
-// Controllable chess/checker piece
-let activePieceControl = null; // { owner, type, idx, roundsLeft, capturedThisTurn }
-
-// Loader (minimal)
-function showModal(flag){ modal.style.display = flag ? 'grid' : 'none'; }
-
-setupBtn.addEventListener('click', ()=> showModal(true));
-cancelSetup.addEventListener('click', ()=> showModal(false));
-applySetup.addEventListener('click', ()=>{
+// Modal behavior
+function openSetup(){ modal.classList.add('active'); updateSetupLabels(); applyFieldVisibility(); }
+function closeSetup(){ modal.classList.remove('active'); }
+function updateSetupLabels(){
+  difficultyLabel.textContent = difficultyRange.value;
+  blitzLabel.textContent = blitzRange.value + 's';
+}
+function applyFieldVisibility(){
+  botRow.style.display = opponentSel.value==='bot' ? 'flex' : 'none';
+  blitzRow.style.display = modeSel.value==='blitz' ? 'flex' : 'none';
+  playersRow.style.display = (modeSel.value==='three' || modeSel.value==='four') ? 'none' : 'flex';
+  if(modeSel.value==='three') playerCountSel.value = '3';
+  if(modeSel.value==='four') playerCountSel.value = '4';
+}
+opponentSel.addEventListener('change', applyFieldVisibility);
+difficultyRange.addEventListener('input', updateSetupLabels);
+blitzRange.addEventListener('input', updateSetupLabels);
+modeSel.addEventListener('change', applyFieldVisibility);
+cancelSetup.addEventListener('click', closeSetup);
+applySetup.addEventListener('click', async ()=>{
   config.opponent = opponentSel.value;
+  config.difficulty = parseFloat(difficultyRange.value);
   config.mode = modeSel.value;
-  config.players = parseInt(playerCountSel.value, 10);
-  showModal(false);
+  config.players = parseInt((modeSel.value==='three'||modeSel.value==='four') ? (modeSel.value==='three'? '3':'4') : playerCountSel.value, 10);
+  config.blitzSec = parseInt(blitzRange.value, 10);
+  closeSetup();
+  showLoader(true); await animateProgress(800); showLoader(false);
   initGame(true);
 });
 
-// Boot
-initGame(false);
-
-// Helpers
-function getTurnOrder(players){
-  if (players===4) return ['X','O','■','▲'];
-  if (players===3) return ['X','O','■'];
-  return ['X','O'];
-}
 function getBoardSize(){
-  if (config.mode==='randomizer') return 5;
-  if (config.players===3) return 4;
-  if (config.players===4) return 5;
+  if (config.mode === 'randomizer') return 5;
+  if (config.mode === 'three' || config.players === 3) return 4;
+  if (config.mode === 'four' || config.players === 4) return 5;
   return 3;
 }
-function getWinLength(){ const s=getBoardSize(); return s>=4 ? 4 : 3; }
-function symbolClass(sym){ return sym==='X'?'x' : sym==='O'?'o' : sym==='■'?'p3':'p4'; }
-function currentPlayer(){ return state.order[state.turnIndex]; }
-function isBot(p){ return config.opponent==='bot' && p!=='X'; } // only non-first players are bots
-function isBotTurn(){ return isBot(currentPlayer()); }
-function nextActive(from){
-  let idx = state.order.indexOf(from);
-  do { idx = (idx + 1) % state.order.length; } while (eliminated.has(state.order[idx]));
-  return state.order[idx];
+function getWinLength(){
+  const size = getBoardSize();
+  return size >= 4 ? 4 : 3;
+}
+function mineCount(){
+  if (config.mode!=='mine') return 0;
+  return config.players === 4 ? 6 : config.players === 3 ? 4 : 3;
 }
 
-// Init
-function initGame(fromSetup){
+function initGame(fromSetup=false){
+  const size = getBoardSize();
   eliminated.clear();
   fogOwner = null; fogRoundsLeft = 0;
+  revealedMinesRounds = 0; revealedMinesOwner = null;
   perPlayerTimer.clear();
-  activePieceControl = null;
-  mafiaRole = null; mafiaPhase = false; sheriffRevealed=null; votes.clear();
-
-  const size = getBoardSize();
   state = {
     size,
-    grid:Array(size*size).fill(null),
-    blocked:new Set(),
-    order:getTurnOrder(config.players),
-    turnIndex:0,
-    winner:null,
-    line:[],
-    moves:0,
-    mines:new Set(),
-    deck:[],
-    hands:new Map(), // per player cards
-    skip:{},
-    shields:new Set(),
-    extraTurns:0,
-    playBlockedOnce:false,
-    pieces:[], // passive piece badges
+    grid: Array(size*size).fill(null),
+    blocked: new Set(),
+    order: getTurnOrder(config.players),
+    turnIndex: 0,
+    winner: null,
+    line: [],
+    moves: 0,
+    mines: new Set(),
+    chaosTick: 0,
+    deck: [],
+    hands: new Map(),
+    skip: {},
+    shields: new Set(),
+    extraTurns: 0,
+    playBlockedOnce: false,
+    pieces: []
   };
+
+  // Mines
+  for(let m=0;m<mineCount();m++){
+    let idx;
+    do{ idx = randomInt(0, size*size-1) } while(state.mines.has(idx));
+    state.mines.add(idx);
+  }
+
+  // Deck and starting hands
   buildDeck();
   dealStartingHands();
 
+  // Grid
   boardEl.classList.remove('win');
   boardEl.innerHTML = '<div class="ribbon" aria-hidden="true"></div><div class="fogMask" id="fogMask"></div>';
   boardEl.style.gridTemplateColumns = `repeat(${size}, min(16vw, ${Math.max(84, Math.floor(540/size))}px))`;
   boardEl.style.gridTemplateRows = `repeat(${size}, min(16vw, ${Math.max(84, Math.floor(540/size))}px))`;
+
   for(let i=0;i<size*size;i++){
     const cell=document.createElement('button');
     cell.className='cell';
+    cell.setAttribute('aria-label', `Cell ${i+1}`);
     cell.dataset.idx=i;
     cell.addEventListener('click', onCellClick);
     boardEl.appendChild(cell);
   }
 
   updateStatus();
-  renderScores();
   updateCardsTray();
 
   if (config.mode==='blitz'){
     baseTimer = config.blitzSec;
     for(const p of state.order){ perPlayerTimer.set(p, baseTimer); }
-    startTurnTimer(baseTimer);
+    startTurnTimer(perPlayerTimer.get(currentPlayer()));
   } else {
     stopTurnTimer(); timerBox.style.display='none';
   }
 
-  // bots only move if it is bot's turn
-  if (isBotTurn()) botTurn();
+  if (!fromSetup) renderScores();
+  maybeBotFirstMove();
 }
 
-// Turn overlays
-function showTurnOverlay(text){
-  turnBubble.textContent = text;
-  turnOverlay.classList.add('active');
-  setTimeout(()=>turnOverlay.classList.remove('active'), 900);
+function getTurnOrder(players){
+  if (players===4) return ['O','X','■','▲'];
+  if (players===3) return ['O','X','■'];
+  return ['X','O'];
+}
+function symbolClass(sym){
+  if (sym==='X') return 'x';
+  if (sym==='O') return 'o';
+  if (sym==='■') return 'p3';
+  if (sym==='▲') return 'p4';
+  return 'x';
 }
 
-// Status
+// Cards system
+const Rarity = { COMMON:'common', RARE:'rare', EPIC:'epic', LEGEND:'legend', MYTH:'myth' };
+function buildDeck(){
+  const cards = [
+    // COMMON
+    card('+1 Skip', Rarity.COMMON, 'Target skips next turn', (ctx)=>skipTarget(ctx.target,1)),
+    card('Block', Rarity.COMMON, 'Block a chosen empty cell', (ctx)=>blockChosenCell(ctx)),
+    card('Clear', Rarity.COMMON, 'Clear a chosen mark', (ctx)=>clearChosenMark(ctx)),
+    card('Swap Order', Rarity.COMMON, 'Reverse turn order', ()=>reverseTurnOrder()),
+    card('Peek Mine', Rarity.COMMON, 'Reveal if a chosen cell is a mine', (ctx)=>peekMine(ctx)),
+    card('Fog', Rarity.COMMON, 'Global fog for 2 rounds (only you see)', (ctx)=>applyFog(currentPlayer(),2)),
+    card('Unfog', Rarity.COMMON, 'Remove fog from all cells', ()=>unfogBoard(true)),
+    card('+Timer', Rarity.COMMON, '+2s to your timer (Blitz)', ()=>boostTimerFor(currentPlayer(),+2)),
+    card('-Timer', Rarity.COMMON, '-2s to next player timer (Blitz)', ()=>drainNextTimer(2)),
+    card('Reveal Mine Hint', Rarity.COMMON, 'Pulse a mine area', ()=>pulseMineTease()),
+
+    // RARE
+    card('+2 Skip', Rarity.RARE, 'Target skips next 2 turns', (ctx)=>skipTarget(ctx.target,2)),
+    card('Double Block', Rarity.RARE, 'Block two chosen empty cells', (ctx)=>blockTwo(ctx)),
+    card('Undo', Rarity.RARE, 'Undo last move', ()=>undoLastMove()),
+    card('Disarm', Rarity.RARE, 'Remove one random mine', ()=>removeRandomMine()),
+    card('Plant', Rarity.RARE, 'Add one random mine', ()=>addRandomMine()),
+    card('Clone', Rarity.RARE, 'Play two marks this turn (adjacent)', ()=>clonePlay()),
+    card('Boost Draw', Rarity.RARE, 'Draw 1 extra card now', ()=>drawFor(currentPlayer(),1)),
+    card('Reveal Mines', Rarity.RARE, 'Show all mines for 2 rounds (you only)', ()=>revealMines(currentPlayer(),2)),
+    card('Swap Mine', Rarity.RARE, 'Move a mine to a chosen empty cell', (ctx)=>swapMineToEmpty()),
+
+    // EPIC
+    card('Teleport', Rarity.EPIC, 'Move one of your marks to another cell', (ctx)=>teleportMark(ctx)),
+    card('Shield', Rarity.EPIC, 'Protect one of your marks from clear/block', (ctx)=>shieldMark(ctx)),
+    card('Accelerate', Rarity.EPIC, 'You play again after this turn', ()=>extraTurn()),
+    card('Bridge', Rarity.EPIC, 'Connect two of your marks as a wildcard (visual)', (ctx)=>bridgeMarks(ctx)),
+    card('Expand', Rarity.EPIC, 'Increase board size by 1 (adds layer)', ()=>expandBoard()),
+    card('Cover Zone', Rarity.EPIC, 'Cover a 2x2 zone temporarily', ()=>coverZone(2, randomInt(1,4))),
+    card('Knight Strike', Rarity.EPIC, 'Place a knight; removes marks like chess L for 2 rounds', ()=>spawnPiece('Knight', 2)),
+    card('Bishop Sweep', Rarity.EPIC, 'Place a bishop; clears diagonals for 3 rounds', ()=>spawnPiece('Bishop', 3)),
+
+    // LEGEND
+    card('Storm', Rarity.LEGEND, 'Clear 3 random opponent marks', ()=>clearRandomOpponentMarks(3)),
+    card('Quake', Rarity.LEGEND, 'Block 4 random empty cells', ()=>blockRandomCells(4)),
+    card('Time Warp', Rarity.LEGEND, 'Reset all timers baseline (Blitz)', ()=>resetTimers()),
+    card('Specter', Rarity.LEGEND, 'Play on a blocked cell (once)', (ctx)=>playOnBlocked(ctx)),
+    card('Rook Wall', Rarity.LEGEND, 'Place a rook; clears ranks/files for 2 rounds', ()=>spawnPiece('Rook', 2)),
+    card('Checkers Sweep', Rarity.LEGEND, 'Place checkers piece; clears adjacent diagonals for 2 rounds', ()=>spawnPiece('Checker', 2)),
+    card('Zone Freeze', Rarity.LEGEND, 'Freeze a 3x3 area (no plays) 2 rounds', ()=>coverZone(3,2)),
+    card('Expand+', Rarity.LEGEND, 'Increase board size by 2 (always adds layers)', ()=>expandBoard(2)),
+
+    // MYTH
+    card('M87', Rarity.MYTH, 'Black hole resets the board and restarts the round', ()=>m87Reset()),
+    card('Singularity', Rarity.MYTH, 'Absorb all cards; everyone discards hand', ()=>absorbCards()),
+    card('Nova', Rarity.MYTH, 'Add glow; next win highlights across board', ()=>novaGlow()),
+    card('Anomaly', Rarity.MYTH, 'Random powerful effect', ()=>randomPower()),
+    card('Mafia Night', Rarity.MYTH, 'Mini-event: randomly “vote” to clear a mark', ()=>mafiaMini()),
+    card('UNO Reverse', Rarity.MYTH, 'Reverse order and force next to draw 2 cards', ()=>unoReverse()),
+    card('Chess Rain', Rarity.MYTH, 'Spawn random chess pieces for 1–4 rounds', ()=>chessRain())
+  ];
+
+  // +25 more variants/intensities
+  state.deck = cards.concat([
+    card('Block Trio', Rarity.RARE, 'Block 3 chosen empty cells', (ctx)=>blockChosenCells(ctx,3)),
+    card('Clear Duo', Rarity.RARE, 'Clear 2 chosen marks', (ctx)=>clearChosenMarks(ctx,2)),
+    card('Peek Trio', Rarity.RARE, 'Reveal 3 selected cells for mines', (ctx)=>peekMultiple(ctx,3)),
+    card('Bridge+', Rarity.EPIC, 'Bridge three marks (looser)', (ctx)=>bridgeMarks(ctx,true)),
+    card('Accelerate+', Rarity.EPIC, 'Take 2 extra turns (limited)', ()=>extraTurn(2)),
+    card('Storm+', Rarity.LEGEND, 'Clear 5 random opponent marks', ()=>clearRandomOpponentMarks(5)),
+    card('Quake+', Rarity.LEGEND, 'Block 6 random empty cells', ()=>blockRandomCells(6)),
+    card('Teleport+', Rarity.EPIC, 'Teleport two marks', (ctx)=>teleportMark(ctx,true)),
+    card('Clone+', Rarity.RARE, 'Play two marks anywhere', ()=>clonePlay(true)),
+    card('Shield+', Rarity.EPIC, 'Protect two of your marks', (ctx)=>shieldMark(ctx,true)),
+    card('Reveal Mines+', Rarity.EPIC, 'Show mines 3 rounds', ()=>revealMines(currentPlayer(),3)),
+    card('Swap Mine+', Rarity.LEGEND, 'Swap two mines into empty cells', ()=>swapTwoMines()),
+    card('Expand++', Rarity.MYTH, 'Increase board size by 3', ()=>expandBoard(3)),
+    card('Fog+', Rarity.RARE, 'Global fog 3 rounds (you only)', ()=>applyFog(currentPlayer(),3)),
+    card('Cover Line', Rarity.EPIC, 'Cover one full row or column 2 rounds', ()=>coverLine(2)),
+    card('Knight+', Rarity.LEGEND, 'Knight lasts 4 rounds', ()=>spawnPiece('Knight',4)),
+    card('Bishop+', Rarity.LEGEND, 'Bishop lasts 4 rounds', ()=>spawnPiece('Bishop',4)),
+    card('Rook+', Rarity.LEGEND, 'Rook lasts 4 rounds', ()=>spawnPiece('Rook',4)),
+    card('Checker+', Rarity.LEGEND, 'Checker lasts 3 rounds', ()=>spawnPiece('Checker',3)),
+    card('Time Slice', Rarity.EPIC, 'Set your timer to next higher integer', ()=>ceilYourTimer()),
+    card('Drain Slice', Rarity.EPIC, 'Set next timer to lower integer', ()=>floorNextTimer()),
+    card('Wild Draw', Rarity.RARE, 'Draw 2 cards', ()=>drawFor(currentPlayer(),2)),
+    card('Mass Shield', Rarity.LEGEND, 'Shield 4 chosen marks', ()=>shieldMultiple(4)),
+    card('Purge', Rarity.LEGEND, 'Clear all unshielded marks in a 3x3', ()=>purgeArea(3)),
+    card('Pulse Mines', Rarity.RARE, 'Pulse outlines of mine cells for 2s', ()=>pulseAllMines())
+  ]);
+  shuffle(state.deck);
+}
+function card(name, rarity, desc, apply){
+  return { name, rarity, desc, apply };
+}
+function dealStartingHands(){
+  for(const p of state.order){
+    const cnt = randomInt(2,3);
+    state.hands.set(p, draw(cnt));
+  }
+}
+function draw(n){
+  const res = [];
+  for(let i=0;i<n;i++){
+    if (!state.deck.length) buildDeck();
+    res.push(state.deck.pop());
+  }
+  return res;
+}
+function drawFor(p, n){
+  const hand = state.hands.get(p) || [];
+  hand.push(...draw(n));
+  state.hands.set(p, hand);
+  updateCardsTray();
+}
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+}
+
+// Cards tray
+function updateCardsTray(){
+  const p = currentPlayer();
+  const hand = state.hands.get(p) || [];
+  if (config.mode!=='randomizer' || eliminated.has(p)){ cardsTray.style.display='none'; return; }
+  cardsTray.style.display='flex';
+  cardsTray.innerHTML='';
+  hand.forEach((c, idx)=>{
+    const el=document.createElement('div');
+    el.className='cardItem';
+    const rarClass = 'rar-' + c.rarity;
+    el.innerHTML = `
+      <div class="cardName">${c.name}</div>
+      <div class="cardTip">
+        <div style="font-weight:700; margin-bottom:6px">${c.name}</div>
+        <div>Rarity: ${c.rarity.toUpperCase()}</div>
+        <div style="margin-top:6px">${c.desc}</div>
+      </div>
+      <div class="rarBar ${rarClass}"></div>
+    `;
+    el.addEventListener('click', async ()=>{
+      if (state.winner) return;
+      const target = await chooseTargetIfNeeded(c.name);
+      playCardEffect(c, target);
+      // consume
+      hand.splice(idx,1);
+      state.hands.set(p, hand);
+      updateCardsTray();
+      if (!state.extraTurns || state.extraTurns<=0) advanceTurn();
+      else state.extraTurns--;
+    });
+    cardsTray.appendChild(el);
+  });
+}
+
+async function chooseTargetIfNeeded(cardName){
+  const targetingCards = ['+1 Skip','+2 Skip','Storm','Storm+','Specter','Mafia Night','UNO Reverse'];
+  if (!targetingCards.includes(cardName)) return null;
+  const others = state.order.filter(x=>x!==currentPlayer() && !eliminated.has(x));
+  if (!others.length) return null;
+  return others[0];
+}
+
+function playCardEffect(card, target){
+  showEffect(card.name, `Rarity: ${card.rarity.toUpperCase()} — ${card.desc}`);
+  try{
+    card.apply({ target });
+    animateBoardPulse();
+  }catch(e){}
+}
+
+function showEffect(title, desc){
+  effectTitle.textContent = title;
+  effectDesc.textContent = desc;
+  effectOverlay.style.display='grid';
+  setTimeout(()=>effectOverlay.style.display='none', 1300);
+}
+function animateBoardPulse(){
+  boardEl.classList.add('win');
+  setTimeout(()=>boardEl.classList.remove('win'), 700);
+}
+
+// Cell interactions
+async function onCellClick(e){
+  if (state.winner) return;
+  const i = Number(e.currentTarget.dataset.idx);
+  const player = currentPlayer();
+
+  if (eliminated.has(player)) return;
+  // FIX: only block when it's actually a bot's turn
+  if (isBotTurn()) return;
+
+  if (state.blocked.has(i) && !state.playBlockedOnce) return;
+  if (state.grid[i]) return;
+
+  // Minefield elimination
+  if (state.mines.has(i) && config.mode==='mine'){
+    placeGlyph(e.currentTarget, player);
+    eliminatePlayer(player, `Mine triggered by ${player}`);
+    return;
+  }
+
+  applyMove(i, player, e.currentTarget);
+
+  if (config.mode==='randomizer') processChaosEvent(true);
+
+  drawFor(player, 1);
+
+  await maybeBotReply();
+}
+
+function eliminatePlayer(player, reason){
+  eliminated.add(player);
+  for(let idx=0; idx<state.grid.length; idx++){
+    if (state.grid[idx]===player){
+      state.grid[idx]=null;
+      const el = boardEl.children[2 + idx];
+      el.innerHTML='';
+      el.classList.remove('played','win');
+    }
+  }
+  showEffect('Eliminated', `${player} removed: ${reason}`);
+  const activeLeft = state.order.filter(p=>!eliminated.has(p));
+  if (activeLeft.length===1){
+    endGame(activeLeft[0], [], false);
+    return;
+  }
+  advanceTurn();
+}
+
+function applyMove(i, player, cellEl){
+  state.grid[i] = player;
+  state.moves++;
+  placeGlyph(cellEl, player);
+
+  const win = checkWin(state.grid, state.size, getWinLength());
+  if (win){
+    endGame(player, win.line, false);
+    return;
+  }
+
+  if (state.moves + state.blocked.size === state.grid.length){
+    statusEl.textContent = 'Draw';
+    scores.D++; renderScores(); stopTurnTimer(); return;
+  }
+
+  state.playBlockedOnce = false;
+  advanceTurn();
+}
+
+function placeGlyph(el, player){
+  el.innerHTML = `<span class="glyph ${symbolClass(player)}">${player}</span>`;
+  el.classList.add('played');
+}
+
+function advanceTurn(){
+  // Skip eliminated players and apply skip counters
+  do {
+    state.turnIndex = (state.turnIndex + 1) % state.order.length;
+  } while (eliminated.has(currentPlayer()));
+
+  // Apply skip if tagged
+  const p = currentPlayer();
+  if (state.skip[p] && state.skip[p]>0){
+    state.skip[p]--;
+    return advanceTurn();
+  }
+
+  // Durations tick
+  tickDurations();
+
+  updateStatus();
+  updateCardsTray();
+
+  if (config.mode==='blitz'){
+    const next = p;
+    let t = perPlayerTimer.get(next) ?? baseTimer;
+    t = Math.min(60, Math.max(1, Math.floor(t)+1));
+    perPlayerTimer.set(next, t);
+    startTurnTimer(t);
+  }
+
+  // If it's bot turn now, let bots act
+  maybeBotReply();
+}
+
 function updateStatus(){
   const player = currentPlayer();
   statusEl.textContent = `${player} to move`;
@@ -484,195 +854,35 @@ function updateStatus(){
               : 'rgba(106,227,189,.25)';
   statusEl.style.borderColor = color;
   statusEl.style.boxShadow = `0 0 12px ${color} inset`;
-
-  const isHumanTurn = !isBot(player);
-  const label = isHumanTurn ? (player==='X' ? 'Your Turn' : 'First Player Turn') : `${player} (Bot)`;
-  showTurnOverlay(label);
 }
 
-// Move
-async function onCellClick(e){
-  if (state.winner) return;
-  const i = Number(e.currentTarget.dataset.idx);
-  const player = currentPlayer();
-
-  // Mafia: if phase active and player != mafia, they cannot act
-  if (mafiaPhase && player !== mafiaRole){
-    showEffect('Night', 'Darkness falls. Wait…');
-    return;
-  }
-
-  // Controllable piece move first (may capture one piece; checker can chain captures by rules)
-  if (activePieceControl && activePieceControl.owner === player){
-    const can = pieceCanMove(activePieceControl, i);
-    showMoveTargets(activePieceControl); // green highlight
-    if (!can){ showEffect('Piece blocked', 'Invalid target'); return; }
-    moveControlledPiece(activePieceControl, i);
-    activePieceControl.roundsLeft--;
-    if (activePieceControl.roundsLeft <= 0) activePieceControl = null;
-    // Moving doesn't consume the mark; player may still place mark in same turn
-    return;
-  }
-
-  if (isBotTurn()) return; // block only when it's actually bot’s turn
-  if (eliminated.has(player)) return;
-  if (state.blocked.has(i) && !state.playBlockedOnce) return;
-  if (state.grid[i]) return;
-
-  // Place mark
-  state.grid[i] = player;
-  state.moves++;
-  placeGlyph(e.currentTarget, player);
-
-  // Card overflow elimination rule
-  const hand = state.hands.get(player) || [];
-  if (hand.length > 10){
-    eliminatePlayer(player, 'Too many cards (>10)');
-  }
-
-  const win = checkWin(state.grid, state.size, getWinLength());
-  if (win){ endGame(player, win.line, false); return; }
-
-  if (state.moves + state.blocked.size === state.grid.length){
-    statusEl.textContent = 'Draw';
-    scores.D++; renderScores(); stopTurnTimer(); return;
-  }
-
-  // Draw a card after placing mark (randomizer mode)
-  if (config.mode==='randomizer') drawFor(player, 1);
-
-  state.playBlockedOnce = false;
-  advanceTurn();
-}
-
-// Advance turn (handles roundCount and mafia cadence)
-function advanceTurn(){
-  const prev = currentPlayer();
-  // Standard advance
-  do {
-    state.turnIndex = (state.turnIndex + 1) % state.order.length;
-  } while (eliminated.has(currentPlayer()));
-
-  const now = currentPlayer();
-
-  // If we wrapped around to first non-eliminated, count a round
-  if (now === state.order[0]) {
-    roundCount++;
-    // Every 3–5 rounds: trigger Mafia night cadence
-    if (roundCount >= 3 && roundCount <= 5 && !mafiaPhase){
-      triggerMafiaCadence();
-      // Reset window after cadence
-      roundCount = 0;
-    }
-  }
-
-  tickDurations();
-  updateStatus();
-  updateCardsTray();
-
-  // Blitz
-  if (config.mode==='blitz'){
-    let t = perPlayerTimer.get(now) ?? baseTimer;
-    t = Math.min(60, Math.max(1, Math.floor(t)+1)); // carryover +1s
-    perPlayerTimer.set(now, t);
-    startTurnTimer(t);
-  }
-
-  // If it's bot’s turn now, let bot act
-  if (isBotTurn()) botTurn();
-}
-
-// Bot
-async function botTurn(){
-  await sleep(220 + Math.random()*160);
-
-  // Bot piece control first
-  if (activePieceControl && activePieceControl.owner === currentPlayer()){
-    const moveTo = chooseControlledPieceMove(activePieceControl);
-    if (moveTo!=null){
-      moveControlledPiece(activePieceControl, moveTo);
-      activePieceControl.roundsLeft--;
-      if (activePieceControl.roundsLeft <= 0) activePieceControl = null;
-    }
-  }
-
-  // Pick move
-  const i = chooseBotMove();
-  if (i==null) return;
-  const cellEl = boardEl.children[2 + i];
-  state.grid[i] = currentPlayer();
-  state.moves++;
-  placeGlyph(cellEl, currentPlayer());
-
-  // Card overflow elimination rule for bots
-  const hand = state.hands.get(currentPlayer()) || [];
-  if (hand.length > 10){
-    eliminatePlayer(currentPlayer(), 'Too many cards (>10)');
-  }
-
-  const win = checkWin(state.grid, state.size, getWinLength());
-  if (win){ endGame(currentPlayer(), win.line, false); return; }
-
-  if (state.moves + state.blocked.size === state.grid.length){
-    statusEl.textContent = 'Draw';
-    scores.D++; renderScores(); stopTurnTimer(); return;
-  }
-
-  if (config.mode==='randomizer') drawFor(currentPlayer(), 1);
-
-  advanceTurn();
-}
-
-// Choose bot move heuristic
-function chooseBotMove(){
-  const size = state.size, winLen = getWinLength();
-  const grid = state.grid.slice();
-  const me = currentPlayer();
-  const opp = state.order.filter(p=>p!==me && !eliminated.has(p));
-
-  const winMove = findLineCompletion(grid, size, winLen, me); if (winMove!=null) return winMove;
-  for (const o of opp){
-    const blockMove = findLineCompletion(grid, size, winLen, o); if (blockMove!=null) return blockMove;
-  }
-  const empties = grid.map((v,idx)=> (v||state.blocked.has(idx))?null:idx).filter(v=>v!=null);
-  if (!empties.length) return null;
-  return empties[Math.floor(Math.random()*empties.length)];
-}
-function findLineCompletion(grid,size,winLen,player){
-  for(let i=0;i<grid.length;i++){ if(grid[i] || state.blocked.has(i)) continue; grid[i]=player; const w=checkWin(grid,size,winLen); grid[i]=null; if(w&&w.player===player) return i; }
-  return null;
-}
-
-// Glyph
-function placeGlyph(el, player){
-  el.innerHTML = `<span class="glyph ${symbolClass(player)}">${player}</span>`;
-  el.classList.add('played');
-}
-
-// Win handling
 function endGame(winner, line, byMine=false){
   state.winner = winner;
   state.line = line || [];
 
+  // Highlight winning cells
   for(const idx of state.line){
     const cell = boardEl.children[2 + idx];
     cell && cell.classList.add('win');
   }
+
+  // Win beam animation across the line
   drawWinBeam(state.line);
 
   statusEl.textContent = byMine ? `Mine! ${winner} wins` : `${winner} wins`;
   boardEl.classList.add('win');
   stopTurnTimer();
-
   if (winner==='X') scores.X++;
   else if (winner==='O') scores.O++;
   else if (winner==='■') scores.P3++;
   else if (winner==='▲') scores.P4++;
   renderScores();
 }
+
 function drawWinBeam(line){
   if (!line || line.length===0) return;
-  const first = line[0], last = line[line.length-1];
+  const first = line[0];
+  const last = line[line.length-1];
   const a = boardEl.children[2 + first].getBoundingClientRect();
   const b = boardEl.children[2 + last].getBoundingClientRect();
   const br = boardEl.getBoundingClientRect();
@@ -691,10 +901,9 @@ function drawWinBeam(line){
   beam.style.width = len+'px';
   beam.style.transform = `rotate(${angle}deg)`;
   boardEl.appendChild(beam);
-  setTimeout(()=>beam.remove(), 2600);
+  setTimeout(()=>beam.remove(), 3000);
 }
 
-// Scores
 function renderScores(){
   document.getElementById('scoreX').textContent = String(scores.X);
   document.getElementById('scoreO').textContent = String(scores.O);
@@ -703,7 +912,11 @@ function renderScores(){
   document.getElementById('scoreD').textContent = String(scores.D);
 }
 
-// Win detection NxN
+function currentPlayer(){
+  return state.order[state.turnIndex];
+}
+
+// NxN win detection
 function checkWin(g, size, winLen){
   for(let r=0;r<size;r++){
     for(let c=0;c<=size-winLen;c++){
@@ -740,7 +953,114 @@ function checkWin(g, size, winLen){
   return null;
 }
 
-// Blitz timer
+/* Bot logic
+- If opponent=bot, all players except the first local user are bots.
+- Bots can play moves and cards.
+*/
+function isBot(p){
+  return config.opponent==='bot' && !eliminated.has(p) && p!==state.order[0];
+}
+function isBotTurn(){
+  const cp = currentPlayer();
+  return isBot(cp);
+}
+async function maybeBotFirstMove(){ if (isBotTurn()) await botTurn(); }
+async function maybeBotReply(){ if (isBotTurn()) await botTurn(); }
+
+async function botTurn(){
+  const d = config.difficulty;
+  const baseThink = config.mode==='blitz' ? 120 : 220;
+  await sleep(baseThink + Math.random()*160 + d*60);
+
+  // Card usage
+  if (config.mode==='randomizer'){
+    const useChance = Math.min(0.2 + d*0.12, 0.75);
+    if (Math.random() < useChance){
+      const hand = state.hands.get(currentPlayer()) || [];
+      const prioritized = hand.sort((a,b)=>rarityWeight(b.rarity)-rarityWeight(a.rarity));
+      if (prioritized.length){
+        const card = prioritized[0];
+        playCardEffect(card, null);
+        hand.shift();
+        state.hands.set(currentPlayer(), hand);
+        updateCardsTray();
+        if (state.extraTurns && state.extraTurns>0) state.extraTurns--;
+        else { advanceTurn(); return; }
+      }
+    }
+  }
+
+  const i = chooseBotMove();
+  if (i==null) return;
+  const cellEl = boardEl.children[2 + i];
+  applyMove(i, currentPlayer(), cellEl);
+}
+function rarityWeight(r){
+  if (r===Rarity.COMMON) return 1;
+  if (r===Rarity.RARE) return 2;
+  if (r===Rarity.EPIC) return 3;
+  if (r===Rarity.LEGEND) return 4;
+  return 5;
+}
+function chooseBotMove(){
+  const size = state.size, winLen = getWinLength();
+  const grid = state.grid.slice();
+  const d = config.difficulty;
+  const me = currentPlayer();
+  const opp = state.order.filter(p=>p!==me);
+
+  const winMove = findLineCompletion(grid, size, winLen, me); if (winMove!=null && Math.random()<(0.9*d/5)) return winMove;
+  for (const o of opp){
+    const blockMove = findLineCompletion(grid, size, winLen, o); if (blockMove!=null && Math.random()<(0.8*d/5)) return blockMove;
+  }
+
+  const centers = getCenterIndices(size);
+  const centerPick = centers.find(i=>!grid[i] && !state.blocked.has(i));
+  if (centerPick!=null && Math.random()<(0.7*d/5)) return centerPick;
+
+  const empties = grid.map((v,idx)=> (v||state.blocked.has(idx))?null:idx).filter(v=>v!=null);
+  if (!empties.length) return null;
+
+  if (Math.random()<(0.5*d/5)){
+    const scored = empties.map(i=>({i,score: linePotentialScore(i, grid, size, winLen, me)})).sort((a,b)=>b.score-a.score);
+    return scored[0].i;
+  }
+
+  return empties[Math.floor(Math.random()*empties.length)];
+}
+function findLineCompletion(grid,size,winLen,player){
+  for(let i=0;i<grid.length;i++){ if(grid[i] || state.blocked.has(i)) continue; grid[i]=player; const w=checkWin(grid,size,winLen); grid[i]=null; if(w&&w.player===player) return i; }
+  return null;
+}
+function getCenterIndices(size){
+  if(size%2===1){ return [Math.floor((size*size)/2)] }
+  const c1=(size/2-1)*size+(size/2-1); return [c1,c1+1,c1+size,c1+size+1];
+}
+function adjacencyScore(i,positions,size){
+  if(!positions.length) return 0;
+  const r=Math.floor(i/size), c=i%size; let s=0;
+  for(const p of positions){ const pr=Math.floor(p/size), pc=p%size; const d=Math.abs(pr-r)+Math.abs(pc-c); s+=Math.max(0,4-d) }
+  return s;
+}
+function linePotentialScore(i, grid, size, winLen, player){
+  let score = 0;
+  const dirs = [[1,0],[0,1],[1,1],[1,-1]];
+  for(const [dr,dc] of dirs){
+    let chain=1;
+    for(let k=1;k<winLen;k++){
+      const rr = Math.floor(i/size)+dr*k, cc=i%size+dc*k;
+      const idx = rr*size+cc;
+      if (rr<0||cc<0||rr>=size||cc>=size) break;
+      if (!grid[idx] && !state.blocked.has(idx)) chain++;
+    }
+    score += chain;
+  }
+  const oPos = grid.map((v,ii)=>v===player?ii:null).filter(v=>v!=null);
+  score += adjacencyScore(i, oPos, size);
+  return score;
+}
+
+// Blitz timer (carryover per player)
 function startTurnTimer(sec){
   if (config.mode!=='blitz') return;
   stopTurnTimer();
@@ -759,123 +1079,390 @@ function startTurnTimer(sec){
   }, 1000);
 }
 function stopTurnTimer(){ if (timer){ clearInterval(timer); timer=null; } }
+function nextActive(from){
+  let idx = state.order.indexOf(from);
+  do {
+    idx = (idx + 1) % state.order.length;
+  } while (eliminated.has(state.order[idx]));
+  return state.order[idx];
+}
 
-// Cards
-const Rarity = { COMMON:'common', RARE:'rare', EPIC:'epic', LEGEND:'legend', MYTH:'myth' };
-function card(name, rarity, desc, apply){ return { name, rarity, desc, apply }; }
-function buildDeck(){
-  const cards = [
-    // COMMON
-    card('Block', Rarity.COMMON, 'Block a chosen empty cell', ()=>blockChosenCell()),
-    card('Clear', Rarity.COMMON, 'Clear a chosen mark', ()=>clearChosenMark()),
-    card('Swap Order', Rarity.COMMON, 'Reverse turn order', ()=>reverseTurnOrder()),
-    card('Fog', Rarity.COMMON, 'Global fog for 2 rounds (only you see)', ()=>applyFog(currentPlayer(),2)),
-    // RARE
-    card('Double Block', Rarity.RARE, 'Block two chosen cells', ()=>blockChosenCells(2)),
-    card('Undo', Rarity.RARE, 'Undo last move', ()=>undoLastMove()),
-    // EPIC chess/checkers with control
-    card('Knight', Rarity.EPIC, 'Spawn a Knight you can move each turn', ()=>spawnPieceWithControl('Knight',3)),
-    card('Bishop', Rarity.EPIC, 'Spawn a Bishop you can move each turn', ()=>spawnPieceWithControl('Bishop',3)),
-    card('Rook', Rarity.EPIC, 'Spawn a Rook you can move each turn', ()=>spawnPieceWithControl('Rook',3)),
-    card('Checker', Rarity.EPIC, 'Spawn a Checker you can move/capture', ()=>spawnPieceWithControl('Checker',3)),
-    // LEGEND
-    card('Storm', Rarity.LEGEND, 'Clear 3 random opponent marks', ()=>clearRandomOpponentMarks(3)),
-    // MYTH (Mafia Night one-time)
-    card('Mafia Night', Rarity.MYTH, 'Once per game: start Mafia night mechanics', ()=>mafiaNightCard())
+// Chaos Deck events
+function processChaosEvent(often=false){
+  state.chaosTick++;
+  const interval = often ? 2 : 3;
+  if (state.chaosTick % interval !== 0) return;
+  const ev = randomEvent();
+  showEffect(`Chaos: ${ev.name}`, ev.desc);
+  ev.apply();
+  drawFor(currentPlayer(), 1);
+}
+function randomEvent(){
+  const events = [
+    {name:'Block random cell', desc:'A random empty cell is blocked', apply:()=>blockRandomCells(1)},
+    {name:'Clear random mark', desc:'A random mark is cleared', apply:()=>clearRandomOpponentMarks(1)},
+    {name:'Reverse order', desc:'Turn order is reversed', apply:()=>reverseTurnOrder()},
+    {name:'+Timer', desc:'+2s to current timer (Blitz)', apply:()=>boostTimerFor(currentPlayer(),+2)},
+    {name:'-Timer', desc:'-2s to next timer (Blitz)', apply:()=>drainNextTimer(2)},
+    {name:'Add mine', desc:'A mine appears randomly', apply:()=>addRandomMine()},
+    {name:'Remove mine', desc:'A mine disappears', apply:()=>removeRandomMine()},
+    {name:'Reveal mine hint', desc:'A mine pulses somewhere…', apply:()=>pulseMineTease()},
+    // New events for richer chaos
+    {name:'Fog burst', desc:'Brief global fog', apply:()=>applyFog(currentPlayer(),1)},
+    {name:'Zone chill', desc:'Block a 2x2 zone briefly', apply:()=>coverZone(2,1)}
   ];
-  state.deck = cards.concat(cards).concat(cards); // simple expansion
-  shuffle(state.deck);
-}
-function dealStartingHands(){
-  for(const p of state.order){
-    state.hands.set(p, draw(2));
-  }
-}
-function draw(n){
-  const res = [];
-  for(let i=0;i<n;i++){
-    if (!state.deck.length) buildDeck();
-    res.push(state.deck.pop());
-  }
-  return res;
-}
-function drawFor(p, n){
-  const hand = state.hands.get(p) || [];
-  hand.push(...draw(n));
-  state.hands.set(p, hand);
-  updateCardsTray();
-}
-function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } }
-
-function updateCardsTray(){
-  const p = currentPlayer();
-  const hand = state.hands.get(p) || [];
-  // Only show in randomizer mode
-  if (config.mode!=='randomizer' || eliminated.has(p)){ cardsTray.style.display='none'; return; }
-  cardsTray.style.display='flex';
-  cardsTray.innerHTML='';
-  hand.forEach((c, idx)=>{
-    const el=document.createElement('div');
-    el.className='cardItem';
-    const rarClass = 'rar-' + c.rarity;
-    el.innerHTML = `
-      <div class="cardName">${c.name}</div>
-      <div class="cardTip">
-        <div style="font-weight:700; margin-bottom:6px">${c.name}</div>
-        <div>Rarity: ${c.rarity.toUpperCase()}</div>
-        <div style="margin-top:6px">${c.desc}</div>
-      </div>
-      <div class="rarBar ${rarClass}"></div>
-    `;
-    el.addEventListener('click', async ()=>{
-      if (state.winner) return;
-      // Mafia Night card one-time rule
-      if (c.name==='Mafia Night' && mafiaCardUsed){ showEffect('Mafia Night', 'Already used once'); return; }
-
-      playCardEffect(c);
-
-      // consume
-      hand.splice(idx,1);
-      state.hands.set(p, hand);
-      updateCardsTray();
-
-      // End or continue turn
-      if (!state.extraTurns || state.extraTurns<=0) advanceTurn();
-      else state.extraTurns--;
-    });
-    cardsTray.appendChild(el);
-  });
+  return events[Math.floor(Math.random()*events.length)];
 }
 
-function playCardEffect(card){
-  showEffect(card.name, `Rarity: ${card.rarity.toUpperCase()} — ${card.desc}`);
-  try{ card.apply(); }catch(e){}
-  animateBoardPulse();
+// Card effects
+function skipTarget(target, n){
+  state.skip = state.skip || {};
+  state.skip[target] = (state.skip[target] || 0) + n;
 }
-function showEffect(title, desc){
-  effectTitle.textContent = title;
-  effectDesc.textContent = desc;
-  effectOverlay.style.display='grid';
-  setTimeout(()=>effectOverlay.style.display='none', 1300);
-}
-function animateBoardPulse(){
-  boardEl.classList.add('win');
-  setTimeout(()=>boardEl.classList.remove('win'), 700);
-}
-
-// Basic card actions
 function reverseTurnOrder(){
   const cp = currentPlayer();
   state.order.reverse();
   state.turnIndex = state.order.indexOf(cp);
   updateStatus();
 }
+function blockChosenCell(ctx){ pickCells(1, (indices)=>{ indices.forEach(i=>blockIndex(i)); }); }
+function blockTwo(ctx){ pickCells(2, (idxs)=> idxs.forEach(i=>blockIndex(i)) ); }
+function blockChosenCells(ctx, n){ pickCells(n, (idxs)=> idxs.forEach(i=>blockIndex(i)) ); }
+function blockRandomCells(n){
+  const empties = emptyIndices();
+  for(let k=0;k<n && empties.length;k++){
+    const i = empties.splice(Math.floor(Math.random()*empties.length),1)[0];
+    blockIndex(i);
+  }
+}
+function blockIndex(i){
+  if (state.blocked.has(i)) return;
+  state.blocked.add(i);
+  const el = boardEl.children[2 + i];
+  el.setAttribute('disabled','true');
+  el.style.opacity = .45; el.style.filter = 'grayscale(0.3) brightness(0.8)';
+  el.title = 'Blocked';
+  el.animate([{transform:'scale(1)'},{transform:'scale(.95)'},{transform:'scale(1)'}], {duration:180, easing:'ease-out'});
+  if (state.moves + state.blocked.size === state.grid.length && !state.winner){
+    statusEl.textContent = 'Draw'; scores.D++; renderScores(); stopTurnTimer();
+  }
+}
+function clearChosenMark(ctx){ pickCells(1, (idxs)=> idxs.forEach(i=>clearMark(i)), true); }
+function clearChosenMarks(ctx, n){ pickCells(n, (idxs)=> idxs.forEach(i=>clearMark(i)), true); }
+function clearMark(i){
+  if (!state.grid[i]) return;
+  if (state.shields && state.shields.has(i)) return;
+  state.grid[i] = null;
+  const el = boardEl.children[2 + i];
+  el.innerHTML=''; el.classList.remove('played','win');
+  el.animate([{filter:'brightness(1)'},{filter:'brightness(.7)'},{filter:'brightness(1)'}], {duration:200, easing:'ease-out'});
+}
+function undoLastMove(){
+  for(let i=state.grid.length-1; i>=0; i--){
+    if (boardEl.children[2 + i].classList.contains('played')){
+      clearMark(i); break;
+    }
+  }
+}
+function removeRandomMine(){
+  const arr = Array.from(state.mines);
+  if (!arr.length) return;
+  const i = arr[Math.floor(Math.random()*arr.length)];
+  state.mines.delete(i);
+}
+function addRandomMine(){
+  const empties = emptyIndices();
+  if (!empties.length) return;
+  const i = empties[Math.floor(Math.random()*empties.length)];
+  state.mines.add(i);
+}
+function swapMineToEmpty(){
+  const mines = Array.from(state.mines);
+  const empties = emptyIndices();
+  if (!mines.length || !empties.length) return;
+  const m = mines[Math.floor(Math.random()*mines.length)];
+  const dest = empties[Math.floor(Math.random()*empties.length)];
+  state.mines.delete(m);
+  state.mines.add(dest);
+  pulseCell(dest, 'var(--danger)');
+}
+function swapTwoMines(){ swapMineToEmpty(); swapMineToEmpty(); }
+function clonePlay(free=false){ state.extraTurns = (state.extraTurns||0) + (free?2:1); }
+function teleportMark(ctx, two=false){
+  pickCells(two?2:1, (idxs)=>{
+    idxs.forEach(i=>{
+      if (!state.grid[i]) return;
+      const p = state.grid[i];
+      const empties = emptyIndices();
+      if (!empties.length) return;
+      const dest = empties[Math.floor(Math.random()*empties.length)];
+      state.grid[i]=null;
+      const srcEl = boardEl.children[2 + i];
+      srcEl.innerHTML=''; srcEl.classList.remove('played');
+      state.grid[dest]=p;
+      const dstEl = boardEl.children[2 + dest];
+      placeGlyph(dstEl, p);
+      pulseCell(dest, 'var(--accent)');
+    });
+  }, true);
+}
+function shieldMark(ctx, two=false){
+  state.shields = state.shields || new Set();
+  pickCells(two?2:1, (idxs)=> idxs.forEach(i=> state.shields.add(i)), true);
+}
+function shieldMultiple(n){ pickCells(n, (idxs)=> idxs.forEach(i=> state.shields.add(i)), true); }
+function extraTurn(times=1){ state.extraTurns = (state.extraTurns||0) + times; }
+function bridgeMarks(ctx, loose=false){ /* visual only */ }
+function clearRandomOpponentMarks(n){
+  const opponents = state.order.filter(p=>p!==currentPlayer());
+  const marks = [];
+  for(let i=0;i<state.grid.length;i++){
+    if (state.grid[i] && opponents.includes(state.grid[i])) marks.push(i);
+  }
+  shuffle(marks);
+  for(let k=0;k<n && marks.length;k++){ clearMark(marks.pop()); }
+}
+function peekMine(ctx){
+  pickCells(1, (idxs)=>{
+    idxs.forEach(i=>{
+      const mine = state.mines.has(i);
+      const el = boardEl.children[2 + i];
+      el.style.outline = mine ? '2px solid var(--danger)' : '2px solid var(--win)';
+      setTimeout(()=> el.style.outline='', 1200);
+    });
+  });
+}
+function peekMultiple(ctx, n){ pickCells(n, (idxs)=> idxs.forEach(i=>peekMine({target:null, i})) ); }
+function applyFog(owner, rounds){
+  fogOwner = owner; fogRoundsLeft = rounds;
+  fogMask.classList.add('active');
+  showEffect('Fog', `Only ${owner} sees clearly for ${rounds} rounds`);
+}
+function unfogBoard(force=false){
+  fogRoundsLeft = 0; fogOwner = null;
+  fogMask.classList.remove('active');
+  if (force) showEffect('Fog cleared', 'Visibility restored');
+}
+function revealMines(owner, rounds){
+  revealedMinesOwner = owner;
+  revealedMinesRounds = rounds;
+  pulseAllMines();
+}
+function moveMineTo(ctx){ swapMineToEmpty(); }
+function playOnBlocked(ctx){ state.playBlockedOnce = true; }
+function m87Reset(){
+  showEffect('M87 — Black Hole', 'The board collapses. Round restarts.');
+  initGame(true);
+}
+function absorbCards(){
+  for(const p of state.order){ state.hands.set(p, []); }
+  updateCardsTray();
+}
+function novaGlow(){
+  boardEl.classList.add('win');
+  setTimeout(()=>boardEl.classList.remove('win'), 1200);
+}
+function randomPower(){
+  const powers = [m87Reset, novaGlow, ()=>blockRandomCells(4), ()=>clearRandomOpponentMarks(3), ()=>extraTurn(2), ()=>expandBoard()];
+  powers[Math.floor(Math.random()*powers.length)]();
+}
+function boostTimerFor(player, delta){
+  if (config.mode!=='blitz') return;
+  const t = Math.max(1, (perPlayerTimer.get(player) ?? baseTimer) + delta);
+  perPlayerTimer.set(player, t);
+  if (currentPlayer()===player) startTurnTimer(t);
+}
+function drainNextTimer(delta){
+  if (config.mode!=='blitz') return;
+  const next = nextActive(currentPlayer());
+  const t = Math.max(1, (perPlayerTimer.get(next) ?? baseTimer) - delta);
+  perPlayerTimer.set(next, t);
+}
+function resetTimers(){
+  if (config.mode!=='blitz') return;
+  for(const p of state.order){ perPlayerTimer.set(p, baseTimer); }
+  startTurnTimer(perPlayerTimer.get(currentPlayer()));
+}
+function ceilYourTimer(){
+  if (config.mode!=='blitz') return;
+  const p = currentPlayer();
+  const t = Math.ceil(perPlayerTimer.get(p) ?? baseTimer);
+  perPlayerTimer.set(p, t);
+  startTurnTimer(t);
+}
+function floorNextTimer(){
+  if (config.mode!=='blitz') return;
+  const next = nextActive(currentPlayer());
+  const t = Math.max(1, Math.floor(perPlayerTimer.get(next) ?? baseTimer));
+  perPlayerTimer.set(next, t);
+}
+function pulseMineTease(){
+  if (!state.mines.size) return;
+  const i = Array.from(state.mines)[Math.floor(Math.random()*state.mines.size)];
+  pulseCell(i, 'var(--danger)');
+}
+function pulseAllMines(){ Array.from(state.mines).forEach(i=>pulseCell(i, 'var(--danger)')); }
+function purgeArea(size){
+  pickCells(1, (idxs)=>{
+    const center = idxs[0];
+    const s = state.size;
+    const cr = Math.floor(center/s), cc=center%s;
+    const half = Math.floor(size/2);
+    for(let r=cr-half;r<=cr+half;r++){
+      for(let c=cc-half;c<=cc+half;c++){
+        if (r<0||c<0||r>=s||c>=s) continue;
+        const i=r*s+c; clearMark(i);
+      }
+    }
+  });
+}
+function coverZone(size, rounds){
+  pickCells(1, (idxs)=>{
+    const center = idxs[0];
+    const s = state.size;
+    const cr = Math.floor(center/s), cc=center%s;
+    const half = Math.floor(size/2);
+    for(let r=cr-half;r<=cr+half;r++){
+      for(let c=cc-half;c<=cc+half;c++){
+        if (r<0||c<0||r>=s||c>=s) continue;
+        const i=r*s+c; blockIndex(i);
+      }
+    }
+    setTimeout(()=>unblockAll(), rounds*900);
+  });
+}
+function coverLine(rounds){
+  pickCells(1, (idxs)=>{
+    const i = idxs[0], s=state.size, r=Math.floor(i/s);
+    for(let c=0;c<s;c++){ blockIndex(r*s+c); }
+    setTimeout(()=>unblockAll(), rounds*900);
+  });
+}
+function unblockAll(){
+  const newSet = new Set();
+  state.blocked = newSet;
+  Array.from(boardEl.children).slice(2).forEach(el=>{
+    el.removeAttribute('disabled');
+    el.style.opacity = '';
+    el.style.filter = '';
+    el.title = '';
+  });
+}
+function expandBoard(layers=1){
+  const targetSize = state.size + layers;
+  const oldGrid = state.grid.slice();
+  const oldSize = state.size;
+  state.size = targetSize;
+  state.grid = Array(targetSize*targetSize).fill(null);
+  const startOffset = Math.floor((targetSize-oldSize)/2);
+  for(let r=0;r<oldSize;r++){
+    for(let c=0;c<oldSize;c++){
+      const oldIdx=r*oldSize+c;
+      const newIdx=(r+startOffset)*targetSize+(c+startOffset);
+      state.grid[newIdx]=oldGrid[oldIdx];
+    }
+  }
+  boardEl.innerHTML = '<div class="ribbon" aria-hidden="true"></div><div class="fogMask" id="fogMask"></div>';
+  boardEl.style.gridTemplateColumns = `repeat(${targetSize}, min(16vw, ${Math.max(84, Math.floor(540/targetSize))}px))`;
+  boardEl.style.gridTemplateRows = `repeat(${targetSize}, min(16vw, ${Math.max(84, Math.floor(540/targetSize))}px))`;
+  for(let i=0;i<state.grid.length;i++){
+    const cell=document.createElement('button');
+    cell.className='cell';
+    cell.dataset.idx=i;
+    cell.addEventListener('click', onCellClick);
+    if (state.grid[i]) placeGlyph(cell, state.grid[i]);
+    boardEl.appendChild(cell);
+  }
+  while(state.mines.size<mineCount()){
+    const i = randomInt(0, state.grid.length-1);
+    state.mines.add(i);
+  }
+  showEffect('Expand', `Board size is now ${state.size}x${state.size}`);
+}
+function spawnPiece(type, rounds){
+  pickCells(1, (idxs)=>{
+    const i = idxs[0];
+    state.pieces.push({type, idx:i, rounds});
+    const el = boardEl.children[2 + i];
+    const badge = document.createElement('div');
+    badge.className='piece';
+    badge.textContent = type;
+    el.appendChild(badge);
+  }, false);
+}
+function chessRain(){
+  const count = randomInt(2,4);
+  const types = ['Knight','Bishop','Rook','Checker'];
+  for(let k=0;k<count;k++){
+    spawnPiece(types[Math.floor(Math.random()*types.length)], randomInt(1,4));
+  }
+}
+function mafiaMini(){
+  const opp = state.order.filter(p=>p!==currentPlayer());
+  const marks = [];
+  for(let i=0;i<state.grid.length;i++){
+    if (state.grid[i] && opp.includes(state.grid[i])) marks.push(i);
+  }
+  if (!marks.length) return;
+  clearMark(marks[Math.floor(Math.random()*marks.length)]);
+}
+function unoReverse(){
+  reverseTurnOrder();
+  const next = nextActive(currentPlayer());
+  drawFor(next,2);
+}
+
+function tickDurations(){
+  if (fogRoundsLeft>0){
+    fogRoundsLeft--;
+    if (fogRoundsLeft<=0) unfogBoard();
+  }
+  if (revealedMinesRounds>0){
+    revealedMinesRounds--;
+    if (revealedMinesRounds<=0) { revealedMinesOwner=null; }
+  }
+
+  for (const piece of state.pieces){
+    actPiece(piece);
+    piece.rounds--;
+  }
+  state.pieces = state.pieces.filter(p=>p.rounds>0);
+  Array.from(boardEl.children).slice(2).forEach(el=>{
+    const badge = el.querySelector('.piece');
+    if (badge){
+      const idx = Number(el.dataset.idx);
+      const alive = state.pieces.find(p=>p.idx===idx);
+      if (!alive) badge.remove();
+    }
+  });
+}
+function actPiece(piece){
+  const s = state.size;
+  const origin = piece.idx;
+  const r=Math.floor(origin/s), c=origin%s;
+  const hit = (ri,ci)=>{
+    if (ri<0||ci<0||ri>=s||ci>=s) return;
+    const i=ri*s+ci; clearMark(i);
+  };
+  if (piece.type==='Knight'){
+    const deltas=[[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]];
+    deltas.forEach(([dr,dc])=>hit(r+dr,c+dc));
+  } else if (piece.type==='Bishop'){
+    for (let k=1;k<s;k++){ hit(r+k,c+k); hit(r-k,c-k); hit(r+k,c-k); hit(r-k,c+k); }
+  } else if (piece.type==='Rook'){
+    for (let k=1;k<s;k++){ hit(r+k,c); hit(r-k,c); hit(r,c+k); hit(r,c-k); }
+  } else if (piece.type==='Checker'){
+    [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([dr,dc])=>hit(r+dr,c+dc));
+  }
+}
+
+// Target/cell picker (simplified)
 function pickCells(n, done, requireHasMark=false){
   let picked = [];
   const cells = Array.from(boardEl.children).slice(2);
   cells.forEach((el, idx)=>{
     const hasMark = !!state.grid[idx];
-    const ok = requireHasMark ? hasMark : true;
+    const ok = requireHasMark ? hasMark : !requireHasMark || hasMark || true;
     if (!ok) return;
     el.style.outline='2px solid var(--gold)';
     const h = ()=>{
@@ -890,262 +1477,35 @@ function pickCells(n, done, requireHasMark=false){
     el.addEventListener('click', h, {once:true});
   });
 }
-function blockChosenCell(){ pickCells(1, (indices)=> indices.forEach(i=>blockIndex(i)) ); }
-function blockChosenCells(n){ pickCells(n, (idxs)=> idxs.forEach(i=>blockIndex(i)) ); }
-function blockIndex(i){
-  if (state.blocked.has(i)) return;
-  state.blocked.add(i);
-  const el = boardEl.children[2 + i];
-  el.setAttribute('disabled','true');
-  el.style.opacity = .45; el.style.filter = 'grayscale(0.3) brightness(0.8)';
-  el.title = 'Blocked';
-}
-function clearChosenMark(){ pickCells(1, (idxs)=> idxs.forEach(i=>clearMark(i)), true); }
-function clearRandomOpponentMarks(n){
-  const opponents = state.order.filter(p=>p!==currentPlayer());
-  const marks = [];
-  for(let i=0;i<state.grid.length;i++){
-    if (state.grid[i] && opponents.includes(state.grid[i])) marks.push(i);
-  }
-  shuffle(marks);
-  for(let k=0;k<n && marks.length;k++){ clearMark(marks.pop()); }
-}
-function clearMark(i){
-  if (!state.grid[i]) return;
-  if (state.shields && state.shields.has(i)) return;
-  state.grid[i] = null;
-  const el = boardEl.children[2 + i];
-  el.innerHTML=''; el.classList.remove('played','win');
-}
-function undoLastMove(){
-  for(let i=state.grid.length-1; i>=0; i--){
-    if (boardEl.children[2 + i].classList.contains('played')){
-      clearMark(i); break;
-    }
-  }
-}
-function applyFog(owner, rounds){
-  fogOwner = owner; fogRoundsLeft = rounds;
-  fogMask.classList.add('active');
-  showEffect('Fog', `Only ${owner} sees clearly for ${rounds} rounds`);
-}
-function unfogBoard(force=false){
-  fogRoundsLeft = 0; fogOwner = null;
-  fogMask.classList.remove('active');
-  if (force) showEffect('Fog cleared', 'Visibility restored');
-}
-
-// Chess/checkers controllable piece
-function spawnPieceWithControl(type, rounds){
-  const empties = emptyIndices();
-  if (!empties.length) return;
-  const idx = empties[Math.floor(Math.random()*empties.length)];
-  state.pieces.push({type, idx, rounds});
-  const el = boardEl.children[2 + idx];
-  const badge = document.createElement('div');
-  badge.className='piece';
-  badge.textContent = type;
-  el.appendChild(badge);
-
-  activePieceControl = { owner: currentPlayer(), type, idx, roundsLeft: rounds, capturedThisTurn:false };
-  showEffect(`${type} ready`, 'Green tiles show valid moves');
-  showMoveTargets(activePieceControl);
-}
-function showMoveTargets(ctrl){
-  removeAllHints();
-  const targets = validTargets(ctrl);
-  targets.forEach(i=>{
-    const el = boardEl.children[2 + i];
-    const hint = document.createElement('div');
-    hint.className='moveHint';
-    el.appendChild(hint);
-  });
-}
-function removeAllHints(){
-  Array.from(boardEl.children).slice(2).forEach(el=>{
-    const h = el.querySelector('.moveHint'); if (h) h.remove();
-  });
-}
-function pieceCanMove(ctrl, targetIdx){
-  return validTargets(ctrl).includes(targetIdx);
-}
-function validTargets(ctrl){
-  const s = state.size;
-  const idx = ctrl.idx;
-  const r0 = Math.floor(idx/s), c0 = idx % s;
-  const targets = [];
-  const push=(ri,ci)=>{
-    if (ri<0||ci<0||ri>=s||ci>=s) return;
-    const ti = ri*s+ci;
-    if (state.blocked.has(ti)) return; // walls
-    // cannot move onto own mark; can capture one opponent mark (except checker which can chain captures)
-    if (state.grid[ti] && state.grid[ti]===ctrl.owner) return;
-    targets.push(ti);
-  };
-
-  if (ctrl.type==='Knight'){
-    const deltas=[[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]];
-    deltas.forEach(([dr,dc])=>push(r0+dr,c0+dc));
-  } else if (ctrl.type==='Bishop'){
-    [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([dr,dc])=>{
-      for(let k=1;k<s;k++){ push(r0+dr*k, c0+dc*k); }
-    });
-  } else if (ctrl.type==='Rook'){
-    [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr,dc])=>{
-      for(let k=1;k<s;k++){ push(r0+dr*k, c0+dc*k); }
-    });
-  } else if (ctrl.type==='Checker'){
-    [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([dr,dc])=>push(r0+dr, c0+dc));
-  }
-  return targets;
-}
-function moveControlledPiece(ctrl, targetIdx){
-  // Allow capture only one per turn except checker (can chain by multiple moves, we simplify: one capture per click)
-  const hasOpponent = state.grid[targetIdx] && state.grid[targetIdx] !== ctrl.owner;
-  if (hasOpponent && ctrl.type!=='Checker' && ctrl.capturedThisTurn) return; // already captured
-  if (hasOpponent){ clearMark(targetIdx); ctrl.capturedThisTurn = true; }
-
-  const fromCell = boardEl.children[2 + ctrl.idx];
-  const toCell = boardEl.children[2 + targetIdx];
-  const badge = fromCell.querySelector('.piece'); if (badge) badge.remove();
-
-  const newBadge = document.createElement('div');
-  newBadge.className='piece';
-  newBadge.textContent = ctrl.type;
-  toCell.appendChild(newBadge);
-  ctrl.idx = targetIdx;
-
-  showMoveTargets(ctrl);
-  showEffect('Piece moved', `${ctrl.type} repositioned`);
-}
-function chooseControlledPieceMove(ctrl){
-  const candidates = validTargets(ctrl);
-  if (!candidates.length) return null;
-  const captures = candidates.filter(i=>state.grid[i] && state.grid[i]!==ctrl.owner);
-  return (captures[0] ?? candidates[Math.floor(Math.random()*candidates.length)]);
-}
-
-// Mafia Night mechanics
-function mafiaNightCard(){
-  if (mafiaCardUsed){ showEffect('Mafia Night', 'Already used once'); return; }
-  mafiaCardUsed = true;
-  startMafiaNight();
-}
-function startMafiaNight(){
-  // Assign mafia randomly among active players
-  const pool = state.order.filter(p=>!eliminated.has(p));
-  mafiaRole = pool[Math.floor(Math.random()*pool.length)];
-  mafiaPhase = true;
-  showEffect('Mafia Night', mafiaRole===currentPlayer() ? 'You are mafia. Choose 3 marks to eliminate.' : 'Darkness falls…');
-}
-function triggerMafiaCadence(){
-  // Auto night: mafia chooses 3 pieces to eliminate
-  startMafiaNight();
-  // Mafia elimination: pick up to 3 opponent marks; if someone has <3 marks, mafia may eliminate the player
-  const marks = [];
-  for(let i=0;i<state.grid.length;i++){
-    const v = state.grid[i];
-    if (v && v!==mafiaRole) marks.push(i);
-  }
-  shuffle(marks);
-  const killCount = Math.min(3, marks.length);
-  for(let k=0;k<killCount;k++){ clearMark(marks[k]); }
-
-  // If any player has <3 marks on board, mafia may eliminate that player
-  for (const p of state.order){
-    if (p===mafiaRole || eliminated.has(p)) continue;
-    const count = state.grid.filter(v=>v===p).length;
-    if (count < 3){
-      eliminatePlayer(p, 'Mafia elimination (few marks)');
-    }
-  }
-
-  // Sheriff check: randomly reveal role of one player to sheriff (we show message only to sheriff if it exists; here first player acts as sheriff)
-  const sheriff = state.order[0];
-  const candidates = state.order.filter(p=>p!==sheriff && !eliminated.has(p));
-  if (candidates.length){
-    sheriffRevealed = candidates[Math.floor(Math.random()*candidates.length)];
-    if (currentPlayer()===sheriff){
-      showEffect('Sheriff check', `${sheriffRevealed} is ${sheriffRevealed===mafiaRole?'MAFIA':'NOT mafia'}`);
-    } else {
-      showEffect('Sheriff check', 'Someone was checked.');
-    }
-  }
-
-  // Voting: simple majority vote against a random suspect (demo)
-  votes.clear();
-  const suspects = state.order.filter(p=>!eliminated.has(p));
-  if (suspects.length){
-    const suspect = suspects[Math.floor(Math.random()*suspects.length)];
-    for (const voter of suspects){ if (voter!==suspect) votes.set(suspect, (votes.get(suspect)||0)+1); }
-    const majority = votes.get(suspect) >= Math.ceil(suspects.length/2);
-    if (majority){
-      if (suspect===mafiaRole){
-        // Mafia voted out: remaining players win immediately
-        for (const p of state.order){ if (!eliminated.has(p) && p!==mafiaRole) { endGame(p, [], false); break; } }
-      } else {
-        eliminatePlayer(suspect, 'Voted out');
-      }
-    }
-  }
-
-  mafiaPhase = false;
-  mafiaRole = null;
-}
-
-// Elimination
-function eliminatePlayer(player, reason){
-  eliminated.add(player);
-  // Remove all their marks
-  for(let idx=0; idx<state.grid.length; idx++){
-    if (state.grid[idx]===player){
-      state.grid[idx]=null;
-      const el = boardEl.children[2 + idx];
-      el.innerHTML='';
-      el.classList.remove('played','win');
-    }
-  }
-  showEffect('Eliminated', `${player} removed: ${reason}`);
-  const activeLeft = state.order.filter(p=>!eliminated.has(p));
-  if (activeLeft.length===1){
-    endGame(activeLeft[0], [], false);
-  }
-}
-
-// Tick durations
-function tickDurations(){
-  if (fogRoundsLeft>0){
-    fogRoundsLeft--;
-    if (fogRoundsLeft<=0) unfogBoard();
-  }
-
-  // Passive piece sweeps per turn (light)
-  for (const piece of state.pieces){
-    piece.rounds--;
-  }
-  state.pieces = state.pieces.filter(p=>p.rounds>0);
-  Array.from(boardEl.children).slice(2).forEach(el=>{
-    const badge = el.querySelector('.piece');
-    if (badge){
-      const idx = Number(el.dataset.idx);
-      const alive = state.pieces.find(p=>p.idx===idx);
-      if (!alive) badge.remove();
-    }
-  });
-
-  // Reset capture flag each turn
-  if (activePieceControl) activePieceControl.capturedThisTurn = false;
-}
 
 // Utils
 function emptyIndices(){ return state.grid.map((v,i)=> v||state.blocked.has(i)?null:i).filter(v=>v!=null); }
+function pulseCell(i, color){
+  const el = boardEl.children[2 + i];
+  el.style.outline=`2px solid ${color}`;
+  setTimeout(()=> el.style.outline='', 800);
+}
 function randomInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min }
 function sleep(ms){ return new Promise(res=>setTimeout(res, ms)) }
 
 // Controls
-resetBtn.addEventListener('click', ()=> initGame(false));
-backBtn.addEventListener('click', ()=> window.location.href = 'index.html');
-refreshBtn.addEventListener('click', ()=> location.reload());
+resetBtn.addEventListener('click', async ()=>{
+  showLoader(true); await animateProgress(700); showLoader(false); initGame();
+});
+backBtn.addEventListener('click', async ()=>{
+  showLoader(true); await animateProgress(600); showLoader(false);
+  window.location.href = 'index.html';
+});
+refreshBtn.addEventListener('click', async ()=>{
+  showLoader(true); await animateProgress(800); showLoader(false);
+});
+setupBtn.addEventListener('click', openSetup);
+
+// Boot
+(async function boot(){
+  showLoader(true); await animateProgress(900); showLoader(false);
+  openSetup(); renderScores();
+})();
 </script>
 </body>
 </html>
