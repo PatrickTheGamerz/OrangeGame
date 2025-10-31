@@ -177,7 +177,7 @@
   .effectTitle{ font-weight:700 }
   .effectDesc{ font-size:12px; color:var(--muted); text-align:center; max-width:360px }
 
-  /* Turn prompt overlay (player-only emphasis) */
+  /* Turn prompt overlay */
   .turnOverlay{
     position:fixed; inset:0; display:grid; place-items:center; z-index:1003;
     pointer-events:none; opacity:0; transition: opacity .18s ease;
@@ -340,7 +340,7 @@
         <div class="row-flex">
           <select class="select" id="opponent">
             <option value="player">Local players</option>
-            <option value="bot">Bots for all non-you players</option>
+            <option value="bot">Bots</option>
           </select>
           <div id="botRow" class="row-flex" style="display:none">
             <div class="pill">Difficulty (1–5, decimals ok)</div>
@@ -450,11 +450,11 @@ let fogRoundsLeft = 0;
 let revealedMinesRounds = 0;
 let revealedMinesOwner = null;
 
-// Mafia night state (secret role, single local UX)
+// Mafia night state
 let mafiaOwner = null;
 let mafiaActive = false;
 
-// Piece control (one interactive move immediately after spawn)
+// Piece control (owner-only immediate move)
 let pieceControl = { active:false, owner:null, piece:null, moves:0 };
 
 // Loader
@@ -525,7 +525,7 @@ function showTurnPrompt(player){
   const isHuman = !(config.opponent==='bot' && player!==state.order[0]);
   const title = isHuman ? 'Your Turn' : 'Bot Turn';
   const desc = isHuman ? `${player} — place your mark or use a card`
-                       : `${player} is thinking…`;
+                       : `Bot is thinking…`;
   turnTitle.textContent = title;
   turnDesc.textContent = desc;
   turnOverlay.classList.add('active');
@@ -673,7 +673,7 @@ function buildDeck(){
     card('Chess Rain', Rarity.MYTH, 'Spawn random chess pieces for 1–4 rounds', ()=>chessRain())
   ];
 
-  // +25 more variants/intensities
+  // + more variants/intensities
   state.deck = cards.concat([
     card('Block Trio', Rarity.RARE, 'Block 3 chosen empty cells', (ctx)=>blockChosenCells(ctx,3)),
     card('Clear Duo', Rarity.RARE, 'Clear 2 chosen marks', (ctx)=>clearChosenMarks(ctx,2)),
@@ -699,7 +699,12 @@ function buildDeck(){
     card('Wild Draw', Rarity.RARE, 'Draw 2 cards', ()=>drawFor(currentPlayer(),2)),
     card('Mass Shield', Rarity.LEGEND, 'Shield 4 chosen marks', ()=>shieldMultiple(4)),
     card('Purge', Rarity.LEGEND, 'Clear all unshielded marks in a 3x3', ()=>purgeArea(3)),
-    card('Pulse Mines', Rarity.RARE, 'Pulse outlines of mine cells for 2s', ()=>pulseAllMines())
+    card('Pulse Mines', Rarity.RARE, 'Pulse outlines of mine cells for 2s', ()=>pulseAllMines()),
+    // extras for chaos
+    card('Meteor Strike', Rarity.LEGEND, 'Random 5 cells cleared', ()=>meteorStrike(5)),
+    card('Time Freeze', Rarity.EPIC, 'Pause timers for 3s (Blitz)', ()=>timeFreeze(3)),
+    card('Mine Shuffle', Rarity.RARE, 'Randomly relocate all mines', ()=>shuffleMines()),
+    card('Fog Storm', Rarity.EPIC, 'Fog + reveal mines for owner 2 rounds', ()=>{applyFog(currentPlayer(),2); revealMines(currentPlayer(),2);})
   ]);
   shuffle(state.deck);
 }
@@ -754,7 +759,7 @@ function updateCardsTray(){
     `;
     el.addEventListener('click', async ()=>{
       if (state.winner) return;
-      if (isBotTurn()) return; // prevent bots from using player's private tray
+      if (isBotTurn()) return;
       const target = await chooseTargetIfNeeded(c.name);
       playCardEffect(c, target);
       // consume
@@ -799,8 +804,8 @@ function animateBoardPulse(){
 async function onCellClick(e){
   if (state.winner) return;
 
-  // If a piece is under immediate control by its owner, moving it takes precedence
-  if (pieceControl.active){
+  // Piece immediate control
+  if (pieceControl.active && currentPlayer()===pieceControl.owner){
     const idx = Number(e.currentTarget.dataset.idx);
     attemptPieceMove(idx);
     return;
@@ -810,7 +815,6 @@ async function onCellClick(e){
   const player = currentPlayer();
 
   if (eliminated.has(player)) return;
-  // Only block clicks on bot turns (fixes "bot plays instead of player" confusion)
   if (isBotTurn()) return;
 
   if (state.blocked.has(i) && !state.playBlockedOnce) return;
@@ -904,7 +908,7 @@ function advanceTurn(){
     startTurnTimer(t);
   }
 
-  // If it's bot turn now, let bots act
+  // If it's bot turn now, let bots act (short delay to prevent stealing control)
   maybeBotReply();
 }
 
@@ -929,7 +933,7 @@ function endGame(winner, line, byMine=false){
     cell && cell.classList.add('win');
   }
 
-  // Win beam animation across the line (improved placement uses center and transforms)
+  // Win beam animation across the line
   drawWinBeam(state.line);
 
   statusEl.textContent = byMine ? `Mine! ${winner} wins` : `${winner} wins`;
@@ -962,7 +966,7 @@ function drawWinBeam(line){
   beam.style.left = x1+'px';
   beam.style.top = y1+'px';
   beam.style.width = len+'px';
-  beam.style.transform = `translateY(-2px) rotate(${angle}deg)`; // slight offset for visual crispness
+  beam.style.transform = `translateY(-2px) rotate(${angle}deg)`;
   boardEl.appendChild(beam);
   setTimeout(()=>beam.remove(), 3000);
 }
@@ -1032,35 +1036,62 @@ function isBotTurn(){
   return isBot(cp);
 }
 async function maybeBotFirstMove(){ if (isBotTurn()) await botTurn(); }
-async function maybeBotReply(){ if (isBotTurn()) await botTurn(); }
+async function maybeBotReply(){
+  if (isBotTurn()){
+    await sleep(380); // allow UI to settle; prevents bot stealing control
+    if (state.winner) return;
+    if (!isBotTurn()) return; // recheck after delay
+    await botTurn();
+  }
+}
 
 async function botTurn(){
-  const d = config.difficulty;
-  const baseThink = config.mode==='blitz' ? 120 : 220;
-  await sleep(baseThink + Math.random()*160 + d*60);
+  try{
+    const d = config.difficulty;
+    const baseThink = config.mode==='blitz' ? 120 : 220;
+    await sleep(baseThink + Math.random()*160 + d*60);
 
-  // Card usage
-  if (config.mode==='randomizer'){
-    const useChance = Math.min(0.2 + d*0.12, 0.75);
-    if (Math.random() < useChance){
-      const hand = state.hands.get(currentPlayer()) || [];
-      const prioritized = hand.sort((a,b)=>rarityWeight(b.rarity)-rarityWeight(a.rarity));
-      if (prioritized.length){
-        const card = prioritized[0];
-        playCardEffect(card, null);
-        hand.shift();
-        state.hands.set(currentPlayer(), hand);
-        updateCardsTray();
-        if (state.extraTurns && state.extraTurns>0) state.extraTurns--;
-        else { advanceTurn(); return; }
+    if (state.winner) return;
+    if (!isBotTurn()) return;
+
+    // Card usage
+    if (config.mode==='randomizer'){
+      const useChance = Math.min(0.2 + d*0.12, 0.75);
+      if (Math.random() < useChance){
+        const hand = (state.hands.get(currentPlayer()) || []).slice();
+        const prioritized = hand.sort((a,b)=>rarityWeight(b.rarity)-rarityWeight(a.rarity));
+        if (prioritized.length){
+          const card = prioritized[0];
+          playCardEffect(card, null);
+          // consume one from actual hand
+          const realHand = state.hands.get(currentPlayer()) || [];
+          const idx = realHand.findIndex(h=>h.name===card.name);
+          if (idx>=0) realHand.splice(idx,1);
+          state.hands.set(currentPlayer(), realHand);
+          updateCardsTray();
+          if (state.extraTurns && state.extraTurns>0) state.extraTurns--;
+          else { advanceTurn(); return; }
+        }
       }
     }
-  }
 
-  const i = chooseBotMove();
-  if (i==null) return;
-  const cellEl = boardEl.children[2 + i];
-  applyMove(i, currentPlayer(), cellEl);
+    // Choose move
+    const i = chooseBotMove();
+    if (i==null){
+      // fallback: try any empty non-blocked
+      const empties = emptyIndices();
+      if (!empties.length) { advanceTurn(); return; }
+      const pick = empties[Math.floor(Math.random()*empties.length)];
+      const cellEl = boardEl.children[2 + pick];
+      applyMove(pick, currentPlayer(), cellEl);
+      return;
+    }
+    const cellEl = boardEl.children[2 + i];
+    applyMove(i, currentPlayer(), cellEl);
+  }catch(e){
+    // safe advance on crash
+    advanceTurn();
+  }
 }
 function rarityWeight(r){
   if (r===Rarity.COMMON) return 1;
@@ -1175,7 +1206,8 @@ function randomEvent(){
     {name:'Remove mine', desc:'A mine disappears', apply:()=>removeRandomMine()},
     {name:'Reveal mine hint', desc:'A mine pulses somewhere…', apply:()=>pulseMineTease()},
     {name:'Fog burst', desc:'Brief global fog', apply:()=>applyFog(currentPlayer(),1)},
-    {name:'Zone chill', desc:'Block a 2x2 zone briefly', apply:()=>coverZone(2,1)}
+    {name:'Zone chill', desc:'Block a 2x2 zone briefly', apply:()=>coverZone(2,1)},
+    {name:'Meteor spark', desc:'Clear 2 random cells', apply:()=>meteorStrike(2)}
   ];
   return events[Math.floor(Math.random()*events.length)];
 }
@@ -1384,17 +1416,55 @@ function purgeArea(size){
   });
 }
 
-// Mafia Night (secret role, dark overlay for others; local UX)
+// Bonus effects
+function meteorStrike(n){
+  const filled = state.grid.map((v,i)=>v?i:null).filter(v=>v!=null);
+  shuffle(filled);
+  for(let k=0;k<n && filled.length;k++){
+    clearMark(filled.pop());
+  }
+}
+function timeFreeze(seconds){
+  if (config.mode!=='blitz') return;
+  const saved = timer;
+  stopTurnTimer();
+  setTimeout(()=>{
+    startTurnTimer(perPlayerTimer.get(currentPlayer()) ?? baseTimer);
+  }, Math.max(0, seconds*1000));
+}
+function shuffleMines(){
+  const count = state.mines.size;
+  state.mines.clear();
+  const empties = emptyIndices();
+  shuffle(empties);
+  for(let k=0;k<count && empties.length;k++){
+    state.mines.add(empties.pop());
+  }
+  pulseAllMines();
+}
+
+// Mafia Night (owner-only selection visuals)
 function startMafiaNight(){
   mafiaOwner = currentPlayer();
   mafiaActive = true;
-  showEffect('Mafia Night', `${mafiaOwner} is choosing a mark to eliminate`);
-  // The mafia picks one opponent mark secretly
-  pickOpponentMarks(1, (idxs)=>{
-    if (!idxs.length) { mafiaActive=false; mafiaOwner=null; return; }
-    clearMark(idxs[0]);
+  showEffect('Mafia Night', `Secret selection in progress…`);
+
+  if (!isBot(mafiaOwner)){
+    // Human mafia sees green outlines; others see nothing until result
+    pickOpponentMarks(1, (idxs)=>{
+      if (idxs.length) clearMark(idxs[0]);
+      mafiaActive=false; mafiaOwner=null;
+    }, 'limegreen');
+  } else {
+    // Bot mafia chooses randomly and immediately
+    const opp = state.order.filter(p=>p!==mafiaOwner);
+    const marks = [];
+    for(let i=0;i<state.grid.length;i++){ if(state.grid[i] && opp.includes(state.grid[i])) marks.push(i); }
+    if (marks.length){
+      clearMark(marks[Math.floor(Math.random()*marks.length)]);
+    }
     mafiaActive=false; mafiaOwner=null;
-  });
+  }
 }
 
 // Cover & expand, pieces
@@ -1464,7 +1534,7 @@ function expandBoard(layers=1){
 
 // Piece spawn and immediate interactive move
 function spawnPiece(type, rounds){
-  // Place in random spot; owner can move it once immediately (like chess/checkers)
+  // Place in random spot; owner can move it once immediately
   const empties = emptyIndices();
   if (!empties.length) return;
   const i = empties[Math.floor(Math.random()*empties.length)];
@@ -1480,7 +1550,7 @@ function spawnPiece(type, rounds){
 
   // Enable immediate one move control
   pieceControl = { active:true, owner, piece, moves:1 };
-  showEffect(`${type} placed`, `You may move it once now`);
+  showEffect(`${type} placed`, `Move it once now`);
   highlightPieceMoves(piece);
 }
 
@@ -1493,7 +1563,7 @@ function chessRain(){
 }
 
 function mafiaMini(){
-  // Deprecated by startMafiaNight; keep as light random elimination
+  // kept for backwards compatibility (random elimination)
   const opp = state.order.filter(p=>p!==currentPlayer());
   const marks = [];
   for(let i=0;i<state.grid.length;i++){
@@ -1519,7 +1589,7 @@ function tickDurations(){
   }
 
   for (const piece of state.pieces){
-    // Ambient action each round (destruction pattern)
+    // Ambient action each round
     actPiece(piece);
     piece.rounds--;
   }
@@ -1541,10 +1611,8 @@ function actPiece(piece){
   const hit = (ri,ci)=>{
     if (ri<0||ci<0||ri>=s||ci>=s) return;
     const i=ri*s+ci;
-    // Blocked cells are walls; can't hit through
-    if (state.blocked.has(i)) return;
-    // Do not destroy owner's marks
-    if (state.grid[i] && state.grid[i]===piece.owner) return;
+    if (state.blocked.has(i)) return; // walls
+    if (state.grid[i] && state.grid[i]===piece.owner) return; // protect owner
     clearMark(i);
   };
   if (piece.type==='Knight'){
@@ -1559,7 +1627,7 @@ function actPiece(piece){
   }
 }
 
-// Interactive piece move helpers
+// Interactive piece move helpers (green outlines owner-only)
 function pieceMoves(piece){
   const s = state.size;
   const origin = piece.idx;
@@ -1587,9 +1655,9 @@ function highlightPieceMoves(piece){
   const allowed = new Set(pieceMoves(piece));
   const cells = Array.from(boardEl.children).slice(2);
   cells.forEach((el, idx)=>{
-    if (allowed.has(idx)){
-      el.style.outline='2px solid var(--gold)';
-      el.style.boxShadow='0 0 12px rgba(255,206,99,.25) inset';
+    if (allowed.has(idx) && currentPlayer()===piece.owner){
+      el.style.outline='2px solid limegreen';
+      el.style.boxShadow='0 0 14px rgba(50,205,50,.45) inset';
     }
   });
 }
@@ -1607,16 +1675,15 @@ function attemptPieceMove(destIdx){
   const allowed = new Set(pieceMoves(piece));
   if (!allowed.has(destIdx)) return;
 
-  // Do not destroy owner's mark, but can destroy opponent at destination
+  // Don't destroy owner's mark; can destroy opponent at destination
   if (state.grid[destIdx] && state.grid[destIdx]===piece.owner) return;
 
-  // Move badge
   const fromEl = boardEl.children[2 + piece.idx];
   const toEl = boardEl.children[2 + destIdx];
   const badge = fromEl.querySelector('.piece');
   if (!badge) return;
 
-  // Clear opponent mark at destination (shields respected)
+  // Clear opponent mark at destination (respect shields)
   if (state.grid[destIdx] && (!state.shields || !state.shields.has(destIdx))){
     clearMark(destIdx);
   }
@@ -1664,8 +1731,8 @@ function pickCells(n, done, requireHasMark=false){
   });
 }
 
-// Only opponent marks for mafia selection
-function pickOpponentMarks(n, done){
+// Only opponent marks for mafia selection; color parameter
+function pickOpponentMarks(n, done, color='var(--danger)'){
   const picked = [];
   const cells = Array.from(boardEl.children).slice(2);
   const handlers = new Map();
@@ -1676,7 +1743,7 @@ function pickOpponentMarks(n, done){
     const mark = state.grid[idx];
     const ok = !!mark && opponents.includes(mark);
     if (!ok) return;
-    el.style.outline='2px solid var(--danger)';
+    el.style.outline=`2px solid ${color}`;
     const h = ()=>{
       picked.push(idx);
       el.style.outline='';
