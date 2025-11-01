@@ -15,22 +15,25 @@
     justify-content:center;
     height:100vh;
   }
-  .game-container {
+  .layout {
+    display:grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items:center;
+    width:100%;
+    max-width:1000px;
+  }
+  #auDisplay {
+    font-size:24px;
+    justify-self:start;
+    margin-left:20px;
+  }
+  .center {
     display:flex;
     flex-direction:column;
     align-items:center;
-    justify-content:center;
     text-align:center;
-    position:relative;
   }
   h1 { margin-bottom:20px; }
-  #auDisplay {
-    position:absolute;
-    left:-200px; /* adjust distance from center */
-    top:50%;
-    transform:translateY(-50%);
-    font-size:24px;
-  }
   button {
     border:1px solid rgba(122,162,247,.28);
     background:linear-gradient(180deg,#111423,#0d1120);
@@ -45,19 +48,32 @@
     transform:translateY(-1px);
     box-shadow:0 10px 24px rgba(122,162,247,.22);
   }
-  .upgrade { margin-top:20px; }
+  .upgrade {
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    margin-right:20px;
+  }
 </style>
 </head>
 <body>
-  <div class="game-container">
-    <h1>AU Clicker</h1>
+  <div class="layout">
+    <!-- Left: AU counter -->
     <div id="auDisplay">AU: 0</div>
-    <button id="clickBtn">Click for AU</button>
+
+    <!-- Center: main clicker -->
+    <div class="center">
+      <h1>AU Clicker</h1>
+      <button id="clickBtn">Click for AU</button>
+    </div>
+
+    <!-- Right: upgrades -->
     <div class="upgrade">
       <button id="buyUpgrade">Buy Upgrade (Cost: 50 AU)</button>
       <div id="upgradeInfo">Current multiplier: x1</div>
     </div>
   </div>
+
 <script>
   let au = 0;
   let multiplier = 1;
