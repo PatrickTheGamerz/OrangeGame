@@ -15,6 +15,7 @@
     --danger:#ff4d6d;
     --success:#59ffa0;
     --shadow:0 12px 30px rgba(122,162,247,.18);
+    --gold:#ffcc66;
   }
   *{box-sizing:border-box}
   body{
@@ -32,7 +33,7 @@
     position:absolute;
     top:50%; left:5%;
     transform:translateY(-50%);
-    width:260px;
+    width:280px;
     display:flex;
     flex-direction:column;
     gap:12px;
@@ -49,8 +50,9 @@
   }
   .statLabel{opacity:.8}
   .statValue{font-weight:600; color:var(--accent)}
+  .needRow .statValue{color:var(--gold)}
 
-  /* CENTER: STAGE — SOUL perfectly centered; Menu directly below via flow */
+  /* CENTER: STAGE — perfectly centered SOUL, tray opens above menu without shifting */
   #stage{
     position:absolute;
     top:50%; left:50%;
@@ -58,7 +60,10 @@
     display:flex;
     flex-direction:column;
     align-items:center;
+    gap:12px;
   }
+
+  /* SOUL */
   #soulWrap{
     width:220px; height:220px;
     filter:drop-shadow(0 0 20px rgba(255,0,70,.45));
@@ -73,12 +78,50 @@
     animation:pulse 1.8s ease-in-out infinite;
     border:2px solid rgba(255,255,255,.06);
   }
-  #soulWrap:active{transform:scale(0.96)}
+  #soulWrap:active:not(.disabled){transform:scale(0.96)}
   @keyframes pulse{
     0%{transform:scale(1)}
     50%{transform:scale(1.06)}
     100%{transform:scale(1)}
   }
+
+  /* Shatter state */
+  #soulWrap.shattered #soul{
+    animation:none;
+    transform:scale(0.9);
+    filter:grayscale(0.3) brightness(0.9);
+    opacity:0.15;
+  }
+  .shards{
+    position:absolute; inset:0; pointer-events:none;
+  }
+  .shard{
+    position:absolute; width:14px; height:14px; border-radius:3px;
+    background:linear-gradient(180deg,#ff6a85,#d3133f);
+    opacity:0.9;
+    animation:fly 1.4s ease-out forwards;
+  }
+  @keyframes fly{
+    0%{transform:translate(0,0) scale(1); opacity:0.9}
+    100%{transform:translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.7); opacity:0}
+  }
+  .refused{
+    position:absolute; left:50%; top:50%;
+    transform:translate(-50%,-50%);
+    background:rgba(0,0,0,.6);
+    padding:8px 12px; border-radius:8px;
+    border:1px solid rgba(122,162,247,.28);
+    font-weight:600; color:#ff6a85;
+    letter-spacing:.6px;
+    box-shadow:var(--shadow);
+    animation:refusePop .6s ease;
+  }
+  @keyframes refusePop{
+    0%{transform:translate(-50%,-50%) scale(0.8); opacity:0}
+    100%{transform:translate(-50%,-50%) scale(1); opacity:1}
+  }
+
+  /* Click spark */
   .spark{
     position:absolute; left:50%; top:50%;
     width:10px; height:10px; border-radius:50%;
@@ -92,9 +135,27 @@
     100%{opacity:0; transform:translate(-50%,-110%) scale(0.2)}
   }
 
-  /* Menu button exactly beneath SOUL (same centered flow) */
+  /* Tray opens above the Menu button (so it never pushes SOUL) */
+  #menuTray{
+    display:none;
+    flex-direction:column;
+    gap:8px; padding:12px;
+    background:linear-gradient(180deg, var(--panel), var(--panel-2));
+    border:1px solid rgba(122,162,247,.28);
+    border-radius:12px;
+    width:260px;
+  }
+  .trayBtn{
+    padding:8px 12px; border-radius:8px; cursor:pointer;
+    border:1px solid rgba(122,162,247,.22);
+    background:#0d1118; color:var(--text);
+    transition:transform .08s ease, box-shadow .15s ease;
+    text-align:left;
+  }
+  .trayBtn:hover{transform:translateY(-1px); box-shadow:0 10px 24px rgba(122,162,247,.22)}
+
+  /* Menu button */
   #menuBtn{
-    margin-top:24px;
     padding:10px 20px;
     border-radius:10px;
     border:1px solid rgba(122,162,247,.28);
@@ -102,24 +163,9 @@
     color:var(--text); cursor:pointer;
     box-shadow:var(--shadow);
     transition:transform .08s ease, box-shadow .2s ease;
+    width:260px;
   }
   #menuBtn:hover{transform:translateY(-1px); box-shadow:0 14px 36px rgba(122,162,247,.28)}
-  #menuTray{
-    margin-top:12px;
-    display:none;
-    gap:8px; padding:12px;
-    background:linear-gradient(180deg, var(--panel), var(--panel-2));
-    border:1px solid rgba(122,162,247,.28);
-    border-radius:12px;
-    flex-direction:column;
-  }
-  .trayBtn{
-    padding:8px 12px; border-radius:8px; cursor:pointer;
-    border:1px solid rgba(122,162,247,.22);
-    background:#0d1118; color:var(--text);
-    transition:transform .08s ease, box-shadow .15s ease;
-  }
-  .trayBtn:hover{transform:translateY(-1px); box-shadow:0 10px 24px rgba(122,162,247,.22)}
 
   /* RESET overlay */
   #resetOverlay{
@@ -129,7 +175,7 @@
     backdrop-filter: blur(2px);
   }
   #resetCard{
-    width:380px; max-width:95vw;
+    width:420px; max-width:95vw;
     padding:16px; border-radius:12px;
     background:linear-gradient(180deg,#121826,#0e1322);
     border:1px solid rgba(122,162,247,.28);
@@ -137,15 +183,12 @@
   }
   #resetCard h3{margin:0 0 10px}
   #resetCard .desc{opacity:.85; margin-bottom:12px}
-  .row{
-    display:flex; gap:8px; justify-content:flex-end;
-  }
+  .row{display:flex; gap:8px; justify-content:flex-end;}
   .btn{
     padding:10px 14px; border-radius:8px; cursor:pointer;
     border:1px solid rgba(122,162,247,.28);
     background:#0d1118; color:var(--text);
   }
-  .btn.primary{background:#12203a}
   .btn.danger{background:#2a0f18; border-color:#ff4d6d}
   .btn.danger:hover{background:#3a1320}
 
@@ -154,7 +197,7 @@
     position:absolute;
     top:50%; right:5%;
     transform:translateY(-50%);
-    width:300px;
+    width:320px;
     display:flex; flex-direction:column;
     padding:16px;
     background:linear-gradient(180deg, var(--panel), var(--panel-2));
@@ -176,9 +219,7 @@
     transition:transform .08s ease, box-shadow .15s ease;
   }
   .auBtn:hover, .auBack:hover{transform:translateY(-1px); box-shadow:0 10px 24px rgba(122,162,247,.22)}
-  .lock{
-    font-size:12px; color:#ffcc66; opacity:.9; margin-left:6px;
-  }
+  .lock{font-size:12px; color:#ffcc66; opacity:.9; margin-left:6px;}
   .charRow{
     display:flex; justify-content:space-between; align-items:center;
     padding:8px 10px; border-radius:10px;
@@ -199,27 +240,31 @@
 </head>
 <body>
 
-  <!-- LEFT: STATS (percentage-positioned) -->
+  <!-- LEFT: STATS -->
   <aside id="statsPanel">
     <h2>STATS</h2>
     <div class="statRow"><span class="statLabel">LOVE</span><span class="statValue" id="loveStat">0</span></div>
-    <div class="statRow"><span class="statLabel">LPC</span><span class="statValue" id="lpcStat">1</span></div>
+    <div class="statRow"><span class="statLabel">EXP</span><span class="statValue" id="expStat">0</span></div>
+    <div class="statRow needRow"><span class="statLabel">Next LOVE needs</span><span class="statValue" id="needStat">10 EXP</span></div>
     <div class="statRow"><span class="statLabel">Resets</span><span class="statValue" id="resetStat">0</span></div>
   </aside>
 
-  <!-- CENTER: STAGE (SOUL centered, Menu exactly below) -->
+  <!-- CENTER: STAGE -->
   <main id="stage">
+    <!-- Tray sits ABOVE menu so it never pushes the SOUL -->
+    <div id="menuTray">
+      <button class="trayBtn" data-panel="settings">Settings</button>
+      <button class="trayBtn" data-panel="leaderboard">Leaderboard</button>
+      <button class="trayBtn" data-panel="reset">Reset</button>
+      <button class="trayBtn" data-panel="stats">Stats</button>
+      <button class="trayBtn" data-panel="upgrades">Upgrades</button>
+    </div>
+
     <div id="soulWrap">
       <div id="soul" aria-label="SOUL"></div>
     </div>
+
     <button id="menuBtn">Menu</button>
-    <div id="menuTray">
-      <button class="trayBtn" data-panel="upgrades">Upgrades</button>
-      <button class="trayBtn" data-panel="stats">Stats</button>
-      <button class="trayBtn" data-panel="reset">Reset</button>
-      <button class="trayBtn" data-panel="leaderboard">Leaderboard</button>
-      <button class="trayBtn" data-panel="settings">Settings</button>
-    </div>
 
     <!-- Reset confirm overlay -->
     <div id="resetOverlay">
@@ -228,7 +273,7 @@
         <div class="desc" id="resetDesc">Spend LOVE to reset your timeline and unlock new AUs. Cost: <span id="resetCostText"></span> LOVE.</div>
         <div class="desc">Effects:
           <ul style="margin:8px 0 12px 16px; padding:0">
-            <li>Resets increase global LOVE gain by a small bonus.</li>
+            <li>Resets increase global EXP gain by a small bonus.</li>
             <li>Underswap unlocks on first reset.</li>
           </ul>
         </div>
@@ -240,7 +285,7 @@
     </div>
   </main>
 
-  <!-- RIGHT: AU SELECT (percentage-positioned) -->
+  <!-- RIGHT: AU SELECT -->
   <aside id="auPanel">
     <div id="auHeader">
       <h2>AU Select</h2>
@@ -252,18 +297,27 @@
 <script>
   // Core state
   let love = 0;
-  let lpc = 1;
+  let exp = 0;
   let resets = 0;
 
-  // Passive gain bonus per reset (simple global multiplier)
-  function resetBonusMultiplier(){ return 1 + resets * 0.1; }
+  // EXP needed logic: starts at 10 and increases by +10 per LOVE gained
+  let expNeeded = 10;
+
+  // Soul destruction mechanic
+  let soulClicks = 0;
+  let soulThreshold = randInt(5,8); // 5–8 clicks to shatter
+  let soulDisabled = false; // disabled during shatter+respawn
 
   // Reset cost progression
   let resetCost = 5000;
 
+  // Passive gain bonus per reset (multiplier on EXP sources)
+  function resetBonusMultiplier(){ return 1 + resets * 0.1; }
+
   // DOM refs
   const loveStat = document.getElementById('loveStat');
-  const lpcStat = document.getElementById('lpcStat');
+  const expStat = document.getElementById('expStat');
+  const needStat = document.getElementById('needStat');
   const resetStat = document.getElementById('resetStat');
   const soul = document.getElementById('soul');
   const soulWrap = document.getElementById('soulWrap');
@@ -294,7 +348,8 @@
   // UI helpers
   function updateStats(){
     loveStat.textContent = formatNum(love);
-    lpcStat.textContent = formatNum(lpc);
+    expStat.textContent = formatNum(exp);
+    needStat.textContent = formatNum(expNeeded) + " EXP";
     resetStat.textContent = resets;
   }
 
@@ -306,6 +361,8 @@
     return n.toFixed(2) + " " + units[u];
   }
 
+  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
   function spawnSpark(){
     const s = document.createElement('div');
     s.className = 'spark';
@@ -313,18 +370,94 @@
     setTimeout(()=> s.remove(), 500);
   }
 
-  // Click SOUL -> gain LOVE per click with resets bonus
+  // EXP conversion to LOVE — handles multiple level-ups if EXP exceeds need
+  function tryConvertExpToLove(){
+    let converted = false;
+    while(exp >= expNeeded){
+      exp -= expNeeded;
+      love += 1;
+      expNeeded += 10;
+      converted = true;
+    }
+    if(converted){
+      gentlePop(document.body);
+    }
+  }
+
+  // Soul click -> progress toward shatter; no immediate reward
   soul.addEventListener('click', ()=>{
-    const gain = lpc * resetBonusMultiplier();
-    love += gain;
-    updateStats();
+    if(soulDisabled) return;
     spawnSpark();
+    soulClicks++;
+    // slight nudge feedback
+    soulWrap.animate([
+      {transform:'scale(1)'},
+      {transform:'scale(0.98)'},
+      {transform:'scale(1)'}
+    ], {duration:120});
+
+    if(soulClicks >= soulThreshold){
+      shatterSoul();
+    }
+    updateStats();
   });
 
-  // Menu toggling
+  // Shatter the SOUL, grant random EXP (2–24), rare "It Refused"
+  function shatterSoul(){
+    soulDisabled = true;
+    soulClicks = 0;
+    soulWrap.classList.add('shattered', 'disabled');
+
+    // create shards
+    const shards = document.createElement('div');
+    shards.className = 'shards';
+    for(let i=0;i<16;i++){
+      const piece = document.createElement('div');
+      piece.className = 'shard';
+      // random directions
+      const dx = (randInt(-120,120)) + "px";
+      const dy = (randInt(-120,120)) + "px";
+      const rot = randInt(-180,180) + "deg";
+      piece.style.setProperty('--dx', dx);
+      piece.style.setProperty('--dy', dy);
+      piece.style.setProperty('--rot', rot);
+      piece.style.left = randInt(40,180) + "px";
+      piece.style.top = randInt(40,180) + "px";
+      shards.appendChild(piece);
+    }
+    soulWrap.appendChild(shards);
+
+    // reward EXP
+    let gained = randInt(2,24);
+    gained = Math.floor(gained * resetBonusMultiplier());
+    exp += gained;
+    tryConvertExpToLove();
+    updateStats();
+
+    // rare "It Refused" (10% chance)
+    const refused = Math.random() < 0.10;
+    if(refused){
+      const badge = document.createElement('div');
+      badge.className = 'refused';
+      badge.textContent = 'It refused.';
+      soulWrap.appendChild(badge);
+      setTimeout(()=> badge.remove(), 1200);
+    }
+
+    // respawn after delay
+    setTimeout(()=>{
+      shards.remove();
+      soulWrap.classList.remove('shattered');
+      soulThreshold = randInt(5,8);
+      soulDisabled = false;
+      soulWrap.classList.remove('disabled');
+    }, refused ? 1400 : 900);
+  }
+
+  // Menu toggling — tray opens above Menu; does not move SOUL
   menuBtn.addEventListener('click', ()=>{
-    const visible = menuTray.style.display === 'flex';
-    menuTray.style.display = visible ? 'none' : 'flex';
+    const isOpen = menuTray.style.display === 'flex';
+    menuTray.style.display = isOpen ? 'none' : 'flex';
   });
   menuTray.addEventListener('click', (e)=>{
     const btn = e.target.closest('.trayBtn');
@@ -346,10 +479,15 @@
   cancelReset.addEventListener('click', ()=> resetOverlay.style.display = 'none');
   confirmReset.addEventListener('click', ()=>{
     if(love >= resetCost){
+      // spend and apply reset
       love -= resetCost;
       resets += 1;
+      // increase cost
       resetCost = Math.floor(resetCost * 2.4);
-      lpc = 1;
+      // prestige effects
+      exp = 0;
+      expNeeded = 10 + love * 10; // recompute need based on current LOVE count
+      // clear ownership
       Object.keys(roster).forEach(au=>{
         roster[au].forEach(char=>{ char.owned = 0; });
       });
@@ -371,6 +509,13 @@
       {transform:'translateX(0)'}
     ], {duration:260});
   }
+  function gentlePop(el){
+    el.animate([
+      {transform:'scale(1)'},
+      {transform:'scale(1.02)'},
+      {transform:'scale(1)'}
+    ], {duration:180});
+  }
   function pulseStage(){
     document.body.animate([
       {filter:'brightness(1)'},
@@ -389,12 +534,14 @@
     auSubtitle.textContent = "Choose a timeline";
     auContent.innerHTML = "";
 
+    // Undertale is always available
     const btnUT = document.createElement('button');
     btnUT.className = 'auBtn';
     btnUT.textContent = 'Undertale';
     btnUT.addEventListener('click', ()=> openAU('Undertale'));
     auContent.appendChild(btnUT);
 
+    // Underswap locks until first reset
     const btnUS = document.createElement('button');
     btnUS.className = 'auBtn';
     if(resets >= 1){
@@ -407,6 +554,8 @@
       btnUS.style.cursor = 'not-allowed';
     }
     auContent.appendChild(btnUS);
+
+    // Add more AU entries here, gating by resets if needed
   }
 
   function openAU(name){
@@ -415,12 +564,14 @@
     auSubtitle.textContent = name + " roster";
     auContent.innerHTML = "";
 
+    // Back button replacing AU buttons space
     const back = document.createElement('button');
     back.className = 'auBack';
     back.textContent = '← Back to AU select';
     back.addEventListener('click', renderAUList);
     auContent.appendChild(back);
 
+    // Characters list in same panel space
     roster[name].forEach((c, i)=>{
       const row = document.createElement('div');
       row.className = 'charRow';
@@ -441,8 +592,10 @@
     if(love >= c.cost){
       love -= c.cost;
       c.owned++;
+      // scale cost
       c.cost = Math.floor(c.cost * 1.55);
       updateStats();
+      // refresh the same AU view
       openAU(au);
       gentlePop(auContent);
     } else {
@@ -450,23 +603,18 @@
     }
   }
 
-  function gentlePop(el){
-    el.animate([
-      {transform:'scale(1)'},
-      {transform:'scale(1.015)'},
-      {transform:'scale(1)'}
-    ], {duration:180});
-  }
-
-  // Passive LOVE per second across all owned characters
+  // Passive EXP per second across all owned characters (LPS treated as EXP/s)
   setInterval(()=>{
     let totalLps = 0;
     Object.values(roster).forEach(list=>{
       list.forEach(c=> totalLps += c.lps * c.owned);
     });
-    totalLps *= resetBonusMultiplier();
-    love += totalLps;
-    updateStats();
+    totalLps = Math.floor(totalLps * resetBonusMultiplier());
+    if(totalLps > 0){
+      exp += totalLps;
+      tryConvertExpToLove();
+      updateStats();
+    }
   }, 1000);
 
   // INIT
