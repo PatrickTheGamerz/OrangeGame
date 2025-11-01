@@ -13,15 +13,26 @@
     height:100vh;
     display:grid;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: 1fr auto; /* main area fills, menu sits at bottom */
     grid-template-areas:
       "stats soul aus"
       "stats menu aus";
   }
   #stats { grid-area: stats; padding:20px; }
-  #soul { grid-area: soul; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  #soul { 
+    grid-area: soul; 
+    display:flex; 
+    align-items:center; 
+    justify-content:center; 
+  }
   #aus { grid-area: aus; padding:20px; }
-  #menu { grid-area: menu; display:flex; justify-content:center; gap:12px; padding:10px; }
+  #menu { 
+    grid-area: menu; 
+    display:flex; 
+    justify-content:center; 
+    gap:12px; 
+    padding:10px; 
+  }
 
   h1 { margin-bottom:12px; }
   .stat { margin:6px 0; }
@@ -40,7 +51,8 @@
     box-shadow:0 10px 24px rgba(122,162,247,.22);
   }
   #soulBtn {
-    width:120px; height:120px;
+    width:120px; 
+    height:120px;
     border-radius:50%;
     font-size:20px;
   }
