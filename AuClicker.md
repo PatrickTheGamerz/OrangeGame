@@ -58,7 +58,7 @@
   /* Big SOUL centered absolutely with glow and pulse */
   #soulWrap{
     position:absolute;
-    top:50%; left:50%;
+    top:50%; left:0%;
     transform:translate(-50%,-50%);
     width:220px; height:220px;
     filter:drop-shadow(0 0 20px rgba(255,0,70,.45));
