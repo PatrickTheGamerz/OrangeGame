@@ -17,12 +17,13 @@
     --shadow:0 12px 30px rgba(122,162,247,.18);
   }
   *{box-sizing:border-box}
+  html, body { height:100%; }
   body{
     margin:0;
     background:radial-gradient(1200px 600px at 50% 50%, #0f1420 20%, #0d1117 68%);
     color:var(--text);
     font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-    height:100vh;
+    min-height:100vh;
     display:grid;
     grid-template-columns: 280px 1fr 320px;
     grid-template-rows: 100%;
@@ -32,26 +33,28 @@
   #loading{
     position:fixed; inset:0;
     display:grid; place-items:center;
-    background:#0d1117;
+    background:radial-gradient(1100px 600px at 50% 50%, #0f1420 20%, #0d1117 68%);
     z-index:9999;
   }
   #loaderBox{
-    width:400px; max-width:90vw;
+    width:420px; max-width:92vw;
     padding:20px; border-radius:12px;
     background:linear-gradient(180deg,#121826,#0e1322);
     border:1px solid rgba(122,162,247,.28);
     box-shadow:var(--shadow);
     text-align:center;
   }
+  #loaderTitle{ margin:0 0 8px; font-size:18px; letter-spacing:.6px }
   #progressBar{
     width:100%; height:14px;
     background:#0c121c;
     border-radius:8px; overflow:hidden;
     margin-top:12px;
+    border:1px solid rgba(122,162,247,.18);
   }
-  #progressBar div{
+  #progressFill{
     height:100%; width:0%;
-    background:var(--accent);
+    background:linear-gradient(90deg, #7aa2f7, #9cdcfe);
     transition:width .2s ease;
   }
   #progressLabel{margin-top:8px; font-size:14px; opacity:.85}
@@ -135,7 +138,8 @@
     background:linear-gradient(180deg, var(--panel), var(--panel-2));
     border:1px solid rgba(122,162,247,.28);
     border-radius:12px;
-    flex-direction:column;
+    display:flex; flex-direction:column;
+    min-width:220px;
   }
   .trayBtn{
     padding:8px 12px; border-radius:8px; cursor:pointer;
@@ -188,4 +192,401 @@
     border:1px solid rgba(122,162,247,.28);
     background:linear-gradient(180deg,#111423,#0d1120);
     color:var(--text);
-    transition:transform .08s ease, box-shadow .15
+    transition:transform .08s ease, box-shadow .15s ease;
+  }
+  .auBtn:hover, .auBack:hover{transform:translateY(-1px); box-shadow:0 10px 24px rgba(122,162,247,.22)}
+  .lock{
+    font-size:12px; color:#ffcc66; opacity:.9; margin-left:6px;
+  }
+  .charRow{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:8px 10px; border-radius:10px;
+    background:#0c121c; border:1px solid rgba(122,162,247,.18);
+  }
+  .buyBtn{
+    padding:8px 10px; border-radius:8px; cursor:pointer;
+    border:1px solid rgba(122,162,247,.28);
+    background:#0d1118; color:var(--text);
+  }
+  .buyBtn:hover{transform:translateY(-1px); box-shadow:0 8px 18px rgba(122,162,247,.18)}
+  .badge{
+    font-size:12px; padding:2px 6px; border-radius:6px;
+    border:1px solid rgba(122,162,247,.28);
+    background:#0d1118; margin-left:8px; color:var(--accent-2);
+  }
+</style>
+</head>
+<body>
+
+  <!-- Loader -->
+  <div id="loading" aria-hidden="true">
+    <div id="loaderBox">
+      <h3 id="loaderTitle">Booting AU Clicker…</h3>
+      <div id="progressBar"><div id="progressFill"></div></div>
+      <div id="progressLabel">Preparing…</div>
+    </div>
+  </div>
+
+  <!-- LEFT: STATS -->
+  <aside id="statsPanel">
+    <h2>STATS</h2>
+    <div class="statRow"><span class="statLabel">LOVE</span><span class="statValue" id="loveStat">0</span></div>
+    <div class="statRow"><span class="statLabel">LPC</span><span class="statValue" id="lpcStat">1</span></div>
+    <div class="statRow"><span class="statLabel">Resets</span><span class="statValue" id="resetStat">0</span></div>
+  </aside>
+
+  <!-- CENTER: STAGE -->
+  <main id="stage">
+    <div id="soulWrap">
+      <div id="soul" aria-label="SOUL"></div>
+    </div>
+    <button id="menuBtn">Menu</button>
+    <div id="menuTray" style="display:none;">
+      <button class="trayBtn" data-panel="upgrades">Upgrades</button>
+      <button class="trayBtn" data-panel="stats">Stats</button>
+      <button class="trayBtn" data-panel="reset">Reset</button>
+      <button class="trayBtn" data-panel="leaderboard">Leaderboard</button>
+      <button class="trayBtn" data-panel="settings">Settings</button>
+    </div>
+
+    <!-- Reset confirm overlay -->
+    <div id="resetOverlay">
+      <div id="resetCard">
+        <h3>Confirm Reset (Rebirth)</h3>
+        <div class="desc" id="resetDesc">Spend LOVE to reset your timeline and unlock new AUs. Cost: <span id="resetCostText"></span> LOVE.</div>
+        <div class="desc">Effects:
+          <ul style="margin:8px 0 12px 16px; padding:0">
+            <li>Resets increase global LOVE gain by a small bonus.</li>
+            <li>Underswap unlocks on first reset.</li>
+          </ul>
+        </div>
+        <div class="row">
+          <button class="btn" id="cancelReset">Cancel</button>
+          <button class="btn danger" id="confirmReset">Reset</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT: AU SELECT -->
+  <aside id="auPanel">
+    <div id="auHeader">
+      <h2>AU Select</h2>
+      <div class="subtitle" id="auSubtitle">Choose a timeline</div>
+    </div>
+    <div id="auContent"></div>
+  </aside>
+
+<script>
+  // ---------- Save / Load ----------
+  const SAVE_KEY = 'au_clicker_save_v1';
+
+  function saveState(){
+    const data = {
+      love, lpc, resets, resetCost,
+      roster
+    };
+    try{
+      localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    }catch(e){}
+  }
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(SAVE_KEY);
+      if(!raw) return false;
+      const data = JSON.parse(raw);
+      love = Number(data.love) || 0;
+      lpc = Number(data.lpc) || 1;
+      resets = Number(data.resets) || 0;
+      resetCost = Number(data.resetCost) || 5000;
+      if(data.roster){
+        // Preserve structure but apply saved owned/cost values
+        Object.keys(roster).forEach(au=>{
+          roster[au].forEach((c, i)=>{
+            const saved = data.roster[au] && data.roster[au][i];
+            if(saved){
+              c.cost = Number(saved.cost) || c.cost;
+              c.owned = Number(saved.owned) || 0;
+            }
+          });
+        });
+      }
+      return true;
+    }catch(e){
+      return false;
+    }
+  }
+
+  // ---------- Loader ----------
+  const loading = document.getElementById('loading');
+  const bar = document.getElementById('progressFill');
+  const label = document.getElementById('progressLabel');
+
+  function showLoader(flag){ loading.style.display = flag ? 'grid' : 'none'; }
+  function animateProgress(ms=900){
+    bar.style.width='0%'; label.textContent='Spinning up board…';
+    let p=0;
+    const step=()=>{
+      p=Math.min(100, p + Math.random()*24 + 6);
+      bar.style.width = p.toFixed(0)+'%';
+      if(p<40) label.textContent='Laying out grid…';
+      else if(p<70) label.textContent='Charging glow…';
+      else if(p<90) label.textContent='Binding events…';
+      else label.textContent='Ready to play!';
+      if(p<100) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+    return new Promise(res=>setTimeout(res, ms));
+  }
+
+  // ---------- Core state ----------
+  let love = 0;
+  let lpc = 1;
+  let resets = 0;
+  let resetCost = 5000;
+
+  function resetBonusMultiplier(){ return 1 + resets * 0.1; }
+
+  // ---------- DOM refs ----------
+  const loveStat = document.getElementById('loveStat');
+  const lpcStat = document.getElementById('lpcStat');
+  const resetStat = document.getElementById('resetStat');
+  const soul = document.getElementById('soul');
+  const soulWrap = document.getElementById('soulWrap');
+  const menuBtn = document.getElementById('menuBtn');
+  const menuTray = document.getElementById('menuTray');
+  const resetOverlay = document.getElementById('resetOverlay');
+  const resetCostText = document.getElementById('resetCostText');
+  const cancelReset = document.getElementById('cancelReset');
+  const confirmReset = document.getElementById('confirmReset');
+  const auContent = document.getElementById('auContent');
+  const auSubtitle = document.getElementById('auSubtitle');
+
+  // ---------- Roster per AU ----------
+  const roster = {
+    Undertale: [
+      { name:"Frisk", cost:100, lps:2, owned:0 },
+      { name:"Sans", cost:400, lps:8, owned:0 },
+      { name:"Papyrus", cost:1200, lps:24, owned:0 }
+    ],
+    Underswap: [
+      { name:"Swap Sans", cost:800, lps:18, owned:0 },
+      { name:"Swap Papyrus", cost:1500, lps:36, owned:0 },
+      { name:"Swap Toriel", cost:4000, lps:90, owned:0 }
+    ]
+    // Add more AUs here when needed
+  };
+
+  // ---------- UI helpers ----------
+  function updateStats(){
+    loveStat.textContent = formatNum(love);
+    lpcStat.textContent = formatNum(lpc);
+    resetStat.textContent = resets;
+  }
+
+  function formatNum(n){
+    if(n < 1000) return Math.floor(n);
+    const units = ["K","M","B","T","Qa","Qi"];
+    let u = -1;
+    while(n >= 1000 && u < units.length-1){ n/=1000; u++; }
+    return n.toFixed(2) + " " + units[u];
+  }
+
+  function spawnSpark(){
+    const s = document.createElement('div');
+    s.className = 'spark';
+    soulWrap.appendChild(s);
+    setTimeout(()=> s.remove(), 500);
+  }
+
+  // ---------- Click SOUL ----------
+  soul.addEventListener('click', ()=>{
+    const gain = lpc * resetBonusMultiplier();
+    love += gain;
+    updateStats();
+    spawnSpark();
+    saveState();
+  });
+
+  // ---------- Menu toggling ----------
+  menuBtn.addEventListener('click', ()=>{
+    const visible = menuTray.style.display === 'flex';
+    menuTray.style.display = visible ? 'none' : 'flex';
+  });
+
+  menuTray.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.trayBtn');
+    if(!btn) return;
+    const panel = btn.getAttribute('data-panel');
+    if(panel === 'reset'){
+      openResetOverlay();
+    } else {
+      auSubtitle.textContent = panel.charAt(0).toUpperCase()+panel.slice(1)+" panel (WIP)";
+      setTimeout(()=> auSubtitle.textContent = "Choose a timeline", 1500);
+    }
+  });
+
+  // ---------- Reset overlay ----------
+  function openResetOverlay(){
+    resetCostText.textContent = formatNum(resetCost);
+    resetOverlay.style.display = 'flex';
+  }
+  cancelReset.addEventListener('click', ()=> resetOverlay.style.display = 'none');
+
+  confirmReset.addEventListener('click', ()=>{
+    if(love >= resetCost){
+      love -= resetCost;
+      resets += 1;
+      resetCost = Math.floor(resetCost * 2.4);
+      lpc = 1;
+      Object.keys(roster).forEach(au=>{
+        roster[au].forEach(char=>{
+          char.owned = 0;
+          // Optional: reset costs to base? Keeping scaled costs maintains progression curve.
+        });
+      });
+      updateStats();
+      renderAUList();
+      resetOverlay.style.display = 'none';
+      pulseStage();
+      saveState();
+    } else {
+      shake(resetOverlay);
+    }
+  });
+
+  // ---------- Visual feedback ----------
+  function shake(el){
+    el.animate([
+      {transform:'translateX(0)'},
+      {transform:'translateX(-6px)'},
+      {transform:'translateX(6px)'},
+      {transform:'translateX(0)'}
+    ], {duration:260});
+  }
+  function gentlePop(el){
+    el.animate([
+      {transform:'scale(1)'},
+      {transform:'scale(1.015)'},
+      {transform:'scale(1)'}
+    ], {duration:180});
+  }
+  function pulseStage(){
+    document.body.animate([
+      {filter:'brightness(1)'},
+      {filter:'brightness(1.18)'},
+      {filter:'brightness(1)'}
+    ], {duration:700});
+  }
+
+  // ---------- RIGHT PANEL BEHAVIOR ----------
+  let auMode = 'list';
+  let selectedAU = null;
+
+  function renderAUList(){
+    auMode = 'list';
+    selectedAU = null;
+    auSubtitle.textContent = "Choose a timeline";
+    auContent.innerHTML = "";
+
+    // Undertale is always available
+    const btnUT = document.createElement('button');
+    btnUT.className = 'auBtn';
+    btnUT.textContent = 'Undertale';
+    btnUT.addEventListener('click', ()=> openAU('Undertale'));
+    auContent.appendChild(btnUT);
+
+    // Underswap locks until first reset
+    const btnUS = document.createElement('button');
+    btnUS.className = 'auBtn';
+    if(resets >= 1){
+      btnUS.textContent = 'Underswap';
+      btnUS.addEventListener('click', ()=> openAU('Underswap'));
+    } else {
+      btnUS.innerHTML = 'Underswap <span class="lock">Locked (Requires 1 reset)</span>';
+      btnUS.disabled = true;
+      btnUS.style.opacity = .7;
+      btnUS.style.cursor = 'not-allowed';
+    }
+    auContent.appendChild(btnUS);
+  }
+
+  function openAU(name){
+    auMode = 'characters';
+    selectedAU = name;
+    auSubtitle.textContent = name + " roster";
+    auContent.innerHTML = "";
+
+    const back = document.createElement('button');
+    back.className = 'auBack';
+    back.textContent = '← Back to AU select';
+    back.addEventListener('click', renderAUList);
+    auContent.appendChild(back);
+
+    roster[name].forEach((c, i)=>{
+      const row = document.createElement('div');
+      row.className = 'charRow';
+
+      const left = document.createElement('div');
+      left.innerHTML = `<strong>${c.name}</strong> <span class="badge">LPS: ${c.lps}</span> <span class="badge">x${c.owned}</span>`;
+
+      const buy = document.createElement('button');
+      buy.className = 'buyBtn';
+      buy.textContent = `Buy (${formatNum(c.cost)} LOVE)`;
+      buy.addEventListener('click', ()=> buyChar(name, i));
+
+      row.appendChild(left);
+      row.appendChild(buy);
+      auContent.appendChild(row);
+    });
+  }
+
+  function buyChar(au, index){
+    const c = roster[au][index];
+    if(love >= c.cost){
+      love -= c.cost;
+      c.owned++;
+      c.cost = Math.floor(c.cost * 1.55);
+      updateStats();
+      openAU(au);
+      gentlePop(auContent);
+      saveState();
+    } else {
+      shake(auContent);
+    }
+  }
+
+  // ---------- Passive LOVE per second ----------
+  setInterval(()=>{
+    let totalLps = 0;
+    Object.values(roster).forEach(list=>{
+      list.forEach(c=> totalLps += c.lps * c.owned);
+    });
+    totalLps *= resetBonusMultiplier();
+    if(totalLps > 0){
+      love += totalLps;
+      updateStats();
+      saveState();
+    }
+  }, 1000);
+
+  // ---------- Boot sequence ----------
+  async function boot(){
+    showLoader(true);
+    await animateProgress(1000);
+    // Load saved state (if any)
+    loadState();
+    updateStats();
+    renderAUList();
+    showLoader(false);
+  }
+
+  // ---------- INIT ----------
+  boot();
+
+  // Save periodically as a fallback
+  setInterval(saveState, 5000);
+</script>
+</body>
+</html>
