@@ -1,84 +1,76 @@
-<!-- AuClicker.md -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>MULTIVERSAL AU CLICKER</title>
-  <style>
-    :root{
-      --bg:#0d0f18; --text:#e6e6e6; --muted:#a7b0c0;
-      --accent:#7aa2f7; --accent2:#c28fff; --gold:#ffce63;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; height:100vh;
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      background: radial-gradient(800px 400px at 50% 30%, #1a1f35, var(--bg));
-      color:var(--text); text-align:center;
-    }
-    h1{
-      font-size:28px; margin-bottom:20px;
-      background:linear-gradient(90deg,var(--accent),var(--accent2));
-      -webkit-background-clip:text; color:transparent;
-    }
-    #energy{
-      font-size:22px; margin:12px 0; color:var(--gold);
-    }
-    .btn{
-      border:1px solid rgba(122,162,247,.28);
-      background:linear-gradient(180deg,#111423,#0d1120);
-      color:var(--text); padding:14px 22px; border-radius:14px;
-      cursor:pointer; font-size:16px;
-      transition:transform .08s ease, box-shadow .15s ease;
-      box-shadow:0 6px 16px rgba(122,162,247,.1);
-    }
-    .btn:hover{ transform:translateY(-2px); box-shadow:0 10px 24px rgba(122,162,247,.22) }
-    #aus{ margin-top:20px; font-size:14px; color:var(--muted); max-width:480px }
-    #back{ position:absolute; top:16px; left:16px }
-  </style>
-</head>
-<body>
-  <button class="btn" id="back">← Back to Hub</button>
-  <h1>MULTIVERSAL AU CLICKER</h1>
-  <div id="energy">AU Energy: 0</div>
-  <button class="btn" id="clicker">Gather AU Energy</button>
-  <div id="aus">Unlocked AUs: None</div>
+# MULTIVERSAL AU CLICKER
 
-  <script>
-    let energy=0;
-    const energyEl=document.getElementById('energy');
-    const ausEl=document.getElementById('aus');
-    const btn=document.getElementById('clicker');
-    const back=document.getElementById('back');
+## Overview
+A clicker/idle game where players gather **AU Energy** by clicking a central orb. Energy is spent to unlock **Alternate Universes (AUs)**, each with unique multipliers, visuals, and mechanics. The ultimate goal is to climb the **Multiversal Leaderboard**.
 
-    const unlocks=[
-      {threshold:10, name:'Underfell'},
-      {threshold:50, name:'Underswap'},
-      {threshold:150, name:'Horrortale'},
-      {threshold:500, name:'OuterTale'},
-      {threshold:1000, name:'Multiversal Core'}
-    ];
-    let unlocked=[];
+---
 
-    btn.addEventListener('click',()=>{
-      energy++;
-      energyEl.textContent='AU Energy: '+energy;
-      checkUnlocks();
-    });
+## Core Gameplay Loop
+1. **Click** → Gain AU Energy.
+2. **Spend** → Unlock AUs, upgrades, and multipliers.
+3. **Automate** → Unlock passive generators (auto‑clickers, AU reactors).
+4. **Prestige** → Reset progress for permanent boosts (Fragments).
+5. **Compete** → Compare AU Energy totals on leaderboard.
 
-    function checkUnlocks(){
-      for(const u of unlocks){
-        if(energy>=u.threshold && !unlocked.includes(u.name)){
-          unlocked.push(u.name);
-          ausEl.textContent='Unlocked AUs: '+unlocked.join(', ');
-        }
-      }
-    }
+---
 
-    back.addEventListener('click',()=>{
-      window.location.href='index.html'; // adjust if your hub file has a different name
-    });
-  </script>
-</body>
-</html>
+## Resources
+- **AU Energy**: Primary currency, gained by clicking and generators.
+- **Fragments**: Prestige currency, earned when resetting. Used for permanent upgrades.
+- **Universes (AUs)**: Unlockable milestones that change visuals and multipliers.
+
+---
+
+## Progression
+- **Base AU**: Start with x1 multiplier.
+- **Unlock Thresholds**: New AUs unlock at exponential milestones (100, 1k, 10k, 100k…).
+- **Each AU Adds**:
+  - Visual theme (background, palette).
+  - Multiplier to AU Energy gain.
+  - Unique mechanic (e.g., passive gain, bonus clicks, random events).
+
+---
+
+## UI / UX
+- **Main Click Orb**: Central glowing button, scales with AU level.
+- **Energy Counter**: Large animated number at top.
+- **Upgrade Panel**: List of AUs and upgrades with costs.
+- **Leaderboard Button**: Opens leaderboard overlay.
+- **Prestige Button**: Resets run, grants Fragments.
+
+---
+
+## Upgrades
+- **Auto‑Clickers**: Generate clicks per second.
+- **AU Reactors**: Multiply passive gain.
+- **Orb Enhancements**: Increase click value.
+- **Rare AUs**: Unlock hidden universes with unique mechanics.
+
+---
+
+## Milestones
+- Unlocking an AU triggers a **procedural cutscene** (short text + glow).
+- Rare AUs (e.g., “Glitchverse”, “Goldenverse”) have unique animations.
+
+---
+
+## Technical Notes
+- **Persistence**: Save state in `localStorage`.
+- **Rendering**: Minimal DOM + CSS transitions.
+- **Scalability**: Exponential growth curves for AU Energy.
+- **Security**: Validate leaderboard submissions server‑side.
+
+---
+
+## Example Numbers
+- Click = 1 AU Energy (base).
+- Auto‑Clicker = +1 AU Energy/sec (cost: 50).
+- AU Reactor = x2 multiplier (cost: 500).
+- Prestige = 1 Fragment per 1e6 AU Energy.
+
+---
+
+## Future Extensions
+- Daily challenges.
+- Seasonal AUs (Halloweenverse, Winterverse).
+- Co‑op AU merging.
