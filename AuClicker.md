@@ -15,7 +15,6 @@
     --danger:#ff4d6d;
     --success:#59ffa0;
     --shadow:0 12px 30px rgba(122,162,247,.18);
-    --gold:#ffcc66;
   }
   *{box-sizing:border-box}
   body{
@@ -48,11 +47,10 @@
     padding:10px 12px; border-radius:10px; background:#0c121c;
     border:1px solid rgba(122,162,247,.18);
   }
-  .statLabel{opacity:.8}
+  .statLabel{opacity:.85}
   .statValue{font-weight:600; color:var(--accent)}
-  .needRow .statValue{color:var(--gold)}
 
-  /* CENTER: STAGE — perfectly centered SOUL, tray opens above menu without shifting */
+  /* CENTER: STAGE — perfectly centered SOUL; Menu overlays and does not move SOUL */
   #stage{
     position:absolute;
     top:50%; left:50%;
@@ -66,9 +64,9 @@
   /* SOUL */
   #soulWrap{
     width:220px; height:220px;
+    position:relative;
     filter:drop-shadow(0 0 20px rgba(255,0,70,.45));
     transition:transform .12s ease;
-    position:relative;
   }
   #soul{
     width:100%; height:100%;
@@ -78,19 +76,17 @@
     animation:pulse 1.8s ease-in-out infinite;
     border:2px solid rgba(255,255,255,.06);
   }
-  #soulWrap:active:not(.disabled){transform:scale(0.96)}
   @keyframes pulse{
     0%{transform:scale(1)}
     50%{transform:scale(1.06)}
     100%{transform:scale(1)}
   }
 
-  /* Shatter state */
+  /* Shatter state (no second soul behind; we dim the same element) */
   #soulWrap.shattered #soul{
     animation:none;
-    transform:scale(0.9);
-    filter:grayscale(0.3) brightness(0.9);
-    opacity:0.15;
+    opacity:0.18;
+    filter:grayscale(0.15) brightness(0.9);
   }
   .shards{
     position:absolute; inset:0; pointer-events:none;
@@ -98,13 +94,33 @@
   .shard{
     position:absolute; width:14px; height:14px; border-radius:3px;
     background:linear-gradient(180deg,#ff6a85,#d3133f);
-    opacity:0.9;
-    animation:fly 1.4s ease-out forwards;
+    opacity:0.95;
+    animation:fly 1.2s ease-out forwards;
   }
   @keyframes fly{
-    0%{transform:translate(0,0) scale(1); opacity:0.9}
+    0%{transform:translate(0,0) rotate(0) scale(1); opacity:0.95}
     100%{transform:translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.7); opacity:0}
   }
+
+  /* Damage text (black fill with red outline) */
+  .dmg{
+    position:absolute; left:50%; top:50%;
+    transform:translate(-50%,-50%);
+    font-weight:800; color:#000;
+    text-shadow:
+      0 1px 0 #ff2f57, 0 -1px 0 #ff2f57,
+      1px 0 0 #ff2f57, -1px 0 0 #ff2f57,
+      1px 1px 0 #ff2f57, -1px -1px 0 #ff2f57,
+      -1px 1px 0 #ff2f57, 1px -1px 0 #ff2f57;
+    animation:dmgRise .8s ease-out forwards;
+    pointer-events:none;
+  }
+  @keyframes dmgRise{
+    0%{opacity:1; transform:translate(-50%,-50%) translateY(0) scale(1)}
+    100%{opacity:0; transform:translate(-50%,-50%) translateY(-30px) scale(1.05)}
+  }
+
+  /* "But it refused." typewriter */
   .refused{
     position:absolute; left:50%; top:50%;
     transform:translate(-50%,-50%);
@@ -114,36 +130,22 @@
     font-weight:600; color:#ff6a85;
     letter-spacing:.6px;
     box-shadow:var(--shadow);
-    animation:refusePop .6s ease;
-  }
-  @keyframes refusePop{
-    0%{transform:translate(-50%,-50%) scale(0.8); opacity:0}
-    100%{transform:translate(-50%,-50%) scale(1); opacity:1}
   }
 
-  /* Click spark */
-  .spark{
-    position:absolute; left:50%; top:50%;
-    width:10px; height:10px; border-radius:50%;
-    background:rgba(255,255,255,.85);
-    transform:translate(-50%,-50%);
-    animation:sparkUp .5s ease forwards;
-    pointer-events:none;
-  }
-  @keyframes sparkUp{
-    0%{opacity:1; transform:translate(-50%,-50%) scale(1)}
-    100%{opacity:0; transform:translate(-50%,-110%) scale(0.2)}
-  }
-
-  /* Tray opens above the Menu button (so it never pushes SOUL) */
+  /* Menu tray overlays SOUL (absolute, z-index above) */
   #menuTray{
+    position:absolute;
+    bottom:100%; /* sits above Menu button */
+    left:50%;
+    transform:translateX(-50%);
     display:none;
     flex-direction:column;
     gap:8px; padding:12px;
     background:linear-gradient(180deg, var(--panel), var(--panel-2));
     border:1px solid rgba(122,162,247,.28);
     border-radius:12px;
-    width:260px;
+    width:220px; /* narrower */
+    z-index:10; /* above SOUL */
   }
   .trayBtn{
     padding:8px 12px; border-radius:8px; cursor:pointer;
@@ -154,16 +156,17 @@
   }
   .trayBtn:hover{transform:translateY(-1px); box-shadow:0 10px 24px rgba(122,162,247,.22)}
 
-  /* Menu button */
+  /* Menu button directly below and always centered; tray overlays without moving SOUL */
   #menuBtn{
-    padding:10px 20px;
+    padding:10px 16px;
     border-radius:10px;
     border:1px solid rgba(122,162,247,.28);
     background:linear-gradient(180deg,#111423,#0d1120);
     color:var(--text); cursor:pointer;
     box-shadow:var(--shadow);
     transition:transform .08s ease, box-shadow .2s ease;
-    width:260px;
+    width:220px;
+    z-index:9;
   }
   #menuBtn:hover{transform:translateY(-1px); box-shadow:0 14px 36px rgba(122,162,247,.28)}
 
@@ -243,15 +246,15 @@
   <!-- LEFT: STATS -->
   <aside id="statsPanel">
     <h2>STATS</h2>
-    <div class="statRow"><span class="statLabel">LOVE</span><span class="statValue" id="loveStat">0</span></div>
+    <div class="statRow"><span class="statLabel">LV</span><span class="statValue" id="loveStat">0</span></div>
     <div class="statRow"><span class="statLabel">EXP</span><span class="statValue" id="expStat">0</span></div>
-    <div class="statRow needRow"><span class="statLabel">Next LOVE needs</span><span class="statValue" id="needStat">10 EXP</span></div>
-    <div class="statRow"><span class="statLabel">Resets</span><span class="statValue" id="resetStat">0</span></div>
+    <div class="statRow"><span class="statLabel">RESET</span><span class="statValue" id="resetStat">0</span></div>
+    <div class="statRow"><span class="statLabel">NEXT</span><span class="statValue" id="needStat">10 EXP</span></div>
   </aside>
 
   <!-- CENTER: STAGE -->
   <main id="stage">
-    <!-- Tray sits ABOVE menu so it never pushes the SOUL -->
+    <!-- Tray overlays above Menu and SOUL, does not move them -->
     <div id="menuTray">
       <button class="trayBtn" data-panel="settings">Settings</button>
       <button class="trayBtn" data-panel="leaderboard">Leaderboard</button>
@@ -270,11 +273,11 @@
     <div id="resetOverlay">
       <div id="resetCard">
         <h3>Confirm Reset (Rebirth)</h3>
-        <div class="desc" id="resetDesc">Spend LOVE to reset your timeline and unlock new AUs. Cost: <span id="resetCostText"></span> LOVE.</div>
-        <div class="desc">Effects:
+        <div class="desc">
+          Requirements to reset:
           <ul style="margin:8px 0 12px 16px; padding:0">
-            <li>Resets increase global EXP gain by a small bonus.</li>
-            <li>Underswap unlocks on first reset.</li>
+            <li>LV ≥ 20</li>
+            <li>EXP ≥ 2,500 (2,500 EXP will be consumed)</li>
           </ul>
         </div>
         <div class="row">
@@ -296,22 +299,22 @@
 
 <script>
   // Core state
-  let love = 0;
-  let exp = 0;
+  let love = 0;     // LV
+  let exp = 0;      // EXP
   let resets = 0;
 
-  // EXP needed logic: starts at 10 and increases by +10 per LOVE gained
+  // EXP needed logic: starts at 10 and increases by +10 per LV gained
   let expNeeded = 10;
 
-  // Soul destruction mechanic
-  let soulClicks = 0;
-  let soulThreshold = randInt(5,8); // 5–8 clicks to shatter
-  let soulDisabled = false; // disabled during shatter+respawn
+  // Soul HP mechanics
+  let soulHP = randInt(25,40);
+  let soulDisabled = false; // disabled during shatter/refuse cycle
 
-  // Reset cost progression
-  let resetCost = 5000;
+  // Reset requirements
+  const RESET_EXP_COST = 2500;
+  const RESET_LV_REQ = 20;
 
-  // Passive gain bonus per reset (multiplier on EXP sources)
+  // Passive bonus per reset (multiplier on EXP sources)
   function resetBonusMultiplier(){ return 1 + resets * 0.1; }
 
   // DOM refs
@@ -324,13 +327,12 @@
   const menuBtn = document.getElementById('menuBtn');
   const menuTray = document.getElementById('menuTray');
   const resetOverlay = document.getElementById('resetOverlay');
-  const resetCostText = document.getElementById('resetCostText');
   const cancelReset = document.getElementById('cancelReset');
   const confirmReset = document.getElementById('confirmReset');
   const auContent = document.getElementById('auContent');
   const auSubtitle = document.getElementById('auSubtitle');
 
-  // Roster per AU
+  // Roster per AU (LPS treated as EXP/s)
   const roster = {
     Undertale: [
       { name:"Frisk", cost:100, lps:2, owned:0 },
@@ -342,7 +344,6 @@
       { name:"Swap Papyrus", cost:1500, lps:36, owned:0 },
       { name:"Swap Toriel", cost:4000, lps:90, owned:0 }
     ]
-    // Add more AUs here when needed
   };
 
   // UI helpers
@@ -363,66 +364,70 @@
 
   function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
 
-  function spawnSpark(){
-    const s = document.createElement('div');
-    s.className = 'spark';
-    soulWrap.appendChild(s);
-    setTimeout(()=> s.remove(), 500);
-  }
-
-  // EXP conversion to LOVE — handles multiple level-ups if EXP exceeds need
+  // EXP conversion to LV — handles multiple level-ups if EXP exceeds need
   function tryConvertExpToLove(){
-    let converted = false;
+    let leveled = false;
     while(exp >= expNeeded){
       exp -= expNeeded;
       love += 1;
       expNeeded += 10;
-      converted = true;
+      leveled = true;
     }
-    if(converted){
-      gentlePop(document.body);
+    if(leveled){
+      gentlePop(statsPanelOnly()); // subtle pop on stats, not global
     }
   }
+  function statsPanelOnly(){ return document.getElementById('statsPanel'); }
 
-  // Soul click -> progress toward shatter; no immediate reward
+  // SOUL click -> damage only (no instant reward), floats damage text
   soul.addEventListener('click', ()=>{
     if(soulDisabled) return;
-    spawnSpark();
-    soulClicks++;
-    // slight nudge feedback
+    const dmg = randInt(5,16);
+    soulHP -= dmg;
+
+    showDamage(dmg);
+
+    // slight self-nudge on the soul only
     soulWrap.animate([
       {transform:'scale(1)'},
-      {transform:'scale(0.98)'},
+      {transform:'scale(0.985)'},
       {transform:'scale(1)'}
     ], {duration:120});
 
-    if(soulClicks >= soulThreshold){
+    if(soulHP <= 0){
       shatterSoul();
     }
     updateStats();
   });
 
-  // Shatter the SOUL, grant random EXP (2–24), rare "It Refused"
+  // Damage text
+  function showDamage(n){
+    const d = document.createElement('div');
+    d.className = 'dmg';
+    d.textContent = n;
+    soulWrap.appendChild(d);
+    setTimeout(()=> d.remove(), 900);
+  }
+
+  // Shatter the SOUL, grant random EXP (2–24), rare "But it refused."
   function shatterSoul(){
     soulDisabled = true;
-    soulClicks = 0;
-    soulWrap.classList.add('shattered', 'disabled');
+    soulWrap.classList.add('shattered');
 
-    // create shards
+    // create shards (no second soul; just pieces)
     const shards = document.createElement('div');
     shards.className = 'shards';
     for(let i=0;i<16;i++){
       const piece = document.createElement('div');
       piece.className = 'shard';
-      // random directions
-      const dx = (randInt(-120,120)) + "px";
-      const dy = (randInt(-120,120)) + "px";
+      const dx = randInt(-110,110) + "px";
+      const dy = randInt(-110,110) + "px";
       const rot = randInt(-180,180) + "deg";
       piece.style.setProperty('--dx', dx);
       piece.style.setProperty('--dy', dy);
       piece.style.setProperty('--rot', rot);
-      piece.style.left = randInt(40,180) + "px";
-      piece.style.top = randInt(40,180) + "px";
+      piece.style.left = randInt(60,160) + "px";
+      piece.style.top = randInt(60,160) + "px";
       shards.appendChild(piece);
     }
     soulWrap.appendChild(shards);
@@ -434,27 +439,47 @@
     tryConvertExpToLove();
     updateStats();
 
-    // rare "It Refused" (10% chance)
-    const refused = Math.random() < 0.10;
-    if(refused){
-      const badge = document.createElement('div');
-      badge.className = 'refused';
-      badge.textContent = 'It refused.';
-      soulWrap.appendChild(badge);
-      setTimeout(()=> badge.remove(), 1200);
+    // 10% chance: "But it refused." — typewriter letters
+    const refusedChance = Math.random() < 0.10;
+    if(refusedChance){
+      typeRefused("But it refused.", soulWrap, ()=> {
+        // keep shattered briefly then restore
+        setTimeout(respawnSoul, 800);
+      });
+    } else {
+      // normal respawn sooner
+      setTimeout(respawnSoul, 900);
     }
 
-    // respawn after delay
-    setTimeout(()=>{
+    function respawnSoul(){
       shards.remove();
       soulWrap.classList.remove('shattered');
-      soulThreshold = randInt(5,8);
       soulDisabled = false;
-      soulWrap.classList.remove('disabled');
-    }, refused ? 1400 : 900);
+      soulHP = randInt(25,40);
+    }
   }
 
-  // Menu toggling — tray opens above Menu; does not move SOUL
+  // Typewriter overlay (letter-by-letter)
+  function typeRefused(text, container, onDone){
+    const el = document.createElement('div');
+    el.className = 'refused';
+    el.textContent = "";
+    container.appendChild(el);
+    let i = 0;
+    const tick = setInterval(()=>{
+      el.textContent = text.slice(0, i+1);
+      i++;
+      if(i >= text.length){
+        clearInterval(tick);
+        setTimeout(()=>{
+          el.remove();
+          onDone && onDone();
+        }, 700);
+      }
+    }, 50); // 0.05s per letter
+  }
+
+  // Menu toggling — tray overlays SOUL without moving it
   menuBtn.addEventListener('click', ()=>{
     const isOpen = menuTray.style.display === 'flex';
     menuTray.style.display = isOpen ? 'none' : 'flex';
@@ -471,36 +496,35 @@
     }
   });
 
-  // Reset overlay
+  // Reset overlay with requirements
   function openResetOverlay(){
-    resetCostText.textContent = formatNum(resetCost);
     resetOverlay.style.display = 'flex';
   }
   cancelReset.addEventListener('click', ()=> resetOverlay.style.display = 'none');
+
   confirmReset.addEventListener('click', ()=>{
-    if(love >= resetCost){
-      // spend and apply reset
-      love -= resetCost;
+    if(love >= RESET_LV_REQ && exp >= RESET_EXP_COST){
+      exp -= RESET_EXP_COST; // consume EXP
       resets += 1;
-      // increase cost
-      resetCost = Math.floor(resetCost * 2.4);
+
       // prestige effects
-      exp = 0;
-      expNeeded = 10 + love * 10; // recompute need based on current LOVE count
+      // keep LV, keep NEXT scaling tied to LV progression
       // clear ownership
       Object.keys(roster).forEach(au=>{
         roster[au].forEach(char=>{ char.owned = 0; });
       });
+
+      // feedback
       updateStats();
       renderAUList();
       resetOverlay.style.display = 'none';
-      pulseStage();
+      pulse(statsPanelOnly()); // pulse stats only
     } else {
-      shake(resetOverlay);
+      shake(resetOverlay); // shake overlay only
     }
   });
 
-  // Visual feedback helpers
+  // Visual feedback (scoped)
   function shake(el){
     el.animate([
       {transform:'translateX(0)'},
@@ -514,14 +538,14 @@
       {transform:'scale(1)'},
       {transform:'scale(1.02)'},
       {transform:'scale(1)'}
-    ], {duration:180});
+    ], {duration:200});
   }
-  function pulseStage(){
-    document.body.animate([
+  function pulse(el){
+    el.animate([
       {filter:'brightness(1)'},
-      {filter:'brightness(1.18)'},
+      {filter:'brightness(1.15)'},
       {filter:'brightness(1)'}
-    ], {duration:700});
+    ], {duration:600});
   }
 
   // RIGHT PANEL BEHAVIOR
@@ -554,8 +578,6 @@
       btnUS.style.cursor = 'not-allowed';
     }
     auContent.appendChild(btnUS);
-
-    // Add more AU entries here, gating by resets if needed
   }
 
   function openAU(name){
@@ -564,22 +586,20 @@
     auSubtitle.textContent = name + " roster";
     auContent.innerHTML = "";
 
-    // Back button replacing AU buttons space
     const back = document.createElement('button');
     back.className = 'auBack';
     back.textContent = '← Back to AU select';
     back.addEventListener('click', renderAUList);
     auContent.appendChild(back);
 
-    // Characters list in same panel space
     roster[name].forEach((c, i)=>{
       const row = document.createElement('div');
       row.className = 'charRow';
       const left = document.createElement('div');
-      left.innerHTML = `<strong>${c.name}</strong> <span class="badge">LPS: ${c.lps}</span> <span class="badge">x${c.owned}</span>`;
+      left.innerHTML = `<strong>${c.name}</strong> <span class="badge">EXP/s: ${c.lps}</span> <span class="badge">x${c.owned}</span>`;
       const buy = document.createElement('button');
       buy.className = 'buyBtn';
-      buy.textContent = `Buy (${formatNum(c.cost)} LOVE)`;
+      buy.textContent = `Buy (${formatNum(c.cost)} EXP)`;
       buy.addEventListener('click', ()=> buyChar(name, i));
       row.appendChild(left);
       row.appendChild(buy);
@@ -589,21 +609,20 @@
 
   function buyChar(au, index){
     const c = roster[au][index];
-    if(love >= c.cost){
-      love -= c.cost;
+    if(exp >= c.cost){
+      exp -= c.cost;
       c.owned++;
-      // scale cost
       c.cost = Math.floor(c.cost * 1.55);
+      tryConvertExpToLove();
       updateStats();
-      // refresh the same AU view
       openAU(au);
-      gentlePop(auContent);
+      gentlePop(auContent); // affect panel only
     } else {
-      shake(auContent);
+      shake(auContent); // affect panel only
     }
   }
 
-  // Passive EXP per second across all owned characters (LPS treated as EXP/s)
+  // Passive EXP per second across all owned characters (multiplied by resets)
   setInterval(()=>{
     let totalLps = 0;
     Object.values(roster).forEach(list=>{
