@@ -245,13 +245,20 @@
     document.getElementById('refresh').addEventListener('click', async ()=>{
       showLoader(true); await animateProgress(1000); showLoader(false);
     });
-    document.getElementById('play-ttt').addEventListener('click', async ()=>{
-      showLoader(true); await animateProgress(900); showLoader(false);
-      window.location.href = 'TicTacToe.html';
-    });
+
+    // Navigate to AuClicker.md with loader polish
     document.getElementById('play-au').addEventListener('click', async ()=>{
-      showLoader(true); await animateProgress(900); showLoader(false);
+      showLoader(true);
+      await animateProgress(1200);
       window.location.href = 'AuClicker.md';
+    });
+
+    // Optional: placeholder navigation for Tic-Tac-Toe (kept minimal; adjust if you have a page)
+    document.getElementById('play-ttt').addEventListener('click', async ()=>{
+      showLoader(true);
+      await animateProgress(1000);
+      // Replace with your actual route if available
+      window.location.href = 'tictactoe.html';
     });
   </script>
 </body>
