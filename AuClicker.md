@@ -58,14 +58,14 @@
   /* Big SOUL centered absolutely with glow and pulse */
   #soulWrap{
     position:absolute;
-    top:50%; left:100%;
+    top:50%; left:1000%;
     transform:translate(-50%,-50%);
     width:220px; height:220px;
     filter:drop-shadow(0 0 20px rgba(255,0,70,.45));
     transition:transform .12s ease;
   }
   #soul{
-    width:100%; height:1000%;
+    width:100%; height:100%;
     background: radial-gradient(circle at 50% 35%, #ff6a85 0%, #ff2f57 40%, #d3133f 70%);
     clip-path: polygon(50% 18%, 63% 3%, 78% 3%, 100% 27%, 100% 55%, 50% 100%, 0 55%, 0 27%, 22% 3%, 37% 3%);
     cursor:pointer;
