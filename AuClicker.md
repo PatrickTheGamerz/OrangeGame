@@ -20,11 +20,12 @@
     grid-template-columns: 1fr auto 1fr;
     align-items:center;
     width:100%;
-    max-width:1000px;
+    height:100%;
   }
   #auDisplay {
     font-size:24px;
     justify-self:start;
+    align-self:center;
     margin-left:20px;
   }
   .center {
@@ -52,6 +53,7 @@
     display:flex;
     flex-direction:column;
     align-items:flex-end;
+    justify-content:center;
     margin-right:20px;
   }
 </style>
