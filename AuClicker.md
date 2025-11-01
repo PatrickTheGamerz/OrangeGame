@@ -58,14 +58,12 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    pointer-events:none; /* allow inner controls to manage events */
   }
   #soulWrap{
     width:220px; height:220px;
     filter:drop-shadow(0 0 20px rgba(255,0,70,.45));
     transition:transform .12s ease;
     position:relative;
-    pointer-events:auto;
   }
   #soul{
     width:100%; height:100%;
@@ -104,7 +102,6 @@
     color:var(--text); cursor:pointer;
     box-shadow:var(--shadow);
     transition:transform .08s ease, box-shadow .2s ease;
-    pointer-events:auto;
   }
   #menuBtn:hover{transform:translateY(-1px); box-shadow:0 14px 36px rgba(122,162,247,.28)}
   #menuTray{
@@ -115,7 +112,6 @@
     border:1px solid rgba(122,162,247,.28);
     border-radius:12px;
     flex-direction:column;
-    pointer-events:auto;
   }
   .trayBtn{
     padding:8px 12px; border-radius:8px; cursor:pointer;
@@ -131,7 +127,6 @@
     align-items:center; justify-content:center;
     background:rgba(0,0,0,.35);
     backdrop-filter: blur(2px);
-    pointer-events:auto;
   }
   #resetCard{
     width:380px; max-width:95vw;
@@ -338,7 +333,6 @@
     if(panel === 'reset'){
       openResetOverlay();
     } else {
-      // Placeholder feedback; wire additional panels as needed
       auSubtitle.textContent = panel.charAt(0).toUpperCase()+panel.slice(1)+" panel (WIP)";
       setTimeout(()=> auSubtitle.textContent = "Choose a timeline", 1500);
     }
@@ -352,21 +346,14 @@
   cancelReset.addEventListener('click', ()=> resetOverlay.style.display = 'none');
   confirmReset.addEventListener('click', ()=>{
     if(love >= resetCost){
-      // spend and apply reset
       love -= resetCost;
       resets += 1;
-      // increase cost
       resetCost = Math.floor(resetCost * 2.4);
-      // soft prestige effects
-      lpc = 1; // base per click resets
-      // clear ownership back to base (keep base costs as currently scaled for next run)
+      lpc = 1;
       Object.keys(roster).forEach(au=>{
-        roster[au].forEach(char=>{
-          char.owned = 0;
-        });
+        roster[au].forEach(char=>{ char.owned = 0; });
       });
       updateStats();
-      // refresh panel states and feedback
       renderAUList();
       resetOverlay.style.display = 'none';
       pulseStage();
@@ -388,12 +375,11 @@
     document.body.animate([
       {filter:'brightness(1)'},
       {filter:'brightness(1.18)'},
-      {filter:'brightness(1)}
+      {filter:'brightness(1)'}
     ], {duration:700});
   }
 
   // RIGHT PANEL BEHAVIOR
-  // Modes: 'list' (AU buttons) or 'characters' for selectedAU
   let auMode = 'list';
   let selectedAU = null;
 
@@ -403,14 +389,12 @@
     auSubtitle.textContent = "Choose a timeline";
     auContent.innerHTML = "";
 
-    // Undertale is always available
     const btnUT = document.createElement('button');
     btnUT.className = 'auBtn';
     btnUT.textContent = 'Undertale';
     btnUT.addEventListener('click', ()=> openAU('Undertale'));
     auContent.appendChild(btnUT);
 
-    // Underswap locks until first reset
     const btnUS = document.createElement('button');
     btnUS.className = 'auBtn';
     if(resets >= 1){
@@ -423,8 +407,6 @@
       btnUS.style.cursor = 'not-allowed';
     }
     auContent.appendChild(btnUS);
-
-    // Add more AU entries here, gating by resets if needed
   }
 
   function openAU(name){
@@ -433,14 +415,12 @@
     auSubtitle.textContent = name + " roster";
     auContent.innerHTML = "";
 
-    // Back button replacing AU buttons space
     const back = document.createElement('button');
     back.className = 'auBack';
     back.textContent = '← Back to AU select';
     back.addEventListener('click', renderAUList);
     auContent.appendChild(back);
 
-    // Characters list in same panel space
     roster[name].forEach((c, i)=>{
       const row = document.createElement('div');
       row.className = 'charRow';
@@ -461,10 +441,8 @@
     if(love >= c.cost){
       love -= c.cost;
       c.owned++;
-      // scale cost
       c.cost = Math.floor(c.cost * 1.55);
       updateStats();
-      // refresh the same AU view
       openAU(au);
       gentlePop(auContent);
     } else {
