@@ -47,18 +47,19 @@
   .statLabel{opacity:.8}
   .statValue{font-weight:600; color:var(--accent)}
 
-  /* CENTER: SOUL + Menu — the stage */
+  /* CENTER: SOUL + Menu — SOUL perfectly centered, controls below */
   #stage{
     grid-column:2;
     position:relative;
     display:flex;
     flex-direction:column;
     align-items:center;
-    justify-content:center;
   }
-  /* Big SOUL with glow and pulse */
+  /* Big SOUL centered absolutely with glow and pulse */
   #soulWrap{
-    position:relative;
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
     width:220px; height:220px;
     filter:drop-shadow(0 0 20px rgba(255,0,70,.45));
     transition:transform .12s ease;
@@ -71,7 +72,7 @@
     animation:pulse 1.8s ease-in-out infinite;
     border:2px solid rgba(255,255,255,.06);
   }
-  #soulWrap:active{transform:scale(0.96)}
+  #soulWrap:active{transform:translate(-50%,-50%) scale(0.96)}
   @keyframes pulse{
     0%{transform:scale(1)}
     50%{transform:scale(1.06)}
@@ -92,7 +93,8 @@
 
   /* Menu button and tray beneath SOUL */
   #menuBtn{
-    margin-top:18px;
+    position:relative;
+    margin-top:260px; /* pushes controls below the centered SOUL */
     padding:10px 20px;
     border-radius:10px;
     border:1px solid rgba(122,162,247,.28);
@@ -349,15 +351,15 @@
       resetCost = Math.floor(resetCost * 2.4);
       // soft prestige effects
       lpc = 1; // base per click resets
-      // clear ownership/cost scaling back to base (keep base costs)
+      // clear ownership back to base (keep base costs as currently scaled for next run)
       Object.keys(roster).forEach(au=>{
         roster[au].forEach(char=>{
           char.owned = 0;
         });
       });
       updateStats();
-      // After first reset, unlock Underswap
-      renderAUList(); // refresh panel states
+      // refresh panel states and feedback
+      renderAUList();
       resetOverlay.style.display = 'none';
       pulseStage();
     } else {
