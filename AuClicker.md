@@ -20,13 +20,13 @@
     grid-template-columns: 1fr auto 1fr;
     align-items:center;
     width:100%;
-    height:100%;
+    max-width:1000px;
   }
   #auDisplay {
     font-size:24px;
     justify-self:start;
-    align-self:center;
-    margin-left:0;   /* flush left */
+    margin-left:0;   /* flush to the very left */
+    padding-left:10px; /* small breathing room */
   }
   .center {
     display:flex;
@@ -53,8 +53,7 @@
     display:flex;
     flex-direction:column;
     align-items:flex-end;
-    justify-content:center;
-    margin-right:0;  /* flush right */
+    margin-right:20px;
   }
 </style>
 </head>
