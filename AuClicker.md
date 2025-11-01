@@ -21,9 +21,16 @@
     align-items:center;
     justify-content:center;
     text-align:center;
+    position:relative;
   }
   h1 { margin-bottom:20px; }
-  #auDisplay { font-size:24px; margin:12px 0; }
+  #auDisplay {
+    position:absolute;
+    left:-200px; /* adjust distance from center */
+    top:50%;
+    transform:translateY(-50%);
+    font-size:24px;
+  }
   button {
     border:1px solid rgba(122,162,247,.28);
     background:linear-gradient(180deg,#111423,#0d1120);
