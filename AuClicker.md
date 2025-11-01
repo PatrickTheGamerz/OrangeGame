@@ -13,12 +13,26 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    justify-content:flex-start;
     min-height:100vh;
     padding:20px;
   }
-  h1 { margin-bottom:20px; }
-  #auDisplay { font-size:24px; margin:12px 0; }
+  h1 { margin:10px 0; }
+  #goldDisplay { font-size:24px; margin:12px 0; }
+  #timelineDisplay { font-size:18px; margin:8px 0; color:#9cdcfe; }
+
+  /* Heart clicker */
+  #clickBtn {
+    width:80px;
+    height:80px;
+    background:red;
+    clip-path: polygon(50% 15%, 61% 0, 75% 0, 100% 25%, 100% 50%, 50% 100%, 0 50%, 0 25%, 25% 0, 39% 0);
+    border:none;
+    cursor:pointer;
+    margin:20px;
+    transition:transform .1s ease;
+  }
+  #clickBtn:hover { transform:scale(1.1); }
+
   button {
     border:1px solid rgba(122,162,247,.28);
     background:linear-gradient(180deg,#111423,#0d1120);
@@ -33,7 +47,16 @@
     transform:translateY(-1px);
     box-shadow:0 10px 24px rgba(122,162,247,.22);
   }
-  .upgrade, .characters { margin-top:20px; width:100%; max-width:400px; }
+
+  .panel {
+    margin-top:20px;
+    width:100%;
+    max-width:500px;
+    background:#161b22;
+    border:1px solid rgba(122,162,247,.28);
+    border-radius:12px;
+    padding:12px;
+  }
   .char {
     display:flex;
     justify-content:space-between;
@@ -42,72 +65,102 @@
     margin:6px 0;
     border:1px solid rgba(122,162,247,.28);
     border-radius:8px;
-    background:#161b22;
+    background:#0d1117;
   }
 </style>
 </head>
 <body>
   <h1>AU Clicker</h1>
-  <div id="auDisplay">AU: 0</div>
-  <button id="clickBtn">Click for AU</button>
+  <div id="goldDisplay">Gold: 0 G</div>
+  <div id="timelineDisplay">Timeline: Undertale</div>
+  <button id="clickBtn"></button>
 
-  <div class="upgrade">
-    <button id="buyUpgrade">Buy Upgrade (Cost: 50 AU)</button>
+  <div class="panel">
+    <h2>Upgrades</h2>
+    <button id="buyUpgrade">Buy Upgrade (Cost: 50 G)</button>
     <div id="upgradeInfo">Current multiplier: x1</div>
   </div>
 
-  <div class="characters">
+  <div class="panel">
     <h2>Characters</h2>
     <div id="charList"></div>
   </div>
 
+  <div class="panel">
+    <h2>Reset Timeline</h2>
+    <button id="resetBtn">Reset (Cost: 10,000 G)</button>
+    <div id="resetInfo">Resets unlock new AUs and boost Gold gain</div>
+  </div>
+
 <script>
-  let au = 0;
+  let gold = 0;
   let multiplier = 1;
   let upgradeCost = 50;
+  let resetCost = 10000;
+  let timelineIndex = 0;
+  const timelines = ["Undertale", "Underswap", "Underfell"];
 
-  const auDisplay = document.getElementById('auDisplay');
+  const goldDisplay = document.getElementById('goldDisplay');
   const clickBtn = document.getElementById('clickBtn');
   const buyUpgrade = document.getElementById('buyUpgrade');
   const upgradeInfo = document.getElementById('upgradeInfo');
   const charList = document.getElementById('charList');
+  const resetBtn = document.getElementById('resetBtn');
+  const timelineDisplay = document.getElementById('timelineDisplay');
 
-  // Character definitions
-  const characters = [
-    { name: "Classic Sans", cost: 100, aps: 1, owned: 0 },
-    { name: "Underswap Papyrus", cost: 500, aps: 5, owned: 0 },
-    { name: "Dust Sans", cost: 2000, aps: 20, owned: 0 },
-    { name: "Error Sans", cost: 10000, aps: 100, owned: 0 }
-  ];
+  // AU character rosters
+  const roster = {
+    "Undertale": [
+      { name: "Frisk", cost: 100, gps: 1, owned: 0 },
+      { name: "Sans", cost: 500, gps: 5, owned: 0 },
+      { name: "Papyrus", cost: 2000, gps: 20, owned: 0 }
+    ],
+    "Underswap": [
+      { name: "Swap Sans", cost: 200, gps: 2, owned: 0 },
+      { name: "Swap Papyrus", cost: 1000, gps: 10, owned: 0 },
+      { name: "Swap Toriel", cost: 5000, gps: 50, owned: 0 }
+    ],
+    "Underfell": [
+      { name: "Fell Sans", cost: 500, gps: 5, owned: 0 },
+      { name: "Fell Papyrus", cost: 2500, gps: 25, owned: 0 },
+      { name: "Fell Undyne", cost: 10000, gps: 100, owned: 0 }
+    ]
+  };
+
+  function currentRoster(){
+    return roster[timelines[timelineIndex]];
+  }
 
   function updateDisplay(){
-    auDisplay.textContent = 'AU: ' + au;
+    goldDisplay.textContent = 'Gold: ' + gold + ' G';
     upgradeInfo.textContent = 'Current multiplier: x' + multiplier;
-    buyUpgrade.textContent = 'Buy Upgrade (Cost: ' + upgradeCost + ' AU)';
+    buyUpgrade.textContent = 'Buy Upgrade (Cost: ' + upgradeCost + ' G)';
+    resetBtn.textContent = 'Reset (Cost: ' + resetCost + ' G)';
+    timelineDisplay.textContent = 'Timeline: ' + timelines[timelineIndex];
     renderCharacters();
   }
 
   function renderCharacters(){
     charList.innerHTML = "";
-    characters.forEach((c, i)=>{
+    currentRoster().forEach((c, i)=>{
       const div = document.createElement('div');
       div.className = 'char';
       div.innerHTML = `
         <span>${c.name} (x${c.owned})</span>
-        <button onclick="buyChar(${i})">Buy (${c.cost} AU)</button>
+        <button onclick="buyChar(${i})">Buy (${c.cost} G)</button>
       `;
       charList.appendChild(div);
     });
   }
 
   clickBtn.addEventListener('click', ()=>{
-    au += 1 * multiplier;
+    gold += 1 * multiplier;
     updateDisplay();
   });
 
   buyUpgrade.addEventListener('click', ()=>{
-    if(au >= upgradeCost){
-      au -= upgradeCost;
+    if(gold >= upgradeCost){
+      gold -= upgradeCost;
       multiplier++;
       upgradeCost = Math.floor(upgradeCost * 1.8);
       updateDisplay();
@@ -115,19 +168,32 @@
   });
 
   window.buyChar = function(index){
-    const c = characters[index];
-    if(au >= c.cost){
-      au -= c.cost;
+    const c = currentRoster()[index];
+    if(gold >= c.cost){
+      gold -= c.cost;
       c.owned++;
       c.cost = Math.floor(c.cost * 1.5);
       updateDisplay();
     }
   }
 
-  // Passive AU gain loop
+  resetBtn.addEventListener('click', ()=>{
+    if(gold >= resetCost){
+      gold = 0;
+      multiplier = 1;
+      upgradeCost = 50;
+      resetCost = Math.floor(resetCost * 2.5);
+      timelineIndex = (timelineIndex + 1) % timelines.length;
+      // reset character ownership
+      Object.values(roster).forEach(list => list.forEach(c => { c.owned = 0; c.cost = Math.floor(c.cost); }));
+      updateDisplay();
+    }
+  });
+
+  // Passive Gold gain loop
   setInterval(()=>{
-    let totalAPS = characters.reduce((sum, c)=> sum + c.aps * c.owned, 0);
-    au += totalAPS;
+    let totalGPS = currentRoster().reduce((sum, c)=> sum + c.gps * c.owned, 0);
+    gold += totalGPS;
     updateDisplay();
   }, 1000);
 
