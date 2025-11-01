@@ -23,20 +23,23 @@
     color:var(--text);
     font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
     height:100vh;
-    display:grid;
-    grid-template-columns: 280px 1fr 320px;
-    grid-template-rows: 100%;
+    overflow:hidden;
+    position:relative;
   }
 
-  /* LEFT: STATS — pinned fully left */
+  /* LEFT: STATS — percentage positioning */
   #statsPanel{
-    grid-column:1;
+    position:absolute;
+    top:50%; left:5%;
+    transform:translateY(-50%);
+    width:260px;
     display:flex;
     flex-direction:column;
     gap:12px;
     padding:16px;
     background:linear-gradient(180deg, var(--panel), var(--panel-2));
-    border-right:1px solid rgba(122,162,247,.28);
+    border:1px solid rgba(122,162,247,.28);
+    border-radius:12px;
   }
   #statsPanel h2{margin:0 0 8px; font-size:18px; letter-spacing:.6px}
   .statRow{
@@ -47,22 +50,22 @@
   .statLabel{opacity:.8}
   .statValue{font-weight:600; color:var(--accent)}
 
-  /* CENTER: SOUL + Menu — SOUL perfectly centered, controls below */
+  /* CENTER: STAGE — SOUL perfectly centered; Menu directly below via flow */
   #stage{
-    grid-column:2;
-    position:relative;
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
     display:flex;
     flex-direction:column;
     align-items:center;
+    pointer-events:none; /* allow inner controls to manage events */
   }
-  /* Big SOUL centered absolutely with glow and pulse */
   #soulWrap{
-    position:absolute;
-    top:50%; left:300%;
-    transform:translate(-50%,-50%);
     width:220px; height:220px;
     filter:drop-shadow(0 0 20px rgba(255,0,70,.45));
     transition:transform .12s ease;
+    position:relative;
+    pointer-events:auto;
   }
   #soul{
     width:100%; height:100%;
@@ -72,29 +75,28 @@
     animation:pulse 1.8s ease-in-out infinite;
     border:2px solid rgba(255,255,255,.06);
   }
-  #soulWrap:active{transform:translate(-50%,-50%) scale(0.96)}
+  #soulWrap:active{transform:scale(0.96)}
   @keyframes pulse{
     0%{transform:scale(1)}
     50%{transform:scale(1.06)}
     100%{transform:scale(1)}
   }
-  /* Click spark */
   .spark{
     position:absolute; left:50%; top:50%;
     width:10px; height:10px; border-radius:50%;
     background:rgba(255,255,255,.85);
     transform:translate(-50%,-50%);
     animation:sparkUp .5s ease forwards;
+    pointer-events:none;
   }
   @keyframes sparkUp{
     0%{opacity:1; transform:translate(-50%,-50%) scale(1)}
     100%{opacity:0; transform:translate(-50%,-110%) scale(0.2)}
   }
 
-  /* Menu button and tray beneath SOUL */
+  /* Menu button exactly beneath SOUL (same centered flow) */
   #menuBtn{
-    position:relative;
-    margin-top:260px; /* pushes controls below the centered SOUL */
+    margin-top:24px;
     padding:10px 20px;
     border-radius:10px;
     border:1px solid rgba(122,162,247,.28);
@@ -102,6 +104,7 @@
     color:var(--text); cursor:pointer;
     box-shadow:var(--shadow);
     transition:transform .08s ease, box-shadow .2s ease;
+    pointer-events:auto;
   }
   #menuBtn:hover{transform:translateY(-1px); box-shadow:0 14px 36px rgba(122,162,247,.28)}
   #menuTray{
@@ -111,6 +114,8 @@
     background:linear-gradient(180deg, var(--panel), var(--panel-2));
     border:1px solid rgba(122,162,247,.28);
     border-radius:12px;
+    flex-direction:column;
+    pointer-events:auto;
   }
   .trayBtn{
     padding:8px 12px; border-radius:8px; cursor:pointer;
@@ -120,12 +125,13 @@
   }
   .trayBtn:hover{transform:translateY(-1px); box-shadow:0 10px 24px rgba(122,162,247,.22)}
 
-  /* RESET overlay (confirm) */
+  /* RESET overlay */
   #resetOverlay{
     position:absolute; inset:0; display:none;
     align-items:center; justify-content:center;
     background:rgba(0,0,0,.35);
     backdrop-filter: blur(2px);
+    pointer-events:auto;
   }
   #resetCard{
     width:380px; max-width:95vw;
@@ -148,13 +154,17 @@
   .btn.danger{background:#2a0f18; border-color:#ff4d6d}
   .btn.danger:hover{background:#3a1320}
 
-  /* RIGHT: AU SELECT — pinned fully right, self-contained */
+  /* RIGHT: AU SELECT — percentage positioning */
   #auPanel{
-    grid-column:3;
+    position:absolute;
+    top:50%; right:5%;
+    transform:translateY(-50%);
+    width:300px;
     display:flex; flex-direction:column;
     padding:16px;
     background:linear-gradient(180deg, var(--panel), var(--panel-2));
-    border-left:1px solid rgba(122,162,247,.28);
+    border:1px solid rgba(122,162,247,.28);
+    border-radius:12px;
   }
   #auPanel h2{margin:0 0 8px; font-size:18px; letter-spacing:.6px}
   #auHeader{
@@ -174,7 +184,6 @@
   .lock{
     font-size:12px; color:#ffcc66; opacity:.9; margin-left:6px;
   }
-  /* Characters list replaces AU buttons in same space */
   .charRow{
     display:flex; justify-content:space-between; align-items:center;
     padding:8px 10px; border-radius:10px;
@@ -195,7 +204,7 @@
 </head>
 <body>
 
-  <!-- LEFT: STATS -->
+  <!-- LEFT: STATS (percentage-positioned) -->
   <aside id="statsPanel">
     <h2>STATS</h2>
     <div class="statRow"><span class="statLabel">LOVE</span><span class="statValue" id="loveStat">0</span></div>
@@ -203,7 +212,7 @@
     <div class="statRow"><span class="statLabel">Resets</span><span class="statValue" id="resetStat">0</span></div>
   </aside>
 
-  <!-- CENTER: STAGE -->
+  <!-- CENTER: STAGE (SOUL centered, Menu exactly below) -->
   <main id="stage">
     <div id="soulWrap">
       <div id="soul" aria-label="SOUL"></div>
@@ -236,7 +245,7 @@
     </div>
   </main>
 
-  <!-- RIGHT: AU SELECT -->
+  <!-- RIGHT: AU SELECT (percentage-positioned) -->
   <aside id="auPanel">
     <div id="auHeader">
       <h2>AU Select</h2>
@@ -269,7 +278,6 @@
   const resetCostText = document.getElementById('resetCostText');
   const cancelReset = document.getElementById('cancelReset');
   const confirmReset = document.getElementById('confirmReset');
-
   const auContent = document.getElementById('auContent');
   const auSubtitle = document.getElementById('auSubtitle');
 
@@ -380,7 +388,7 @@
     document.body.animate([
       {filter:'brightness(1)'},
       {filter:'brightness(1.18)'},
-      {filter:'brightness(1)'}
+      {filter:'brightness(1)}
     ], {duration:700});
   }
 
