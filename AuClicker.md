@@ -26,7 +26,7 @@
     font-size:24px;
     justify-self:start;
     align-self:center;
-    margin-left:20px;
+    margin-left:0;   /* flush left */
   }
   .center {
     display:flex;
@@ -54,7 +54,7 @@
     flex-direction:column;
     align-items:flex-end;
     justify-content:center;
-    margin-right:20px;
+    margin-right:0;  /* flush right */
   }
 </style>
 </head>
