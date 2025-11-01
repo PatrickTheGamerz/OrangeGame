@@ -11,15 +11,14 @@
     background:#0d1117;
     color:#e6e6e6;
     display:flex;
-    flex-direction:row;
     height:100vh;
   }
   /* Left stats panel */
   #statsPanel {
-    width:200px;
+    width:220px;
     background:#161b22;
     border-right:1px solid rgba(122,162,247,.28);
-    padding:12px;
+    padding:16px;
     display:flex;
     flex-direction:column;
     gap:12px;
@@ -37,8 +36,8 @@
     position:relative;
   }
   #soul {
-    width:120px;
-    height:120px;
+    width:140px;
+    height:140px;
     background:red;
     clip-path: polygon(50% 15%, 61% 0, 75% 0, 100% 25%, 100% 50%, 50% 100%, 0 50%, 0 25%, 25% 0, 39% 0);
     cursor:pointer;
@@ -54,10 +53,8 @@
     color:#e6e6e6;
     cursor:pointer;
   }
-  /* Menu modal */
   #menuModal {
-    position:absolute;
-    bottom:20px;
+    margin-top:12px;
     background:#161b22;
     border:1px solid rgba(122,162,247,.28);
     border-radius:12px;
@@ -74,15 +71,15 @@
     color:#e6e6e6;
     cursor:pointer;
   }
+
   /* Right AU select panel */
   #auPanel {
-    width:220px;
+    width:260px;
     background:#161b22;
     border-left:1px solid rgba(122,162,247,.28);
-    padding:12px;
+    padding:16px;
     display:flex;
     flex-direction:column;
-    gap:8px;
   }
   #auPanel h2 { margin:0 0 8px 0; font-size:18px; }
   .auBtn {
@@ -92,35 +89,21 @@
     background:#0d1117;
     color:#e6e6e6;
     cursor:pointer;
+    margin-bottom:6px;
   }
-  /* Character list modal */
-  #charModal {
-    position:absolute;
-    top:50%;
-    right:240px;
-    transform:translateY(-50%);
-    background:#161b22;
-    border:1px solid rgba(122,162,247,.28);
-    border-radius:12px;
-    padding:12px;
-    display:none;
-    flex-direction:column;
-    width:250px;
+  #charContainer {
+    margin-top:12px;
+    flex:1;
+    overflow-y:auto;
   }
-  #charModal h3 { margin:0 0 8px 0; }
   .char {
     display:flex;
     justify-content:space-between;
     margin:4px 0;
-  }
-  .closeBtn {
-    margin-top:10px;
     padding:6px;
-    border-radius:6px;
     border:1px solid rgba(122,162,247,.28);
+    border-radius:6px;
     background:#0d1117;
-    color:#e6e6e6;
-    cursor:pointer;
   }
 </style>
 </head>
@@ -149,15 +132,9 @@
   <!-- Right AU select -->
   <div id="auPanel">
     <h2>AU Select</h2>
-    <button class="auBtn" onclick="openAU('Undertale')">Undertale</button>
-    <button class="auBtn" onclick="openAU('Underswap')">Underswap</button>
-  </div>
-
-  <!-- Character modal -->
-  <div id="charModal">
-    <h3 id="charTitle">Characters</h3>
-    <div id="charList"></div>
-    <button class="closeBtn" onclick="closeAU()">X Close</button>
+    <button class="auBtn" onclick="showAU('Undertale')">Undertale</button>
+    <button class="auBtn" onclick="showAU('Underswap')">Underswap</button>
+    <div id="charContainer"></div>
   </div>
 
 <script>
@@ -171,9 +148,7 @@
   const soul = document.getElementById('soul');
   const menuBtn = document.getElementById('menuBtn');
   const menuModal = document.getElementById('menuModal');
-  const charModal = document.getElementById('charModal');
-  const charTitle = document.getElementById('charTitle');
-  const charList = document.getElementById('charList');
+  const charContainer = document.getElementById('charContainer');
 
   const roster = {
     "Undertale": [
@@ -205,21 +180,15 @@
     alert("Open menu: " + type);
   }
 
-  function openAU(name){
-    charTitle.textContent = name + " Characters";
-    charList.innerHTML = "";
+  function showAU(name){
+    charContainer.innerHTML = "<h3>"+name+" Characters</h3>";
     roster[name].forEach((c,i)=>{
       const div = document.createElement('div');
       div.className="char";
       div.innerHTML = `<span>${c.name} (x${c.owned})</span>
         <button onclick="buyChar('${name}',${i})">Buy (${c.cost} LOVE)</button>`;
-      charList.appendChild(div);
+      charContainer.appendChild(div);
     });
-    charModal.style.display="flex";
-  }
-
-  function closeAU(){
-    charModal.style.display="none";
   }
 
   window.buyChar = function(au,index){
@@ -229,7 +198,7 @@
       c.owned++;
       c.cost = Math.floor(c.cost*1.5);
       updateStats();
-      openAU(au);
+      showAU(au);
     }
   }
 
