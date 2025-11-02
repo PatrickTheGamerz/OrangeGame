@@ -11,10 +11,8 @@
     --panel-2:#161b22;
     --text:#e6e6e6;
     --accent:#7aa2f7;
-    --accent-2:#9cdcfe;
     --danger:#ff4d6d;
     --shadow:0 12px 30px rgba(122,162,247,.18);
-    --gold:#ffcc33;
   }
   *{box-sizing:border-box}
   body{
@@ -27,7 +25,7 @@
     position:relative;
   }
 
-  /* LEFT: STATS — percentage positioning */
+  /* LEFT: STATS */
   #statsPanel{
     position:absolute;
     top:50%; left:5%;
@@ -40,6 +38,7 @@
     background:linear-gradient(180deg, var(--panel), var(--panel-2));
     border:1px solid rgba(122,162,247,.28);
     border-radius:12px;
+    will-change:auto; /* prevent unintended jitter */
   }
   .statRow{
     display:flex; justify-content:space-between; align-items:center;
@@ -47,8 +46,7 @@
     border:1px solid rgba(122,162,247,.18);
   }
   .statLabel{opacity:.85}
-  .statValue{font-weight:600; color:var(--accent)}
-  .goldVal{color:var(--gold)}
+  .statValue{font-weight:600; color:var(--accent)} /* gold now same accent color as others */
 
   /* RIGHT: AU SELECT — percentage positioning */
   #auPanel{
@@ -63,7 +61,7 @@
     border-radius:12px;
   }
   #auHeader{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
-  #auHeader .subtitle{font-size:13px; color:var(--accent-2); opacity:.85}
+  #auHeader .subtitle{font-size:13px; color:#9cdcfe; opacity:.85}
   #auContent{flex:1; display:flex; flex-direction:column; gap:8px}
   .auBtn, .auBack{
     padding:10px 12px; border-radius:10px; cursor:pointer;
@@ -74,9 +72,17 @@
   }
   .auBtn:hover, .auBack:hover{transform:translateY(-1px); box-shadow:0 10px 24px rgba(122,162,247,.22)}
   .lock{font-size:12px; color:#ffcc66; opacity:.9; margin-left:6px;}
-  .charRow{display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-radius:10px; background:#0c121c; border:1px solid rgba(122,162,247,.18);}
-  .buyBtn{padding:8px 10px; border-radius:8px; cursor:pointer; border:1px solid rgba(122,162,247,.28); background:#0d1118; color:var(--text);}
-  .badge{font-size:12px; padding:2px 6px; border-radius:6px; border:1px solid rgba(122,162,247,.28); background:#0d1118; margin-left:8px; color:var(--accent-2);}
+  .charRow{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:8px 10px; border-radius:10px;
+    background:#0c121c; border:1px solid rgba(122,162,247,.18);
+  }
+  .buyBtn{
+    padding:8px 10px; border-radius:8px; cursor:pointer;
+    border:1px solid rgba(122,162,247,.28);
+    background:#0d1118; color:var(--text);
+  }
+  .buyBtn:disabled{opacity:.6; cursor:not-allowed}
 
   /* CENTER: STAGE — perfectly centered SOUL; menu overlays directly on it */
   #stage{
@@ -109,22 +115,34 @@
   }
   #soulWrap.shattered #soul{opacity:0.15; animation:none;}
 
-  /* Shards */
+  /* Pre-break halves effect */
+  .half{
+    position:absolute; top:0; width:50%; height:100%;
+    background:#ff2f57; opacity:0.9; pointer-events:none;
+  }
+  .half.left{left:0; clip-path: polygon(100% 15%, 100% 0, 75% 0, 50% 15%, 0 25%, 0 55%, 50% 100%, 50% 50%);}
+  .half.right{right:0; clip-path: polygon(50% 15%, 61% 0, 75% 0, 100% 25%, 100% 55%, 50% 100%, 50% 50%, 50% 15%);}
+  .halfAnim.left{animation:halfLeft 0.6s ease-out forwards;}
+  .halfAnim.right{animation:halfRight 0.6s ease-out forwards;}
+  @keyframes halfLeft{to{transform:translateX(-50px) rotate(-18deg); opacity:0}}
+  @keyframes halfRight{to{transform:translateX(50px) rotate(18deg); opacity:0}}
+
+  /* Shards after halves fly */
   .shards{position:absolute; inset:0; pointer-events:none;}
   .shard{
     position:absolute; width:14px; height:14px; background:#ff2f57;
-    animation:fly 1.2s ease-out forwards;
+    animation:fly 1.0s ease-out forwards;
   }
   @keyframes fly{
     0%{opacity:1; transform:translate(0,0) scale(1)}
     100%{opacity:0; transform:translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.7)}
   }
 
-  /* Damage text directly above SOUL (large, black fill with red outline) */
+  /* Damage text directly above SOUL (large, black with red outline) */
   .dmg{
     position:absolute; left:50%; top:0%;
     transform:translate(-50%,-120%);
-    font-size:36px; font-weight:900; color:#000;
+    font-size:42px; font-weight:900; color:#000;
     text-shadow:2px 2px 0 #ff0000, -2px -2px 0 #ff0000, 2px -2px 0 #ff0000, -2px 2px 0 #ff0000;
     animation:dmgRise .8s ease-out forwards;
     pointer-events:none;
@@ -139,8 +157,7 @@
   .refused{
     position:absolute; left:50%; top:0%;
     transform:translate(-50%,-150%);
-    font-size:30px; font-weight:800; color:#fff;
-    z-index:11;
+    font-size:32px; font-weight:800; color:#fff; z-index:11;
   }
 
   /* Menu tray overlays directly on SOUL (centered, absolute) */
@@ -194,7 +211,6 @@
   .row{display:flex; gap:8px; justify-content:flex-end;}
   .btn{padding:10px 14px; border-radius:8px; cursor:pointer; border:1px solid rgba(122,162,247,.28); background:#0d1118; color:var(--text);}
   .btn.danger{background:#2a0f18; border-color:#ff4d6d}
-
 </style>
 </head>
 <body>
@@ -204,7 +220,7 @@
     <h2>STATS</h2>
     <div class="statRow"><span class="statLabel">LV</span><span class="statValue" id="loveStat">0</span></div>
     <div class="statRow"><span class="statLabel">EXP</span><span class="statValue" id="expStat">0</span></div>
-    <div class="statRow"><span class="statLabel">GOLD</span><span class="statValue goldVal" id="goldStat">0</span></div>
+    <div class="statRow"><span class="statLabel">GOLD</span><span class="statValue" id="goldStat">0</span></div>
     <div class="statRow"><span class="statLabel">RESET</span><span class="statValue" id="resetStat">0</span></div>
     <div class="statRow"><span class="statLabel">NEXT</span><span class="statValue" id="needStat">10 EXP</span></div>
   </aside>
@@ -254,7 +270,7 @@
   </aside>
 
 <script>
-  // Core state
+  /* ===== Core state ===== */
   let love = 0;     // LV
   let exp = 0;      // EXP
   let gold = 0;     // GOLD
@@ -269,7 +285,7 @@
   const RESET_EXP_REQ = 2500;
   const RESET_LV_REQ = 20;
 
-  // Passive bonus per reset (multiplier on EXP sources)
+  // Passive bonus per reset (multiplier on EXP sources, if any)
   function resetBonusMultiplier(){ return 1 + resets * 0.1; }
 
   // DOM refs
@@ -291,19 +307,63 @@
   const auContent = document.getElementById('auContent');
   const auSubtitle = document.getElementById('auSubtitle');
 
-  // Roster per AU (LPS treated as EXP/s; purchase cost in GOLD)
+  /* ===== AU roster (Undertale damage roles, single-purchase; Underswap unlocks on reset) ===== */
   const roster = {
     Undertale: [
-      { name:"Frisk", costGold:50,  lps:2,  owned:0 },
-      { name:"Sans",  costGold:200, lps:8,  owned:0 },
-      { name:"Papyrus", costGold:600, lps:24, owned:0 }
+      { name:"Frisk",     costGold:50,   dps:3, owned:0 },
+      { name:"Toriel",    costGold:120,  dps:5, owned:0 },
+      { name:"Papyrus",   costGold:220,  dps:7, owned:0 },
+      { name:"Undyne",    costGold:400,  dps:10, owned:0 },
+      { name:"Mettaton",  costGold:650,  dps:14, owned:0 },
+      { name:"Sans",      costGold:1200, dps:18, owned:0 },
+      { name:"Asgore",    costGold:1800, dps:24, owned:0 }
     ],
     Underswap: [
-      { name:"Swap Sans", costGold:300, lps:18, owned:0 },
-      { name:"Swap Papyrus", costGold:550, lps:36, owned:0 },
-      { name:"Swap Toriel", costGold:1200, lps:90, owned:0 }
+      { name:"Swap Sans",     costGold:900,  dps:20, owned:0 },
+      { name:"Swap Papyrus",  costGold:1300, dps:26, owned:0 },
+      { name:"Swap Toriel",   costGold:2200, dps:34, owned:0 }
     ]
   };
+
+  /* ===== Persistence (autosave/load) ===== */
+  const SAVE_KEY = 'au_clicker_save_v3';
+  function save(){
+    const data = {
+      love, exp, gold, resets, expNeeded, soulHP,
+      roster
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  }
+  function load(){
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return;
+    try{
+      const data = JSON.parse(raw);
+      love = data.love ?? love;
+      exp = data.exp ?? exp;
+      gold = data.gold ?? gold;
+      resets = data.resets ?? resets;
+      expNeeded = data.expNeeded ?? expNeeded;
+      soulHP = data.soulHP ?? soulHP;
+      // roster deep-merge to preserve names order
+      if(data.roster){
+        Object.keys(roster).forEach(au=>{
+          if(data.roster[au]){
+            roster[au].forEach((c, i)=>{
+              const saved = data.roster[au][i];
+              if(saved && saved.name === c.name){
+                c.costGold = saved.costGold ?? c.costGold;
+                c.dps      = saved.dps ?? c.dps;
+                c.owned    = saved.owned ?? c.owned;
+              }
+            });
+          }
+        });
+      }
+    } catch(e){
+      console.warn('Save load failed', e);
+    }
+  }
 
   /* ===== UI helpers ===== */
   function updateStats(){
@@ -312,6 +372,8 @@
     goldStat.textContent = formatNum(gold);
     resetStat.textContent= resets;
     needStat.textContent = formatNum(expNeeded) + " EXP";
+    // autosave on any visible stat update
+    save();
   }
   function formatNum(n){
     if(n < 1000) return Math.floor(n);
@@ -340,10 +402,13 @@
   soul.addEventListener('click', ()=>{
     if(soulDisabled) return;
     const dmg = randInt(5,16);
+    applyDamage(dmg);
+  });
+
+  function applyDamage(dmg){
     soulHP -= dmg;
     showDamage(dmg); // big number above the soul only
-
-    // micro feedback on soul only
+    // micro feedback on soul only (scoped)
     soulWrap.animate([
       {transform:'scale(1)'},
       {transform:'scale(0.985)'},
@@ -354,7 +419,7 @@
       shatterSoul();
     }
     updateStats();
-  });
+  }
 
   // Large damage text above soul
   function showDamage(n){
@@ -365,52 +430,64 @@
     setTimeout(()=> d.remove(), 900);
   }
 
-  // Shatter: grant EXP (2–24) and GOLD (4–9), rare "But it refused."
+  // Pre-break halves animation, then shards: grant EXP (2–24) and GOLD (4–9)
   function shatterSoul(){
     soulDisabled = true;
     soulWrap.classList.add('shattered');
 
-    // shards
-    const shards = document.createElement('div');
-    shards.className = 'shards';
-    for(let i=0;i<16;i++){
-      const piece = document.createElement('div');
-      piece.className = 'shard';
-      const dx = randInt(-110,110) + "px";
-      const dy = randInt(-110,110) + "px";
-      const rot = randInt(-180,180) + "deg";
-      piece.style.setProperty('--dx', dx);
-      piece.style.setProperty('--dy', dy);
-      piece.style.setProperty('--rot', rot);
-      piece.style.left = randInt(60,160) + "px";
-      piece.style.top = randInt(60,160) + "px";
-      shards.appendChild(piece);
-    }
-    soulWrap.appendChild(shards);
+    // halves split first
+    const leftHalf = document.createElement('div');
+    leftHalf.className = 'half left halfAnim left';
+    const rightHalf = document.createElement('div');
+    rightHalf.className = 'half right halfAnim right';
+    soulWrap.appendChild(leftHalf);
+    soulWrap.appendChild(rightHalf);
 
-    // rewards
-    let gainedExp = Math.floor(randInt(2,24) * resetBonusMultiplier());
-    let gainedGold= randInt(4,9);
-    exp  += gainedExp;
-    gold += gainedGold;
-    tryConvertExpToLove();
-    updateStats();
+    // then shards after small delay
+    setTimeout(()=>{
+      const shards = document.createElement('div');
+      shards.className = 'shards';
+      for(let i=0;i<16;i++){
+        const piece = document.createElement('div');
+        piece.className = 'shard';
+        const dx = randInt(-110,110) + "px";
+        const dy = randInt(-110,110) + "px";
+        const rot = randInt(-180,180) + "deg";
+        piece.style.setProperty('--dx', dx);
+        piece.style.setProperty('--dy', dy);
+        piece.style.setProperty('--rot', rot);
+        piece.style.left = randInt(60,160) + "px";
+        piece.style.top = randInt(60,160) + "px";
+        shards.appendChild(piece);
+      }
+      soulWrap.appendChild(shards);
 
-    const refused = Math.random() < 0.10;
-    if(refused){
-      typeRefused("But it refused.", soulWrap, ()=>{
-        setTimeout(respawnSoul, 800);
-      });
-    } else {
-      setTimeout(respawnSoul, 900);
-    }
+      // rewards
+      let gainedExp = Math.floor(randInt(2,24) * resetBonusMultiplier());
+      let gainedGold= randInt(4,9);
+      exp  += gainedExp;
+      gold += gainedGold;
+      tryConvertExpToLove();
+      updateStats();
 
-    function respawnSoul(){
-      shards.remove();
-      soulWrap.classList.remove('shattered');
-      soulDisabled = false;
-      soulHP = randInt(25,40);
-    }
+      const refused = Math.random() < 0.10;
+      if(refused){
+        typeRefused("But it refused.", soulWrap, ()=>{
+          setTimeout(()=> respawnSoul(shards, leftHalf, rightHalf), 800);
+        });
+      } else {
+        setTimeout(()=> respawnSoul(shards, leftHalf, rightHalf), 900);
+      }
+    }, 300);
+  }
+
+  function respawnSoul(shards, leftHalf, rightHalf){
+    shards && shards.remove();
+    leftHalf && leftHalf.remove();
+    rightHalf && rightHalf.remove();
+    soulWrap.classList.remove('shattered');
+    soulDisabled = false;
+    soulHP = randInt(25,40);
   }
 
   // Typewriter plain white text above the soul
@@ -459,19 +536,19 @@
       // consume EXP
       exp -= RESET_EXP_REQ;
 
-      // full reset effects
+      // full reset effects: characters, EXP, LOVE, GOLD, NEXT reset
       love = 0;
       exp = 0;
       gold = 0;
       expNeeded = 10;
       resets += 1;
 
-      // clear ownership
+      // clear ownership (single-purchase reset)
       Object.keys(roster).forEach(au=>{
         roster[au].forEach(char=>{ char.owned = 0; });
       });
 
-      // unlock Underswap via resets gating (render will reflect)
+      // reflect unlock (Underswap gated by resets)
       updateStats();
       renderAUList();
       resetOverlay.style.display = 'none';
@@ -481,7 +558,7 @@
     }
   });
 
-  /* ===== Scoped visual feedback ===== */
+  /* ===== Scoped visual feedback (no global shake) ===== */
   function shake(el){
     el.animate([
       {transform:'translateX(0)'},
@@ -505,7 +582,7 @@
     ], {duration:600});
   }
 
-  /* ===== AU panel behavior ===== */
+  /* ===== AU panel behavior (characters deal damage; single purchase) ===== */
   let auMode = 'list';
   let selectedAU = null;
 
@@ -553,10 +630,11 @@
       const row = document.createElement('div');
       row.className = 'charRow';
       const left = document.createElement('div');
-      left.innerHTML = `<strong>${c.name}</strong> <span class="badge">EXP/s: ${c.lps}</span> <span class="badge">x${c.owned}</span>`;
+      left.innerHTML = `<strong>${c.name}</strong> <span class="badge">DMG/s: ${c.dps}</span> <span class="badge">${c.owned ? 'Owned' : 'Not owned'}</span>`;
       const buy = document.createElement('button');
       buy.className = 'buyBtn';
-      buy.textContent = `Buy (${formatNum(c.costGold)} GOLD)`;
+      buy.textContent = c.owned ? 'Owned' : `Buy (${formatNum(c.costGold)} GOLD)`;
+      buy.disabled = !!c.owned;
       buy.addEventListener('click', ()=> buyChar(name, i));
       row.appendChild(left);
       row.appendChild(buy);
@@ -566,10 +644,10 @@
 
   function buyChar(au, index){
     const c = roster[au][index];
+    if(c.owned) return;
     if(gold >= c.costGold){
       gold -= c.costGold;
-      c.owned++;
-      c.costGold = Math.floor(c.costGold * 1.55);
+      c.owned = 1; // single purchase only
       tryConvertExpToLove();
       updateStats();
       openAU(au);
@@ -579,21 +657,19 @@
     }
   }
 
-  /* ===== Passive EXP per second from owned characters ===== */
+  /* ===== Passive damage per second from owned characters ===== */
   setInterval(()=>{
-    let totalLps = 0;
+    let totalDps = 0;
     Object.values(roster).forEach(list=>{
-      list.forEach(c=> totalLps += c.lps * c.owned);
+      list.forEach(c=> totalDps += (c.dps * (c.owned ? 1 : 0)));
     });
-    totalLps = Math.floor(totalLps * resetBonusMultiplier());
-    if(totalLps > 0){
-      exp += totalLps;
-      tryConvertExpToLove();
-      updateStats();
+    if(totalDps > 0 && !soulDisabled){
+      applyDamage(totalDps);
     }
   }, 1000);
 
-  /* ===== INIT ===== */
+  /* ===== INIT + LOAD ===== */
+  load();
   updateStats();
   renderAUList();
 </script>
