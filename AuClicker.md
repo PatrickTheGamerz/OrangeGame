@@ -16,7 +16,7 @@
   }
   body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;height:100vh;overflow:hidden;}
 
-  /* LEFT: STATS (fixed, no jitter on soul animations) */
+  /* LEFT: STATS (fixed, no jitter) */
   #statsPanel{
     position:absolute;top:50%;left:5%;transform:translateY(-50%);
     width:280px;display:flex;flex-direction:column;gap:12px;padding:16px;
@@ -31,7 +31,7 @@
   .statLabel{opacity:.85}
   .statValue{font-weight:600;color:var(--accent)}
 
-  /* RIGHT: AU SELECT (scroll if long) */
+  /* RIGHT: AU SELECT (scroll) */
   #auPanel{
     position:absolute;top:50%;right:5%;transform:translateY(-50%);
     width:320px;display:flex;flex-direction:column;padding:16px;
@@ -56,7 +56,7 @@
   }
   .buyBtn:disabled{opacity:.6;cursor:not-allowed}
 
-  /* CENTER: STAGE — SOUL centered; menu overlays on top */
+  /* CENTER: STAGE */
   #stage{
     position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
     display:flex;flex-direction:column;align-items:center;gap:12px;
@@ -73,30 +73,16 @@
   }
   #soul.dim{filter:brightness(0.55);}
   @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
-  /* When shattered: hide base heart completely (no second heart behind halves) */
   #soulWrap.shattered #soul{opacity:0;animation:none;}
 
-  /* Accurate heart halves: each side clipped to match the heart silhouette */
-  .half{
-    position:absolute;top:0;width:50%;height:100%;background:#ff2f57;pointer-events:none;
-  }
+  /* Heart halves */
+  .half{position:absolute;top:0;width:50%;height:100%;background:#ff2f57;pointer-events:none;}
   .half.left{
-    left:0;
-    clip-path:polygon(
-      50% 15%, 39% 0, 25% 0, 0 25%, 0 55%,
-      20% 68%, 35% 82%, 50% 100%,
-      50% 70%, 50% 15%
-    );
+    left:0;clip-path:polygon(50% 15%,39% 0,25% 0,0 25%,0 55%,20% 68%,35% 82%,50% 100%,50% 70%,50% 15%);
   }
   .half.right{
-    right:0;
-    clip-path:polygon(
-      50% 15%, 61% 0, 75% 0, 100% 25%, 100% 55%,
-      80% 68%, 65% 82%, 50% 100%,
-      50% 70%, 50% 15%
-    );
+    right:0;clip-path:polygon(50% 15%,61% 0,75% 0,100% 25%,100% 55%,80% 68%,65% 82%,50% 100%,50% 70%,50% 15%);
   }
-  /* Animate halves away only when it's time (stay in place first) */
   .halfAnim.left{animation:halfLeft .6s cubic-bezier(.22,.61,.36,1) forwards;}
   .halfAnim.right{animation:halfRight .6s cubic-bezier(.22,.61,.36,1) forwards;}
   @keyframes halfLeft{to{transform:translateX(-52px) rotate(-18deg);opacity:0}}
@@ -114,7 +100,7 @@
     100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(0.8)}
   }
 
-  /* Damage text above the SOUL (black fill, red outline) */
+  /* Damage text */
   .dmg{
     position:absolute;left:50%;top:0%;transform:translate(-50%,-120%);
     font-size:42px;font-weight:900;color:#000;
@@ -126,17 +112,17 @@
     100%{opacity:0;transform:translate(-50%,-120%) translateY(-40px)}
   }
 
-  /* "But it refused." one-line, above SOUL */
+  /* Refused line */
   .refused{
     position:absolute;left:50%;top:0%;transform:translate(-50%,-150%);
     font-size:32px;font-weight:800;color:#fff;z-index:11;white-space:nowrap;
     text-shadow:0 0 12px rgba(255,255,255,.35);
   }
 
-  /* Undertale-style traveling slash: behind menu tray, above the heart */
+  /* Slash (behind tray) */
   .slashSVG{
     position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-    width:160px; height:200px; pointer-events:none; z-index:8; /* layer 1 */
+    width:160px; height:200px; pointer-events:none; z-index:8;
     filter:drop-shadow(0 0 18px rgba(255,47,87,.65)) drop-shadow(0 0 30px rgba(255,255,255,.55));
     animation:slashTravel .26s cubic-bezier(.2,.8,.2,1) forwards, slashEnd .22s ease-out .26s forwards;
   }
@@ -150,7 +136,7 @@
     100%{opacity:0; transform:translate(-50%,-36%) rotate(6deg) scaleY(.96)}
   }
 
-  /* impact flash ring — behind menu tray as well */
+  /* Impact flash (behind tray) */
   .impactFlash{
     position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
     width:96px;height:96px;border-radius:50%;
@@ -164,20 +150,20 @@
     100%{opacity:0; transform:translate(-50%,-40%) scale(1.25)}
   }
 
-  /* Menu overlays directly on the soul */
+  /* Menu tray (above slash/flames) */
   #menuTray{
     position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
     display:none;flex-direction:column;gap:8px;padding:12px;
     background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid rgba(122,162,247,.28);
-    border-radius:12px;width:220px;z-index:10; /* layer 2: above slash and flames */
+    border-radius:12px;width:220px;z-index:10;
   }
   .trayBtn{padding:8px 12px;border-radius:8px;cursor:pointer;border:1px solid rgba(122,162,247,.22);background:#0d1118;color:var(--text);text-align:left;}
   #menuBtn{
     padding:10px 16px;border-radius:10px;border:1px solid rgba(122,162,247,.28);
-    background:linear-gradient(180deg,#111423,#0d1120);color:var(--text);cursor:pointer;width:220px;z-index:9; /* above slash/flames, below tray/dmg text */
+    background:linear-gradient(180deg,#111423,#0d1120);color:var(--text);cursor:pointer;width:220px;z-index:9;
   }
 
-  /* Reset overlay (above menu) */
+  /* Reset overlay */
   #resetOverlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:20;}
   #resetCard{
     width:420px;max-width:95vw;padding:16px;border-radius:12px;
@@ -190,7 +176,7 @@
   .btn.danger{background:#2a0f18;border-color:#ff4d6d}
   .lock{margin-left:6px;color:#9aa0a6;font-size:12px}
 
-  /* Toriel fireball — behind menu tray, above heart */
+  /* Toriel fireball (behind tray) */
   .fireball{
     position:absolute;width:28px;height:28px;border-radius:50%;pointer-events:none;z-index:8;
     background:
@@ -267,11 +253,11 @@
   let resets = 0;
   let expNeeded = 10;
 
-  // Soul HP mechanics
+  // Soul HP
   let soulHP = randInt(25,40);
   let soulDisabled = false;
 
-  // Reset requirements
+  // Reset req
   const RESET_EXP_REQ = 2500;
   const RESET_LV_REQ = 20;
 
@@ -296,11 +282,11 @@
   const auContent  = document.getElementById('auContent');
   const auSubtitle = document.getElementById('auSubtitle');
 
-  /* ===== AU roster (FRISK slashes; TORIEL reworked flames; Underswap unlocks on reset) ===== */
+  /* ===== AU roster (FRISK slashes; TORIEL flames; Underswap) ===== */
   const roster = {
     Undertale: [
-      { name:"FRISK: 50 G",   label:"FRISK: 50 G",   costGold:50,   dps:0,  owned:0, type:'frisk' }, // special
-      { name:"TORIEL: 120 G", label:"TORIEL: 120 G", costGold:120,  dps:0,  owned:0, type:'toriel' }, // reworked: no passive DPS; periodic flames
+      { name:"FRISK: 50 G",   label:"FRISK: 50 G",   costGold:50,   dps:0,  owned:0, type:'frisk' },
+      { name:"TORIEL: 120 G", label:"TORIEL: 120 G", costGold:120,  dps:0,  owned:0, type:'toriel' }, // reworked: no passive DPS
       { name:"PAPYRUS: 220 G",label:"PAPYRUS: 220 G",costGold:220,  dps:7,  owned:0, type:'dps' },
       { name:"UNDYNE: 400 G", label:"UNDYNE: 400 G", costGold:400,  dps:10, owned:0, type:'dps' },
       { name:"METTATON: 650 G",label:"METTATON: 650 G",costGold:650,dps:14, owned:0, type:'dps' },
@@ -314,7 +300,7 @@
     ]
   };
 
-  /* ===== Persistence (autosave/load) ===== */
+  /* ===== Persistence ===== */
   const SAVE_KEY = 'au_clicker_save_v7';
   function save(){
     const data = { love, exp, gold, resets, expNeeded, soulHP, roster };
@@ -378,7 +364,7 @@
   soul.addEventListener('click', ()=>{
     if(soulDisabled) return;
     const dmg = randInt(5,16);
-    applyDamage(dmg, true); // dim on direct hit
+    applyDamage(dmg, true);
   });
 
   function applyDamage(dmg, dim=true){
@@ -401,7 +387,7 @@
     soulWrap.appendChild(d); setTimeout(()=> d.remove(),900);
   }
 
-  /* ===== FRISK slash emitter (traveling curved tapered slash via SVG, behind menu tray) ===== */
+  /* ===== FRISK slash loop (behind tray) ===== */
   let friskSlashTimer = null;
   function startFriskSlashLoop(){
     stopFriskSlashLoop();
@@ -448,24 +434,14 @@
     path.setAttribute("stroke", "rgba(255,255,255,0.85)");
     path.setAttribute("stroke-width", "1");
     path.setAttribute("d",
-      "M80,10 " +
-      "C78,16 76,24 78,34 " +
-      "C82,52 88,68 92,86 " +
-      "C96,104 96,122 92,140 " +
-      "C88,158 82,172 78,188 " +
-      "C86,178 98,164 106,148 " +
-      "C114,132 118,114 116,98 " +
-      "C114,82 108,68 100,54 " +
-      "C92,40 86,26 80,10 Z"
+      "M80,10 C78,16 76,24 78,34 C82,52 88,68 92,86 C96,104 96,122 92,140 C88,158 82,172 78,188 C86,178 98,164 106,148 C114,132 118,114 116,98 C114,82 108,68 100,54 C92,40 86,26 80,10 Z"
     );
 
     const inner = document.createElementNS(svgNS, "path");
     inner.setAttribute("fill", "none");
     inner.setAttribute("stroke", "rgba(255,255,255,0.65)");
     inner.setAttribute("stroke-width", "2");
-    inner.setAttribute("d",
-      "M86,26 C94,44 103,64 108,90 C111,106 108,124 100,140"
-    );
+    inner.setAttribute("d","M86,26 C94,44 103,64 108,90 C111,106 108,124 100,140");
 
     svg.appendChild(path);
     svg.appendChild(inner);
@@ -480,50 +456,47 @@
     setTimeout(()=> flash.remove(), 360);
   }
 
-  /* ===== TORIEL flame emitter (reworked): spawns every 14–16s, random side, 10–15 dmg per flame, small chance double ===== */
+  /* ===== TORIEL flame loop (no passive DPS) ===== */
   let torielFlameTimer = null;
   function startTorielFlameLoop(){
     stopTorielFlameLoop();
-    const tick = ()=>{
+    const loop = ()=>{
       const delay = randInt(14000,16000);
       torielFlameTimer = setTimeout(()=>{
         if(!soulDisabled){
-          const multi = Math.random() < 0.18 ? 2 : 1; // small chance to spawn 2 flames
-          emitTorielFlames(multi);
+          const count = Math.random() < 0.18 ? 2 : 1; // small chance double flames
+          emitTorielFlames(count);
         }
-        tick();
+        loop();
       }, delay);
     };
-    tick();
+    loop();
   }
   function stopTorielFlameLoop(){
-    if(torielFlameTimer){ clearTimeout(torielFlameTimer); torielFlameTimer = null; }
+    if(torielFlameTimer){ clearTimeout(torielFlameTimer); torielFlameTimer=null; }
   }
 
   function emitTorielFlames(count){
     for(let i=0;i<count;i++){
-      // pick a random side around the soulWrap and a randomized start coordinate
       const side = ['left','right','top','bottom','topleft','topright','bottomleft','bottomright'][randInt(0,7)];
       const { startX, startY } = pickStartOnPerimeter(side);
       const centerX = soulWrap.clientWidth/2;
       const centerY = soulWrap.clientHeight/2;
 
-      // compute travel delta toward center with slight offset jitter
       const jitter = { x: randInt(-6,6), y: randInt(-6,6) };
       const dx = (centerX - startX + jitter.x) + 'px';
       const dy = (centerY - startY + jitter.y) + 'px';
 
       const fire = document.createElement('div');
       fire.className = 'fireball';
-      fire.style.left = Math.round(startX-14)+'px'; // center the 28px flame
+      fire.style.left = Math.round(startX-14)+'px';
       fire.style.top  = Math.round(startY-14)+'px';
       fire.style.setProperty('--dx', dx);
       fire.style.setProperty('--dy', dy);
 
-      // trail flicker via WAAPI for extra polish (without jittering panels)
       fire.animate(
         [
-          { filter:'brightness(1)' , offset:0 },
+          { filter:'brightness(1)' },
           { filter:'brightness(1.15)', offset:0.3 },
           { filter:'brightness(1)', offset:0.6 },
           { filter:'brightness(1.2)', offset:0.85 },
@@ -534,50 +507,41 @@
 
       soulWrap.appendChild(fire);
 
-      // impact resolution slightly before animation fully fades
       setTimeout(()=>{
-        // if the soul is disabled (shattered), skip impact
         if(!soulDisabled){
           const dmg = randInt(10,15);
           applyDamage(dmg, true);
         }
-        // remove element shortly after
         setTimeout(()=> fire.remove(), 100);
-      }, 480 + randInt(-30,10)); // slight variance for natural feel
+      }, 480 + randInt(-30,10));
     }
   }
 
   function pickStartOnPerimeter(side){
     const w = soulWrap.clientWidth, h = soulWrap.clientHeight;
-    const edgeOffset = 6; // start slightly outside the heart bounds
+    const edge = 6;
     switch(side){
-      case 'left':        return { startX: 0 - edgeOffset, startY: randInt(20, h-20) };
-      case 'right':       return { startX: w + edgeOffset, startY: randInt(20, h-20) };
-      case 'top':         return { startX: randInt(20, w-20), startY: 0 - edgeOffset };
-      case 'bottom':      return { startX: randInt(20, w-20), startY: h + edgeOffset };
-      case 'topleft':     return { startX: 0 - edgeOffset, startY: 0 - edgeOffset };
-      case 'topright':    return { startX: w + edgeOffset, startY: 0 - edgeOffset };
-      case 'bottomleft':  return { startX: 0 - edgeOffset, startY: h + edgeOffset };
-      case 'bottomright': return { startX: w + edgeOffset, startY: h + edgeOffset };
-      default:            return { startX: 0 - edgeOffset, startY: randInt(0, h) };
+      case 'left':        return { startX: 0 - edge, startY: randInt(20, h-20) };
+      case 'right':       return { startX: w + edge, startY: randInt(20, h-20) };
+      case 'top':         return { startX: randInt(20, w-20), startY: 0 - edge };
+      case 'bottom':      return { startX: randInt(20, w-20), startY: h + edge };
+      case 'topleft':     return { startX: 0 - edge, startY: 0 - edge };
+      case 'topright':    return { startX: w + edge, startY: 0 - edge };
+      case 'bottomleft':  return { startX: 0 - edge, startY: h + edge };
+      case 'bottomright': return { startX: w + edge, startY: h + edge };
+      default:            return { startX: 0 - edge, startY: randInt(0, h) };
     }
   }
 
-  /* ===== Shatter sequence =====
-     - Halves appear and STAY IN PLACE for a few seconds (no movement).
-     - After linger, halves animate out, then shards fly (normal case).
-     - If "But it refused." (10%), doubles EXP/GOLD, halves linger ~2s then restore with no shards.
-  */
+  /* ===== Shatter sequence ===== */
   function shatterSoul(){
     soulDisabled = true;
     soulWrap.classList.add('shattered');
 
-    // halves show and stay fixed
     const leftHalf = document.createElement('div'); leftHalf.className='half left';
     const rightHalf= document.createElement('div'); rightHalf.className='half right';
     soulWrap.appendChild(leftHalf); soulWrap.appendChild(rightHalf);
 
-    // rewards
     let gainedExp = Math.floor(randInt(2,24) * resetBonusMultiplier());
     let gainedGold= randInt(4,9);
 
@@ -588,19 +552,16 @@
 
     if(refused){
       typeRefusedInline("But it refused.", soulWrap, ()=>{
-        // halves linger ~2s, then restore (no shards, no halves animation)
         setTimeout(()=>{
           leftHalf.remove(); rightHalf.remove();
           soulWrap.classList.remove('shattered'); soulDisabled=false; soulHP=randInt(25,40);
         }, 2000);
       });
     } else {
-      // keep halves in place for ~1.0s, then animate them away
       setTimeout(()=>{
         leftHalf.classList.add('halfAnim','left');
         rightHalf.classList.add('halfAnim','right');
 
-        // after halves animation completes (~0.6s), linger a bit, then shards
         setTimeout(()=>{
           const shards=document.createElement('div'); shards.className='shards';
           for(let i=0;i<18;i++){
@@ -613,13 +574,12 @@
           }
           soulWrap.appendChild(shards);
 
-          // cleanup and respawn after shards
           setTimeout(()=>{
             shards.remove(); leftHalf.remove(); rightHalf.remove();
             soulWrap.classList.remove('shattered'); soulDisabled=false; soulHP=randInt(25,40);
           }, 900);
-        }, 200); // small linger after halves animate out
-      }, 1000); // initial "stay-in-place" linger duration
+        }, 200);
+      }, 1000);
     }
   }
 
@@ -632,7 +592,7 @@
     }, 50);
   }
 
-  /* ===== Menu (overlay) ===== */
+  /* ===== Menu ===== */
   menuBtn.addEventListener('click', ()=>{
     const open = menuTray.style.display==='flex';
     menuTray.style.display = open ? 'none':'flex';
@@ -662,7 +622,7 @@
     } else { shake(resetOverlay); }
   });
 
-  /* ===== Feedback (scoped) ===== */
+  /* ===== Feedback ===== */
   function shake(el){
     el.animate(
       [{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],
@@ -682,7 +642,7 @@
     );
   }
 
-  /* ===== AU panel behavior (scroll; character label format; single purchase) ===== */
+  /* ===== AU panel ===== */
   let auMode='list'; let selectedAU=null;
 
   function renderAUList(){
@@ -720,7 +680,7 @@
     } else { shake(auContent); }
   }
 
-  /* ===== Passive DPS from owned characters (FRISK and TORIEL excluded; dims soul on passive hits) ===== */
+  /* ===== Passive DPS (exclude FRISK & TORIEL) ===== */
   setInterval(()=>{
     if(soulDisabled) return;
     let totalDps=0;
@@ -732,7 +692,7 @@
     if(totalDps>0){ applyDamage(totalDps, true); }
   }, 1000);
 
-  /* ===== INIT + LOAD ===== */
+  /* ===== INIT ===== */
   load(); updateStats(); renderAUList();
   if(roster.Undertale.find(x=> x.type==='frisk' && x.owned)) startFriskSlashLoop();
   if(roster.Undertale.find(x=> x.type==='toriel' && x.owned)) startTorielFlameLoop();
