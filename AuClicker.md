@@ -76,27 +76,18 @@
   /* When shattered: hide base heart completely (no second heart behind halves) */
   #soulWrap.shattered #soul{opacity:0;animation:none;}
 
-  /* Accurate heart halves: each side clipped to match the heart silhouette */
+  /* Accurate heart halves */
   .half{
     position:absolute;top:0;width:50%;height:100%;background:#ff2f57;pointer-events:none;
   }
   .half.left{
     left:0;
-    clip-path:polygon(
-      50% 15%, 39% 0, 25% 0, 0 25%, 0 55%,
-      20% 68%, 35% 82%, 50% 100%,
-      50% 70%, 50% 15%
-    );
+    clip-path:polygon(50% 15%, 39% 0, 25% 0, 0 25%, 0 55%, 20% 68%, 35% 82%, 50% 100%, 50% 70%, 50% 15%);
   }
   .half.right{
     right:0;
-    clip-path:polygon(
-      50% 15%, 61% 0, 75% 0, 100% 25%, 100% 55%,
-      80% 68%, 65% 82%, 50% 100%,
-      50% 70%, 50% 15%
-    );
+    clip-path:polygon(50% 15%, 61% 0, 75% 0, 100% 25%, 100% 55%, 80% 68%, 65% 82%, 50% 100%, 50% 70%, 50% 15%);
   }
-  /* Animate halves away only when it's time (stay in place first) */
   .halfAnim.left{animation:halfLeft .6s cubic-bezier(.22,.61,.36,1) forwards;}
   .halfAnim.right{animation:halfRight .6s cubic-bezier(.22,.61,.36,1) forwards;}
   @keyframes halfLeft{to{transform:translateX(-52px) rotate(-18deg);opacity:0}}
@@ -119,14 +110,14 @@
     position:absolute;left:50%;top:0%;transform:translate(-50%,-120%);
     font-size:42px;font-weight:900;color:#000;
     text-shadow:2px 2px 0 #ff0000,-2px -2px 0 #ff0000,2px -2px 0 #ff0000,-2px 2px 0 #ff0000;
-    animation:dmgRise .8s ease-out forwards;pointer-events:none;z-index:11; /* above tray and slash */
+    animation:dmgRise .8s ease-out forwards;pointer-events:none;z-index:11;
   }
   @keyframes dmgRise{
     0%{opacity:1;transform:translate(-50%,-120%) translateY(0)}
     100%{opacity:0;transform:translate(-50%,-120%) translateY(-40px)}
   }
 
-  /* "But it refused." one-line, above SOUL */
+  /* "But it refused." one-line */
   .refused{
     position:absolute;left:50%;top:0%;transform:translate(-50%,-150%);
     font-size:32px;font-weight:800;color:#fff;z-index:11;white-space:nowrap;
@@ -136,7 +127,7 @@
   /* Undertale-style traveling slash: behind menu tray, above the heart */
   .slashSVG{
     position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-    width:160px; height:200px; pointer-events:none; z-index:8; /* layer 1 */
+    width:160px; height:200px; pointer-events:none; z-index:8;
     filter:drop-shadow(0 0 18px rgba(255,47,87,.65)) drop-shadow(0 0 30px rgba(255,255,255,.55));
     animation:slashTravel .26s cubic-bezier(.2,.8,.2,1) forwards, slashEnd .22s ease-out .26s forwards;
   }
@@ -156,7 +147,7 @@
     width:96px;height:96px;border-radius:50%;
     background:radial-gradient(circle,rgba(255,255,255,0.95) 0%, rgba(255,47,87,0.25) 55%, rgba(255,47,87,0.0) 70%);
     box-shadow:0 0 24px rgba(255,255,255,.7), 0 0 36px rgba(255,47,87,.6);
-    z-index:7;pointer-events:none; /* below slash, below tray */
+    z-index:7;pointer-events:none;
     animation:flashPop .28s ease-out forwards;
   }
   @keyframes flashPop{
@@ -169,15 +160,15 @@
     position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
     display:none;flex-direction:column;gap:8px;padding:12px;
     background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid rgba(122,162,247,.28);
-    border-radius:12px;width:220px;z-index:10; /* layer 2: above slash */
+    border-radius:12px;width:220px;z-index:10;
   }
   .trayBtn{padding:8px 12px;border-radius:8px;cursor:pointer;border:1px solid rgba(122,162,247,.22);background:#0d1118;color:var(--text);text-align:left;}
   #menuBtn{
     padding:10px 16px;border-radius:10px;border:1px solid rgba(122,162,247,.28);
-    background:linear-gradient(180deg,#111423,#0d1120);color:var(--text);cursor:pointer;width:220px;z-index:9; /* above slash, below tray/dmg text */
+    background:linear-gradient(180deg,#111423,#0d1120);color:var(--text);cursor:pointer;width:220px;z-index:9;
   }
 
-  /* Reset overlay (above menu) */
+  /* Reset overlay */
   #resetOverlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:20;}
   #resetCard{
     width:420px;max-width:95vw;padding:16px;border-radius:12px;
@@ -195,36 +186,30 @@
     position:absolute; width:44px; height:60px;
     background: radial-gradient(circle at 45% 35%, #ffffff 0%, #ffdcb6 22%, #ff9c4a 52%, #ff6a00 100%);
     box-shadow:0 0 22px rgba(255,106,0,.85), 0 0 38px rgba(255,180,120,.55);
-    /* Stylized triple-tip flame shape (inspired by your reference) */
-    clip-path: polygon(
-      50% 2%,
-      62% 12%,
-      74% 3%,
-      96% 32%,
-      86% 62%,
-      63% 85%,
-      50% 98%,
-      37% 85%,
-      14% 62%,
-      4% 32%,
-      26% 3%,
-      38% 12%
-    );
+    clip-path: polygon(50% 2%,62% 12%,74% 3%,96% 32%,86% 62%,63% 85%,50% 98%,37% 85%,14% 62%,4% 32%,26% 3%,38% 12%);
     z-index:8; pointer-events:none;
-  }
-  .torielFlame::after{
-    /* Hollow center accent like the logo’s hole, softly glowing */
-    content:""; position:absolute; left:50%; top:46%;
-    width:18px; height:18px; transform:translate(-50%,-50%);
-    border-radius:50%;
-    background: radial-gradient(circle, rgba(255,255,255,.85) 0%, rgba(255,200,140,.25) 55%, rgba(255,106,0,0) 70%);
-    filter:blur(1px); mix-blend-mode:screen; opacity:.9;
   }
   .torielTrail{
     position:absolute; width:16px; height:16px; border-radius:50%;
     background: radial-gradient(circle, rgba(255,210,150,.9), rgba(255,106,0,.0));
     filter: blur(3.5px); opacity:.6; pointer-events:none; z-index:7;
   }
+
+  /* Papyrus bones — horizontal bones crossing above/below SOUL */
+  .papyrusBone{
+    position:absolute; width:120px; height:22px; z-index:8; pointer-events:none;
+    filter: drop-shadow(0 0 10px rgba(255,255,255,.75));
+  }
+  .papyrusBone .shaft{
+    position:absolute; left:20px; right:20px; top:6px; height:10px;
+    background:#fff; border-radius:6px;
+  }
+  .papyrusBone::before, .papyrusBone::after{
+    content:""; position:absolute; top:0; width:22px; height:22px;
+    background: radial-gradient(circle, #fff 60%, rgba(255,255,255,.0) 61%);
+  }
+  .papyrusBone::before{ left:0; }
+  .papyrusBone::after{ right:0; }
 </style>
 </head>
 <body>
@@ -318,12 +303,12 @@
   const auContent  = document.getElementById('auContent');
   const auSubtitle = document.getElementById('auSubtitle');
 
-  /* ===== AU roster (Undertale single purchase; FRISK slashes; Toriel flames; Underswap unlocks on reset) ===== */
+  /* ===== AU roster ===== */
   const roster = {
     Undertale: [
-      { name:"FRISK: 50 G",   label:"FRISK: 50 G",   costGold:50,   dps:0,  owned:0, type:'frisk' }, // special
-      { name:"TORIEL: 120 G", label:"TORIEL: 120 G", costGold:120,  dps:0,  owned:0, type:'toriel' }, // reworked: no DPS, periodic flame hits
-      { name:"PAPYRUS: 220 G",label:"PAPYRUS: 220 G",costGold:220,  dps:7,  owned:0, type:'dps' },
+      { name:"FRISK: 50 G",   label:"FRISK: 50 G",   costGold:50,   dps:0,  owned:0, type:'frisk' },
+      { name:"TORIEL: 120 G", label:"TORIEL: 120 G", costGold:120,  dps:0,  owned:0, type:'toriel' },
+      { name:"PAPYRUS: 220 G",label:"PAPYRUS: 220 G",costGold:220,  dps:0,  owned:0, type:'papyrus' },
       { name:"UNDYNE: 400 G", label:"UNDYNE: 400 G", costGold:400,  dps:10, owned:0, type:'dps' },
       { name:"METTATON: 650 G",label:"METTATON: 650 G",costGold:650,dps:14, owned:0, type:'dps' },
       { name:"SANS: 1200 G",  label:"SANS: 1200 G",  costGold:1200, dps:18, owned:0, type:'dps' },
@@ -336,8 +321,8 @@
     ]
   };
 
-  /* ===== Persistence (autosave/load) ===== */
-  const SAVE_KEY = 'au_clicker_save_v9_toriel_flame_shape';
+  /* ===== Persistence ===== */
+  const SAVE_KEY = 'au_clicker_save_v10_toriel_papyrus';
   function save(){
     const data = { love, exp, gold, resets, expNeeded, soulHP, roster };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -400,7 +385,7 @@
   soul.addEventListener('click', ()=>{
     if(soulDisabled) return;
     const dmg = randInt(5,16);
-    applyDamage(dmg, true); // dim on direct hit
+    applyDamage(dmg, true);
   });
 
   function applyDamage(dmg, dim=true){
@@ -410,7 +395,6 @@
       soul.classList.add('dim');
       setTimeout(()=> soul.classList.remove('dim'),150);
     }
-    // Animate only the SOUL to avoid any panel jitter
     soul.animate(
       [{transform:'scale(1)'},{transform:'scale(0.985)'},{transform:'scale(1)'}],
       {duration:120, easing:'ease-out'}
@@ -424,7 +408,7 @@
     soulWrap.appendChild(d); setTimeout(()=> d.remove(),900);
   }
 
-  /* ===== FRISK slash emitter (traveling curved tapered slash via SVG, behind menu tray) ===== */
+  /* ===== FRISK slash emitter ===== */
   let friskSlashTimer = null;
   function startFriskSlashLoop(){
     stopFriskSlashLoop();
@@ -444,7 +428,6 @@
   function stopFriskSlashLoop(){
     if(friskSlashTimer){ clearTimeout(friskSlashTimer); friskSlashTimer=null; }
   }
-
   function showFriskSlashSVG(){
     const svgNS = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(svgNS, "svg");
@@ -493,7 +476,7 @@
     setTimeout(()=> flash.remove(), 360);
   }
 
-  /* ===== Toriel fire loop (spawns bigger, stylized flames from random sides every 14–16s; small chance of double) ===== */
+  /* ===== Toriel fire loop (bigger stylized flames every 14–16s; chance of doubles) ===== */
   let torielFireTimer = null;
   function startTorielFireLoop(){
     stopTorielFireLoop();
@@ -501,10 +484,8 @@
       const delay = randInt(14000,16000);
       torielFireTimer = setTimeout(()=>{
         if(!soulDisabled){
-          const count = Math.random() < 0.20 ? 2 : 1; // 20% double flames
-          for(let i=0;i<count;i++){
-            spawnTorielFlame();
-          }
+          const count = pickCount({one:1, two:0.20, three:0.08, four:0.03});
+          spawnMultiple(spawnTorielFlame, count, 1000); // 1s cooldown between flames
         }
         schedule();
       }, delay);
@@ -518,14 +499,13 @@
     const flame = document.createElement('div');
     flame.className = 'torielFlame';
 
-    // Random spawn side around soulWrap
     const wrapRect = soulWrap.getBoundingClientRect();
     const centerX = wrapRect.width/2;
     const centerY = wrapRect.height/2;
 
     const sides = ['left','right','top','bottom','top-left','top-right','bottom-left','bottom-right'];
     const side = sides[randInt(0, sides.length-1)];
-    const margin = 36; // spawn slightly outside edges
+    const margin = 36;
     let x = 0, y = 0;
 
     switch(side){
@@ -543,17 +523,15 @@
     flame.style.top  = y + 'px';
     soulWrap.appendChild(flame);
 
-    // Soft trail
     const trail = document.createElement('div');
     trail.className = 'torielTrail';
     trail.style.left = x + 'px';
     trail.style.top  = y + 'px';
     soulWrap.appendChild(trail);
 
-    // Travel to center
     const travelMs = randInt(640,920);
-    const endX = centerX - 22; // half flame width
-    const endY = centerY - 30; // half flame height (visually center the tips)
+    const endX = centerX - 22;
+    const endY = centerY - 30;
 
     const anim = flame.animate(
       [
@@ -562,8 +540,6 @@
       ],
       { duration: travelMs, easing: 'cubic-bezier(.22,.61,.36,1)' }
     );
-
-    // Trail follows and fades
     trail.animate(
       [
         { transform: `translate(0,0) scale(1)`, opacity: 0.6 },
@@ -576,7 +552,6 @@
       flame.remove();
       setTimeout(()=> trail.remove(), 260);
 
-      // Impact + damage
       const flash = document.createElement('div');
       flash.className = 'impactFlash';
       soulWrap.appendChild(flash);
@@ -584,6 +559,100 @@
 
       const dmg = randInt(10,15);
       applyDamage(dmg, true);
+    };
+  }
+
+  /* ===== Papyrus bone loop (bones sweep above/below SOUL every 12–16s; 1s cooldown between spawns) ===== */
+  let papyrusBoneTimer = null;
+  function startPapyrusBoneLoop(){
+    stopPapyrusBoneLoop();
+    const schedule = ()=>{
+      const delay = randInt(12000,16000);
+      papyrusBoneTimer = setTimeout(()=>{
+        if(!soulDisabled){
+          const count = pickCount({one:1, two:0.25, three:0.10, four:0.04}); // decreasing chances
+          spawnMultiple(spawnPapyrusBone, count, 1000); // 1s cooldown between bones
+        }
+        schedule();
+      }, delay);
+    };
+    schedule();
+  }
+  function stopPapyrusBoneLoop(){
+    if(papyrusBoneTimer){ clearTimeout(papyrusBoneTimer); papyrusBoneTimer=null; }
+  }
+  // Utility: spawn N with cooldown spacing
+  function spawnMultiple(fn, count, cooldownMs){
+    let spawned = 0;
+    const tick = ()=>{
+      if(spawned>=count) return;
+      fn();
+      spawned++;
+      if(spawned<count) setTimeout(tick, cooldownMs);
+    };
+    tick();
+  }
+  // Utility: pick count with weighted chances
+  function pickCount(weights){
+    const roll = Math.random();
+    if(roll < (weights.four ?? 0)) return 4;
+    if(roll < (weights.three ?? 0) + (weights.four ?? 0)) return 3;
+    if(roll < (weights.two ?? 0) + (weights.three ?? 0) + (weights.four ?? 0)) return 2;
+    return 1;
+  }
+  function spawnPapyrusBone(){
+    const bone = document.createElement('div');
+    bone.className = 'papyrusBone';
+    const shaft = document.createElement('div');
+    shaft.className = 'shaft';
+    bone.appendChild(shaft);
+
+    const wrapRect = soulWrap.getBoundingClientRect();
+    const centerY = wrapRect.height/2;
+
+    // vertical track: above or below the SOUL centerline
+    const track = Math.random() < 0.5 ? 'above' : 'below';
+    const y = track === 'above' ? centerY - randInt(46,66) : centerY + randInt(46,66);
+
+    // horizontal direction: left -> right or right -> left
+    const fromLeft = Math.random() < 0.5;
+    const startX = fromLeft ? -140 : wrapRect.width + 20;
+    const endX   = fromLeft ? wrapRect.width + 20 : -140;
+
+    bone.style.top = Math.max(0, Math.min(wrapRect.height - 22, y)) + 'px';
+    bone.style.left = startX + 'px';
+    soulWrap.appendChild(bone);
+
+    const travelMs = randInt(900,1200);
+    const anim = bone.animate(
+      [
+        { transform: `translate(0,0)` },
+        { transform: `translate(${endX - startX}px, 0)` }
+      ],
+      { duration: travelMs, easing: 'cubic-bezier(.22,.61,.36,1)' }
+    );
+
+    // Impact detection: when crossing the SOUL horizontal bounds, apply damage and remove
+    const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 }; // rough heart bounds inside 220x220
+    const checkInterval = setInterval(()=>{
+      // current left position from computed style + transform isn't trivial; approximate via progress
+      const elapsed = anim.currentTime || 0;
+      const progress = Math.min(1, elapsed / travelMs);
+      const curX = startX + (endX - startX) * progress;
+      const curY = y;
+      const intersectsX = (curX + 60) >= soulBounds.x1 && (curX) <= soulBounds.x2; // bone length ~120
+      const intersectsY = curY+22 >= soulBounds.y1 && curY <= soulBounds.y2;
+      if(intersectsX && intersectsY){
+        clearInterval(checkInterval);
+        anim.cancel();
+        bone.remove();
+        applyDamage(4, true);
+      }
+    }, 30);
+
+    anim.onfinish = ()=>{
+      clearInterval(checkInterval);
+      bone.remove();
     };
   }
 
@@ -669,6 +738,7 @@
       Object.keys(roster).forEach(au=> roster[au].forEach(c=> c.owned=0 ));
       stopFriskSlashLoop();
       stopTorielFireLoop();
+      stopPapyrusBoneLoop();
       updateStats(); renderAUList(); resetOverlay.style.display='none';
       pulse(document.getElementById('statsPanel'));
     } else { shake(resetOverlay); }
@@ -694,7 +764,7 @@
     );
   }
 
-  /* ===== AU panel behavior (scroll; character label format; single purchase) ===== */
+  /* ===== AU panel behavior ===== */
   let auMode='list'; let selectedAU=null;
 
   function renderAUList(){
@@ -728,11 +798,12 @@
       gold -= c.costGold; c.owned = 1;
       if(c.type==='frisk'){ startFriskSlashLoop(); }
       if(c.type==='toriel'){ startTorielFireLoop(); }
+      if(c.type==='papyrus'){ startPapyrusBoneLoop(); }
       tryConvertExpToLove(); updateStats(); openAU(au); gentlePop(auContent);
     } else { shake(auContent); }
   }
 
-  /* ===== Passive DPS from owned characters (FRISK and Toriel excluded; dims soul on passive hits) ===== */
+  /* ===== Passive DPS (FRISK/Toriel/Papyrus excluded) ===== */
   setInterval(()=>{
     if(soulDisabled) return;
     let totalDps=0;
@@ -748,6 +819,10 @@
   load(); updateStats(); renderAUList();
   if(roster.Undertale.find(x=> x.type==='frisk' && x.owned)) startFriskSlashLoop();
   if(roster.Undertale.find(x=> x.type==='toriel' && x.owned)) startTorielFireLoop();
+  if(roster.Undertale.find(x=> x.type==='papyrus' && x.owned)) startPapyrusBoneLoop();
+
+  /* ===== utils ===== */
+  function randFloat(min,max){ return Math.random()*(max-min)+min; }
 </script>
 </body>
 </html>
