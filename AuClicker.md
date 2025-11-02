@@ -281,7 +281,7 @@
   /* ===== Core state ===== */
   let love = 0;
   let exp = 0;
-  let gold = 0;
+  let gold = 9999990;
   let resets = 0;
   let expNeeded = 10;
 
