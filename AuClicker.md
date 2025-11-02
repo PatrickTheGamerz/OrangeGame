@@ -119,7 +119,7 @@
     position:absolute;left:50%;top:0%;transform:translate(-50%,-120%);
     font-size:42px;font-weight:900;color:#000;
     text-shadow:2px 2px 0 #ff0000,-2px -2px 0 #ff0000,2px -2px 0 #ff0000,-2px 2px 0 #ff0000;
-    animation:dmgRise .8s ease-out forwards;pointer-events:none;z-index:11; /* above tray and slash */
+    animation:dmgRise .8s ease-out forwards;pointer-events:none;z-index:11;
   }
   @keyframes dmgRise{
     0%{opacity:1;transform:translate(-50%,-120%) translateY(0)}
@@ -138,7 +138,6 @@
     position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
     width:160px; height:200px; pointer-events:none; z-index:8; /* layer 1 */
     filter:drop-shadow(0 0 18px rgba(255,47,87,.65)) drop-shadow(0 0 30px rgba(255,255,255,.55));
-    /* The slash travels downward with slight curve; no sudden appearance */
     animation:slashTravel .26s cubic-bezier(.2,.8,.2,1) forwards, slashEnd .22s ease-out .26s forwards;
   }
   @keyframes slashTravel{
@@ -157,7 +156,7 @@
     width:96px;height:96px;border-radius:50%;
     background:radial-gradient(circle,rgba(255,255,255,0.95) 0%, rgba(255,47,87,0.25) 55%, rgba(255,47,87,0.0) 70%);
     box-shadow:0 0 24px rgba(255,255,255,.7), 0 0 36px rgba(255,47,87,.6);
-    z-index:7;pointer-events:none; /* below slash, below tray */
+    z-index:7;pointer-events:none;
     animation:flashPop .28s ease-out forwards;
   }
   @keyframes flashPop{
@@ -170,12 +169,12 @@
     position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
     display:none;flex-direction:column;gap:8px;padding:12px;
     background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid rgba(122,162,247,.28);
-    border-radius:12px;width:220px;z-index:10; /* layer 2: above slash */
+    border-radius:12px;width:220px;z-index:10; /* layer 2: above slash and flames */
   }
   .trayBtn{padding:8px 12px;border-radius:8px;cursor:pointer;border:1px solid rgba(122,162,247,.22);background:#0d1118;color:var(--text);text-align:left;}
   #menuBtn{
     padding:10px 16px;border-radius:10px;border:1px solid rgba(122,162,247,.28);
-    background:linear-gradient(180deg,#111423,#0d1120);color:var(--text);cursor:pointer;width:220px;z-index:9; /* above slash, below tray/dmg text */
+    background:linear-gradient(180deg,#111423,#0d1120);color:var(--text);cursor:pointer;width:220px;z-index:9; /* above slash/flames, below tray/dmg text */
   }
 
   /* Reset overlay (above menu) */
@@ -190,6 +189,20 @@
   .btn{padding:10px 14px;border-radius:8px;cursor:pointer;border:1px solid rgba(122,162,247,.28);background:#0d1118;color:var(--text);}
   .btn.danger{background:#2a0f18;border-color:#ff4d6d}
   .lock{margin-left:6px;color:#9aa0a6;font-size:12px}
+
+  /* Toriel fireball — behind menu tray, above heart */
+  .fireball{
+    position:absolute;width:28px;height:28px;border-radius:50%;pointer-events:none;z-index:8;
+    background:
+      radial-gradient(circle at 50% 45%, rgba(255,255,255,.9) 0%, rgba(255,200,150,.6) 18%, rgba(255,140,0,.0) 25%),
+      radial-gradient(circle, #ff9933 0%, #ff5a16 55%, #d11f00 85%, #7a0c00 100%);
+    box-shadow:0 0 16px rgba(255,120,40,.8), 0 0 26px rgba(255,80,20,.45);
+    animation:fireFly 520ms cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  @keyframes fireFly{
+    0%{opacity:1; transform:translate(0,0) scale(1)}
+    100%{opacity:0.1; transform:translate(var(--dx),var(--dy)) scale(0.82)}
+  }
 </style>
 </head>
 <body>
@@ -283,11 +296,11 @@
   const auContent  = document.getElementById('auContent');
   const auSubtitle = document.getElementById('auSubtitle');
 
-  /* ===== AU roster (Undertale single purchase; FRISK slashes; Underswap unlocks on reset) ===== */
+  /* ===== AU roster (FRISK slashes; TORIEL reworked flames; Underswap unlocks on reset) ===== */
   const roster = {
     Undertale: [
       { name:"FRISK: 50 G",   label:"FRISK: 50 G",   costGold:50,   dps:0,  owned:0, type:'frisk' }, // special
-      { name:"TORIEL: 120 G", label:"TORIEL: 120 G", costGold:120,  dps:5,  owned:0, type:'dps' },
+      { name:"TORIEL: 120 G", label:"TORIEL: 120 G", costGold:120,  dps:0,  owned:0, type:'toriel' }, // reworked: no passive DPS; periodic flames
       { name:"PAPYRUS: 220 G",label:"PAPYRUS: 220 G",costGold:220,  dps:7,  owned:0, type:'dps' },
       { name:"UNDYNE: 400 G", label:"UNDYNE: 400 G", costGold:400,  dps:10, owned:0, type:'dps' },
       { name:"METTATON: 650 G",label:"METTATON: 650 G",costGold:650,dps:14, owned:0, type:'dps' },
@@ -375,7 +388,6 @@
       soul.classList.add('dim');
       setTimeout(()=> soul.classList.remove('dim'),150);
     }
-    // Animate only the SOUL to avoid any panel jitter
     soul.animate(
       [{transform:'scale(1)'},{transform:'scale(0.985)'},{transform:'scale(1)'}],
       {duration:120, easing:'ease-out'}
@@ -410,14 +422,12 @@
     if(friskSlashTimer){ clearTimeout(friskSlashTimer); friskSlashTimer=null; }
   }
 
-  // Single tapered curved path with inner highlight; travels downward then vanishes; behind menu tray
   function showFriskSlashSVG(){
     const svgNS = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(svgNS, "svg");
     svg.setAttribute("viewBox", "0 0 160 200");
     svg.classList.add("slashSVG");
 
-    // gradient for inner white to red
     const defs = document.createElementNS(svgNS, "defs");
     const grad = document.createElementNS(svgNS, "linearGradient");
     grad.setAttribute("id", "slashGrad");
@@ -433,7 +443,6 @@
     defs.appendChild(grad);
     svg.appendChild(defs);
 
-    // tapered curved shape: top thin, middle thick, bottom thin (closed path)
     const path = document.createElementNS(svgNS, "path");
     path.setAttribute("fill", "url(#slashGrad)");
     path.setAttribute("stroke", "rgba(255,255,255,0.85)");
@@ -450,7 +459,6 @@
       "C92,40 86,26 80,10 Z"
     );
 
-    // subtle inner highlight stroke
     const inner = document.createElementNS(svgNS, "path");
     inner.setAttribute("fill", "none");
     inner.setAttribute("stroke", "rgba(255,255,255,0.65)");
@@ -462,7 +470,6 @@
     svg.appendChild(path);
     svg.appendChild(inner);
 
-    // impact flash (placed slightly below mid to match end of travel)
     const flash = document.createElement("div");
     flash.className = "impactFlash";
 
@@ -471,6 +478,89 @@
 
     setTimeout(()=> svg.remove(), 520);
     setTimeout(()=> flash.remove(), 360);
+  }
+
+  /* ===== TORIEL flame emitter (reworked): spawns every 14–16s, random side, 10–15 dmg per flame, small chance double ===== */
+  let torielFlameTimer = null;
+  function startTorielFlameLoop(){
+    stopTorielFlameLoop();
+    const tick = ()=>{
+      const delay = randInt(14000,16000);
+      torielFlameTimer = setTimeout(()=>{
+        if(!soulDisabled){
+          const multi = Math.random() < 0.18 ? 2 : 1; // small chance to spawn 2 flames
+          emitTorielFlames(multi);
+        }
+        tick();
+      }, delay);
+    };
+    tick();
+  }
+  function stopTorielFlameLoop(){
+    if(torielFlameTimer){ clearTimeout(torielFlameTimer); torielFlameTimer = null; }
+  }
+
+  function emitTorielFlames(count){
+    for(let i=0;i<count;i++){
+      // pick a random side around the soulWrap and a randomized start coordinate
+      const side = ['left','right','top','bottom','topleft','topright','bottomleft','bottomright'][randInt(0,7)];
+      const { startX, startY } = pickStartOnPerimeter(side);
+      const centerX = soulWrap.clientWidth/2;
+      const centerY = soulWrap.clientHeight/2;
+
+      // compute travel delta toward center with slight offset jitter
+      const jitter = { x: randInt(-6,6), y: randInt(-6,6) };
+      const dx = (centerX - startX + jitter.x) + 'px';
+      const dy = (centerY - startY + jitter.y) + 'px';
+
+      const fire = document.createElement('div');
+      fire.className = 'fireball';
+      fire.style.left = Math.round(startX-14)+'px'; // center the 28px flame
+      fire.style.top  = Math.round(startY-14)+'px';
+      fire.style.setProperty('--dx', dx);
+      fire.style.setProperty('--dy', dy);
+
+      // trail flicker via WAAPI for extra polish (without jittering panels)
+      fire.animate(
+        [
+          { filter:'brightness(1)' , offset:0 },
+          { filter:'brightness(1.15)', offset:0.3 },
+          { filter:'brightness(1)', offset:0.6 },
+          { filter:'brightness(1.2)', offset:0.85 },
+          { filter:'brightness(1)', offset:1 }
+        ],
+        { duration:520, easing:'linear' }
+      );
+
+      soulWrap.appendChild(fire);
+
+      // impact resolution slightly before animation fully fades
+      setTimeout(()=>{
+        // if the soul is disabled (shattered), skip impact
+        if(!soulDisabled){
+          const dmg = randInt(10,15);
+          applyDamage(dmg, true);
+        }
+        // remove element shortly after
+        setTimeout(()=> fire.remove(), 100);
+      }, 480 + randInt(-30,10)); // slight variance for natural feel
+    }
+  }
+
+  function pickStartOnPerimeter(side){
+    const w = soulWrap.clientWidth, h = soulWrap.clientHeight;
+    const edgeOffset = 6; // start slightly outside the heart bounds
+    switch(side){
+      case 'left':        return { startX: 0 - edgeOffset, startY: randInt(20, h-20) };
+      case 'right':       return { startX: w + edgeOffset, startY: randInt(20, h-20) };
+      case 'top':         return { startX: randInt(20, w-20), startY: 0 - edgeOffset };
+      case 'bottom':      return { startX: randInt(20, w-20), startY: h + edgeOffset };
+      case 'topleft':     return { startX: 0 - edgeOffset, startY: 0 - edgeOffset };
+      case 'topright':    return { startX: w + edgeOffset, startY: 0 - edgeOffset };
+      case 'bottomleft':  return { startX: 0 - edgeOffset, startY: h + edgeOffset };
+      case 'bottomright': return { startX: w + edgeOffset, startY: h + edgeOffset };
+      default:            return { startX: 0 - edgeOffset, startY: randInt(0, h) };
+    }
   }
 
   /* ===== Shatter sequence =====
@@ -566,6 +656,7 @@
       love=0; exp=0; gold=0; expNeeded=10; resets+=1;
       Object.keys(roster).forEach(au=> roster[au].forEach(c=> c.owned=0 ));
       stopFriskSlashLoop();
+      stopTorielFlameLoop();
       updateStats(); renderAUList(); resetOverlay.style.display='none';
       pulse(document.getElementById('statsPanel'));
     } else { shake(resetOverlay); }
@@ -624,11 +715,12 @@
     if(gold>=c.costGold){
       gold -= c.costGold; c.owned = 1;
       if(c.type==='frisk'){ startFriskSlashLoop(); }
+      if(c.type==='toriel'){ startTorielFlameLoop(); }
       tryConvertExpToLove(); updateStats(); openAU(au); gentlePop(auContent);
     } else { shake(auContent); }
   }
 
-  /* ===== Passive DPS from owned characters (FRISK excluded; dims soul on passive hits) ===== */
+  /* ===== Passive DPS from owned characters (FRISK and TORIEL excluded; dims soul on passive hits) ===== */
   setInterval(()=>{
     if(soulDisabled) return;
     let totalDps=0;
@@ -643,6 +735,7 @@
   /* ===== INIT + LOAD ===== */
   load(); updateStats(); renderAUList();
   if(roster.Undertale.find(x=> x.type==='frisk' && x.owned)) startFriskSlashLoop();
+  if(roster.Undertale.find(x=> x.type==='toriel' && x.owned)) startTorielFlameLoop();
 </script>
 </body>
 </html>
