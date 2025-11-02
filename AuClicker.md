@@ -16,22 +16,22 @@
   }
   body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;height:100vh;overflow:hidden;}
 
-  /* LEFT: STATS (fixed, no jitter) */
+  /* LEFT: STATS (fixed, no jitter on soul animations) */
   #statsPanel{
     position:absolute;top:50%;left:5%;transform:translateY(-50%);
     width:280px;display:flex;flex-direction:column;gap:12px;padding:16px;
     background:linear-gradient(180deg,var(--panel),var(--panel-2));
     border:1px solid rgba(122,162,247,.28);border-radius:12px;
-    contain:layout paint; /* prevents reflow/glitch when soul animates */
+    contain:layout paint;
   }
   .statRow{
     display:flex;justify-content:space-between;align-items:center;
     padding:10px 12px;border-radius:10px;background:#0c121c;border:1px solid rgba(122,162,247,.18);
   }
   .statLabel{opacity:.85}
-  .statValue{font-weight:600;color:var(--accent)} /* GOLD uses same accent color */
+  .statValue{font-weight:600;color:var(--accent)}
 
-  /* RIGHT: AU SELECT (scrolls if long) */
+  /* RIGHT: AU SELECT (scroll if long) */
   #auPanel{
     position:absolute;top:50%;right:5%;transform:translateY(-50%);
     width:320px;display:flex;flex-direction:column;padding:16px;
@@ -72,26 +72,30 @@
   }
   #soul.dim{filter:brightness(0.55);}
   @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
-  /* When shattered: hide base heart completely to avoid "second heart" behind halves */
+  /* When shattered: hide base heart completely (no second heart behind halves) */
   #soulWrap.shattered #soul{opacity:0;animation:none;}
 
-  /* Accurate heart halves: each side clipped to match heart silhouette */
+  /* Accurate heart halves: each side clipped to match the heart silhouette */
   .half{
     position:absolute;top:0;width:50%;height:100%;background:#ff2f57;pointer-events:none;
   }
   .half.left{
     left:0;
     clip-path:polygon(
-      50% 15%, 39% 0, 25% 0, 0 25%, 0 55%, 25% 70%, 40% 85%, 50% 100%, 50% 55%, 50% 15%
+      50% 15%, 39% 0, 25% 0, 0 25%, 0 55%,
+      20% 68%, 35% 82%, 50% 100%,
+      50% 70%, 50% 15%
     );
   }
   .half.right{
     right:0;
     clip-path:polygon(
-      50% 15%, 61% 0, 75% 0, 100% 25%, 100% 55%, 75% 70%, 60% 85%, 50% 100%, 50% 55%, 50% 15%
+      50% 15%, 61% 0, 75% 0, 100% 25%, 100% 55%,
+      80% 68%, 65% 82%, 50% 100%,
+      50% 70%, 50% 15%
     );
   }
-  /* End-of-halves "stay in place" state — no movement; later animate out if needed */
+  /* Animate halves away only when it's time (stay in place first) */
   .halfAnim.left{animation:halfLeft .6s ease-out forwards;}
   .halfAnim.right{animation:halfRight .6s ease-out forwards;}
   @keyframes halfLeft{to{transform:translateX(-50px) rotate(-18deg);opacity:0}}
@@ -102,7 +106,7 @@
   .shard{position:absolute;width:14px;height:14px;background:#ff2f57;animation:fly 1s ease-out forwards;}
   @keyframes fly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(0.7)}}
 
-  /* Damage text above the SOUL */
+  /* Damage text above the SOUL (black fill, red outline) */
   .dmg{
     position:absolute;left:50%;top:0%;transform:translate(-50%,-120%);
     font-size:42px;font-weight:900;color:#000;
@@ -112,18 +116,32 @@
   @keyframes dmgRise{0%{opacity:1;transform:translate(-50%,-120%) translateY(0)}100%{opacity:0;transform:translate(-50%,-120%) translateY(-40px)}}
 
   /* "But it refused." one-line, above SOUL */
-  .refused{position:absolute;left:50%;top:0%;transform:translate(-50%,-150%);font-size:32px;font-weight:800;color:#fff;z-index:11;white-space:nowrap;}
-
-  /* Undertale slash visual (FRISK special) */
-  .slash{
-    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) rotate(-20deg);
-    width:0; height:0; border-left:2px solid transparent; border-right:2px solid transparent;
-    border-top:60px solid rgba(255,255,255,0.85); filter:drop-shadow(0 0 6px rgba(255,255,255,0.6));
-    animation:slashAnim .35s ease-out forwards; pointer-events:none; z-index:12;
+  .refused{
+    position:absolute;left:50%;top:0%;transform:translate(-50%,-150%);
+    font-size:32px;font-weight:800;color:#fff;z-index:11;white-space:nowrap;
   }
-  @keyframes slashAnim{
-    0%{opacity:1; transform:translate(-50%,-50%) rotate(-20deg) scale(0.9)}
-    100%{opacity:0; transform:translate(-50%,-65%) rotate(-10deg) scale(1.1)}
+
+  /* Bigger slash animation (vertical waveform-style bars) */
+  .slash{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:140px; height:120px; display:flex; align-items:flex-end; justify-content:center; gap:6px;
+    pointer-events:none; z-index:12;
+    animation:slashFade .45s ease-out forwards;
+  }
+  .slashBar{
+    width:10px; background:linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.35));
+    box-shadow:0 0 12px rgba(255,255,255,0.7);
+    border-radius:3px;
+    transform-origin:bottom center;
+    animation:barRise .35s ease-out forwards;
+  }
+  @keyframes barRise{
+    0%{transform:scaleY(0.4); opacity:1}
+    100%{transform:scaleY(1.0); opacity:0.0}
+  }
+  @keyframes slashFade{
+    0%{opacity:1; transform:translate(-50%,-50%) scale(1)}
+    100%{opacity:0; transform:translate(-50%,-55%) scale(1.05)}
   }
 
   /* Menu overlays directly on the soul */
@@ -243,7 +261,7 @@
   const auContent  = document.getElementById('auContent');
   const auSubtitle = document.getElementById('auSubtitle');
 
-  /* ===== AU roster (Undertale single purchase; FRISK reworked slashes; Underswap unlocks on reset) ===== */
+  /* ===== AU roster (Undertale single purchase; FRISK slashes; Underswap unlocks on reset) ===== */
   const roster = {
     Undertale: [
       { name:"FRISK: 50 G",   label:"FRISK: 50 G",   costGold:50,   dps:0,  owned:0, type:'frisk' }, // special
@@ -262,7 +280,7 @@
   };
 
   /* ===== Persistence (autosave/load) ===== */
-  const SAVE_KEY = 'au_clicker_save_v6';
+  const SAVE_KEY = 'au_clicker_save_v7';
   function save(){
     const data = { love, exp, gold, resets, expNeeded, soulHP, roster };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -343,7 +361,7 @@
     soulWrap.appendChild(d); setTimeout(()=> d.remove(),900);
   }
 
-  // FRISK slash emitter (every 8–12s, 12–15 damage per slash)
+  /* ===== FRISK slash emitter (every 8–12s, 12–15 damage, waveform-style bars) ===== */
   let friskSlashTimer = null;
   function startFriskSlashLoop(){
     stopFriskSlashLoop();
@@ -351,9 +369,9 @@
       const delay = randInt(8000,12000);
       friskSlashTimer = setTimeout(()=>{
         if(!soulDisabled){
-          showSlash();
+          showSlashWaveform();
           const slashDmg = randInt(12,15);
-          applyDamage(slashDmg, true); // dim on slash
+          applyDamage(slashDmg, true);
         }
         schedule();
       }, delay);
@@ -363,20 +381,37 @@
   function stopFriskSlashLoop(){
     if(friskSlashTimer){ clearTimeout(friskSlashTimer); friskSlashTimer=null; }
   }
-  function showSlash(){
-    const s=document.createElement('div'); s.className='slash';
-    soulWrap.appendChild(s); setTimeout(()=> s.remove(), 400);
+  function showSlashWaveform(){
+    const container = document.createElement('div');
+    container.className = 'slash';
+
+    // Generate 9 bars with varying heights
+    const heights = [
+      40, 68, 96, 120, 88, 110, 70, 50, 85
+    ];
+    heights.forEach((h, idx)=>{
+      const bar = document.createElement('div');
+      bar.className = 'slashBar';
+      bar.style.height = h + 'px';
+      // slight stagger on rise animation for a ripple feel
+      bar.style.animationDelay = (idx * 0.03) + 's';
+      container.appendChild(bar);
+    });
+
+    soulWrap.appendChild(container);
+    setTimeout(()=> container.remove(), 500);
   }
 
-  // Shatter sequence:
-  // - Halves appear and STAY IN PLACE for a few seconds (no movement).
-  // - After that linger, halves animate out, shards fly (normal case).
-  // - If "But it refused." (10%), doubles EXP/GOLD, halves linger ~2s then restore with no shards.
+  /* ===== Shatter sequence =====
+     - Halves appear and STAY IN PLACE for a few seconds (no movement).
+     - After linger, halves animate out, then shards fly (normal case).
+     - If "But it refused." (10%), doubles EXP/GOLD, halves linger ~2s then restore with no shards.
+  */
   function shatterSoul(){
     soulDisabled = true;
     soulWrap.classList.add('shattered');
 
-    // show halves (static)
+    // halves show and stay fixed
     const leftHalf = document.createElement('div'); leftHalf.className='half left';
     const rightHalf= document.createElement('div'); rightHalf.className='half right';
     soulWrap.appendChild(leftHalf); soulWrap.appendChild(rightHalf);
@@ -392,20 +427,19 @@
 
     if(refused){
       typeRefusedInline("But it refused.", soulWrap, ()=>{
-        // halves stay ~2s, then restore (no shards, no halves animation)
+        // halves linger ~2s, then restore (no shards, no halves animation)
         setTimeout(()=>{
           leftHalf.remove(); rightHalf.remove();
           soulWrap.classList.remove('shattered'); soulDisabled=false; soulHP=randInt(25,40);
         }, 2000);
       });
     } else {
-      // keep halves in place for ~1.0s linger BEFORE animating them away
+      // keep halves in place for ~1.0s, then animate them away
       setTimeout(()=>{
-        // animate halves out
         leftHalf.classList.add('halfAnim','left');
         rightHalf.classList.add('halfAnim','right');
 
-        // after halves animation finishes (~0.6s), linger a bit more, then shards
+        // after halves animation completes (~0.6s), linger a bit, then shards
         setTimeout(()=>{
           const shards=document.createElement('div'); shards.className='shards';
           for(let i=0;i<18;i++){
@@ -423,7 +457,7 @@
             shards.remove(); leftHalf.remove(); rightHalf.remove();
             soulWrap.classList.remove('shattered'); soulDisabled=false; soulHP=randInt(25,40);
           }, 900);
-        }, 200); // small gap after halves animate out, then shards
+        }, 200); // small linger after halves animate out
       }, 1000); // initial "stay-in-place" linger duration
     }
   }
@@ -500,7 +534,7 @@
     if(c.owned) return;
     if(gold>=c.costGold){
       gold -= c.costGold; c.owned = 1;
-      if(c.type==='frisk'){ startFriskSlashLoop(); } // start FRISK's slash loop when bought
+      if(c.type==='frisk'){ startFriskSlashLoop(); }
       tryConvertExpToLove(); updateStats(); openAU(au); gentlePop(auContent);
     } else { shake(auContent); }
   }
@@ -519,7 +553,6 @@
 
   /* ===== INIT + LOAD ===== */
   load(); updateStats(); renderAUList();
-  // If a saved FRISK was owned, ensure slash loop runs
   if(roster.Undertale.find(x=> x.type==='frisk' && x.owned)) startFriskSlashLoop();
 </script>
 </body>
