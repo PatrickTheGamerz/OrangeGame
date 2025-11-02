@@ -25,7 +25,7 @@
     position:relative;
   }
 
-  /* LEFT: STATS */
+  /* LEFT: STATS (pin, no jitter) */
   #statsPanel{
     position:absolute;
     top:50%; left:5%;
@@ -38,7 +38,7 @@
     background:linear-gradient(180deg, var(--panel), var(--panel-2));
     border:1px solid rgba(122,162,247,.28);
     border-radius:12px;
-    will-change:auto; /* prevent unintended jitter */
+    contain:layout paint; /* avoid reflow jitter on outside animations */
   }
   .statRow{
     display:flex; justify-content:space-between; align-items:center;
@@ -46,9 +46,9 @@
     border:1px solid rgba(122,162,247,.18);
   }
   .statLabel{opacity:.85}
-  .statValue{font-weight:600; color:var(--accent)} /* gold now same accent color as others */
+  .statValue{font-weight:600; color:var(--accent)} /* GOLD uses same accent color per request */
 
-  /* RIGHT: AU SELECT — percentage positioning */
+  /* RIGHT: AU SELECT — scroll if long */
   #auPanel{
     position:absolute;
     top:50%; right:5%;
@@ -59,19 +59,17 @@
     background:linear-gradient(180deg, var(--panel), var(--panel-2));
     border:1px solid rgba(122,162,247,.28);
     border-radius:12px;
+    max-height:80vh;
   }
   #auHeader{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
   #auHeader .subtitle{font-size:13px; color:#9cdcfe; opacity:.85}
-  #auContent{flex:1; display:flex; flex-direction:column; gap:8px}
+  #auContent{flex:1; display:flex; flex-direction:column; gap:8px; overflow-y:auto;}
   .auBtn, .auBack{
     padding:10px 12px; border-radius:10px; cursor:pointer;
     border:1px solid rgba(122,162,247,.28);
     background:linear-gradient(180deg,#111423,#0d1120);
     color:var(--text);
-    transition:transform .08s ease, box-shadow .15s ease;
   }
-  .auBtn:hover, .auBack:hover{transform:translateY(-1px); box-shadow:0 10px 24px rgba(122,162,247,.22)}
-  .lock{font-size:12px; color:#ffcc66; opacity:.9; margin-left:6px;}
   .charRow{
     display:flex; justify-content:space-between; align-items:center;
     padding:8px 10px; border-radius:10px;
@@ -107,36 +105,28 @@
     clip-path: polygon(50% 15%, 61% 0, 75% 0, 100% 25%, 100% 55%, 50% 100%, 0 55%, 0 25%, 25% 0, 39% 0);
     cursor:pointer;
     animation:pulse 1.8s ease-in-out infinite;
+    transition:filter 0.18s ease; /* dim-on-hit */
   }
-  @keyframes pulse{
-    0%{transform:scale(1)}
-    50%{transform:scale(1.06)}
-    100%{transform:scale(1)}
-  }
+  #soul.dim{filter:brightness(0.55);}
+  @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
   #soulWrap.shattered #soul{opacity:0.15; animation:none;}
 
-  /* Pre-break halves effect */
+  /* Pre-break halves effect (stay in halves before shards) */
   .half{
     position:absolute; top:0; width:50%; height:100%;
     background:#ff2f57; opacity:0.9; pointer-events:none;
   }
-  .half.left{left:0; clip-path: polygon(100% 15%, 100% 0, 75% 0, 50% 15%, 0 25%, 0 55%, 50% 100%, 50% 50%);}
-  .half.right{right:0; clip-path: polygon(50% 15%, 61% 0, 75% 0, 100% 25%, 100% 55%, 50% 100%, 50% 50%, 50% 15%);}
+  .half.left{left:0;}
+  .half.right{right:0;}
+  /* halves wait visible; later animate out when shards launch */
   .halfAnim.left{animation:halfLeft 0.6s ease-out forwards;}
   .halfAnim.right{animation:halfRight 0.6s ease-out forwards;}
   @keyframes halfLeft{to{transform:translateX(-50px) rotate(-18deg); opacity:0}}
   @keyframes halfRight{to{transform:translateX(50px) rotate(18deg); opacity:0}}
 
-  /* Shards after halves fly */
   .shards{position:absolute; inset:0; pointer-events:none;}
-  .shard{
-    position:absolute; width:14px; height:14px; background:#ff2f57;
-    animation:fly 1.0s ease-out forwards;
-  }
-  @keyframes fly{
-    0%{opacity:1; transform:translate(0,0) scale(1)}
-    100%{opacity:0; transform:translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.7)}
-  }
+  .shard{position:absolute; width:14px; height:14px; background:#ff2f57; animation:fly 1.0s ease-out forwards;}
+  @keyframes fly{0%{opacity:1; transform:translate(0,0) scale(1)}100%{opacity:0; transform:translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.7)}}
 
   /* Damage text directly above SOUL (large, black with red outline) */
   .dmg{
@@ -153,14 +143,14 @@
     100%{opacity:0; transform:translate(-50%,-120%) translateY(-40px)}
   }
 
-  /* "But it refused." — plain white, above SOUL, typed */
+  /* "But it refused." — plain white, above SOUL, typed in one line */
   .refused{
     position:absolute; left:50%; top:0%;
     transform:translate(-50%,-150%);
-    font-size:32px; font-weight:800; color:#fff; z-index:11;
+    font-size:32px; font-weight:800; color:#fff; z-index:11; white-space:nowrap;
   }
 
-  /* Menu tray overlays directly on SOUL (centered, absolute) */
+  /* Menu tray overlays directly on soul */
   #menuTray{
     position:absolute;
     top:50%; left:50%;
@@ -172,7 +162,7 @@
     border:1px solid rgba(122,162,247,.28);
     border-radius:12px;
     width:220px;
-    z-index:10; /* above soul, below reset overlay */
+    z-index:10;
   }
   .trayBtn{
     padding:8px 12px; border-radius:8px; cursor:pointer;
@@ -307,16 +297,16 @@
   const auContent = document.getElementById('auContent');
   const auSubtitle = document.getElementById('auSubtitle');
 
-  /* ===== AU roster (Undertale damage roles, single-purchase; Underswap unlocks on reset) ===== */
+  /* ===== AU roster (Undertale damage roles, single purchase; Underswap unlocks on reset) ===== */
   const roster = {
     Undertale: [
-      { name:"Frisk",     costGold:50,   dps:3, owned:0 },
-      { name:"Toriel",    costGold:120,  dps:5, owned:0 },
-      { name:"Papyrus",   costGold:220,  dps:7, owned:0 },
-      { name:"Undyne",    costGold:400,  dps:10, owned:0 },
-      { name:"Mettaton",  costGold:650,  dps:14, owned:0 },
-      { name:"Sans",      costGold:1200, dps:18, owned:0 },
-      { name:"Asgore",    costGold:1800, dps:24, owned:0 }
+      { name:"FRISK: 50 G",  costGold:50,   dps:3,  owned:0 },
+      { name:"TORIEL",       costGold:120,  dps:5,  owned:0 },
+      { name:"PAPYRUS",      costGold:220,  dps:7,  owned:0 },
+      { name:"UNDYNE",       costGold:400,  dps:10, owned:0 },
+      { name:"METTATON",     costGold:650,  dps:14, owned:0 },
+      { name:"SANS",         costGold:1200, dps:18, owned:0 },
+      { name:"ASGORE",       costGold:1800, dps:24, owned:0 }
     ],
     Underswap: [
       { name:"Swap Sans",     costGold:900,  dps:20, owned:0 },
@@ -326,7 +316,7 @@
   };
 
   /* ===== Persistence (autosave/load) ===== */
-  const SAVE_KEY = 'au_clicker_save_v3';
+  const SAVE_KEY = 'au_clicker_save_v4';
   function save(){
     const data = {
       love, exp, gold, resets, expNeeded, soulHP,
@@ -345,7 +335,6 @@
       resets = data.resets ?? resets;
       expNeeded = data.expNeeded ?? expNeeded;
       soulHP = data.soulHP ?? soulHP;
-      // roster deep-merge to preserve names order
       if(data.roster){
         Object.keys(roster).forEach(au=>{
           if(data.roster[au]){
@@ -372,8 +361,7 @@
     goldStat.textContent = formatNum(gold);
     resetStat.textContent= resets;
     needStat.textContent = formatNum(expNeeded) + " EXP";
-    // autosave on any visible stat update
-    save();
+    save(); // autosave on updates
   }
   function formatNum(n){
     if(n < 1000) return Math.floor(n);
@@ -402,12 +390,19 @@
   soul.addEventListener('click', ()=>{
     if(soulDisabled) return;
     const dmg = randInt(5,16);
-    applyDamage(dmg);
+    applyDamage(dmg, true); // true: direct hit from click (dim soul)
   });
 
-  function applyDamage(dmg){
+  function applyDamage(dmg, dim=true){
     soulHP -= dmg;
     showDamage(dmg); // big number above the soul only
+
+    // Dim soul briefly for visibility (also triggers on passive DPS)
+    if(dim){
+      soul.classList.add('dim');
+      setTimeout(()=> soul.classList.remove('dim'), 150);
+    }
+
     // micro feedback on soul only (scoped)
     soulWrap.animate([
       {transform:'scale(1)'},
@@ -430,71 +425,86 @@
     setTimeout(()=> d.remove(), 900);
   }
 
-  // Pre-break halves animation, then shards: grant EXP (2–24) and GOLD (4–9)
+  // Shatter sequence:
+  // - stay in halves 1s then turn to pieces
+  // - if "But it refused." (10%), stay halves ~2s, give double EXP/GOLD, then restore (no pieces)
   function shatterSoul(){
     soulDisabled = true;
     soulWrap.classList.add('shattered');
 
-    // halves split first
+    // halves appear and stay
     const leftHalf = document.createElement('div');
-    leftHalf.className = 'half left halfAnim left';
+    leftHalf.className = 'half left';
     const rightHalf = document.createElement('div');
-    rightHalf.className = 'half right halfAnim right';
+    rightHalf.className = 'half right';
     soulWrap.appendChild(leftHalf);
     soulWrap.appendChild(rightHalf);
 
-    // then shards after small delay
-    setTimeout(()=>{
-      const shards = document.createElement('div');
-      shards.className = 'shards';
-      for(let i=0;i<16;i++){
-        const piece = document.createElement('div');
-        piece.className = 'shard';
-        const dx = randInt(-110,110) + "px";
-        const dy = randInt(-110,110) + "px";
-        const rot = randInt(-180,180) + "deg";
-        piece.style.setProperty('--dx', dx);
-        piece.style.setProperty('--dy', dy);
-        piece.style.setProperty('--rot', rot);
-        piece.style.left = randInt(60,160) + "px";
-        piece.style.top = randInt(60,160) + "px";
-        shards.appendChild(piece);
-      }
-      soulWrap.appendChild(shards);
+    const refused = Math.random() < 0.10;
 
-      // rewards
-      let gainedExp = Math.floor(randInt(2,24) * resetBonusMultiplier());
-      let gainedGold= randInt(4,9);
-      exp  += gainedExp;
-      gold += gainedGold;
-      tryConvertExpToLove();
-      updateStats();
+    // rewards
+    let gainedExp = Math.floor(randInt(2,24) * resetBonusMultiplier());
+    let gainedGold= randInt(4,9);
+    if(refused){
+      gainedExp *= 2;
+      gainedGold *= 2;
+    }
+    exp  += gainedExp;
+    gold += gainedGold;
+    tryConvertExpToLove();
+    updateStats();
 
-      const refused = Math.random() < 0.10;
-      if(refused){
-        typeRefused("But it refused.", soulWrap, ()=>{
-          setTimeout(()=> respawnSoul(shards, leftHalf, rightHalf), 800);
-        });
-      } else {
-        setTimeout(()=> respawnSoul(shards, leftHalf, rightHalf), 900);
-      }
-    }, 300);
+    if(refused){
+      typeRefusedInline("But it refused.", soulWrap, ()=>{
+        // hold halves for ~2s total, then restore (no shards)
+        setTimeout(()=>{
+          leftHalf.remove(); rightHalf.remove();
+          soulWrap.classList.remove('shattered');
+          soulDisabled = false;
+          soulHP = randInt(25,40);
+        }, 2000);
+      });
+    } else {
+      // after 1s, animate halves out and create shards
+      setTimeout(()=>{
+        leftHalf.classList.add('halfAnim','left');
+        rightHalf.classList.add('halfAnim','right');
+
+        const shards = document.createElement('div');
+        shards.className = 'shards';
+        for(let i=0;i<16;i++){
+          const piece = document.createElement('div');
+          piece.className = 'shard';
+          const dx = randInt(-110,110) + "px";
+          const dy = randInt(-110,110) + "px";
+          const rot = randInt(-180,180) + "deg";
+          piece.style.setProperty('--dx', dx);
+          piece.style.setProperty('--dy', dy);
+          piece.style.setProperty('--rot', rot);
+          piece.style.left = randInt(60,160) + "px";
+          piece.style.top = randInt(60,160) + "px";
+          shards.appendChild(piece);
+        }
+        soulWrap.appendChild(shards);
+
+        // cleanup and respawn
+        setTimeout(()=>{
+          shards.remove();
+          leftHalf.remove(); rightHalf.remove();
+          soulWrap.classList.remove('shattered');
+          soulDisabled = false;
+          soulHP = randInt(25,40);
+        }, 900);
+      }, 1000);
+    }
   }
 
-  function respawnSoul(shards, leftHalf, rightHalf){
-    shards && shards.remove();
-    leftHalf && leftHalf.remove();
-    rightHalf && rightHalf.remove();
-    soulWrap.classList.remove('shattered');
-    soulDisabled = false;
-    soulHP = randInt(25,40);
-  }
-
-  // Typewriter plain white text above the soul
-  function typeRefused(text, container, onDone){
+  // Typewriter one-line overlay (no line breaks)
+  function typeRefusedInline(text, container, onDone){
     const el = document.createElement('div');
     el.className = 'refused';
     el.textContent = "";
+    el.style.whiteSpace = 'nowrap';
     container.appendChild(el);
     let i = 0;
     const tick = setInterval(()=>{
@@ -505,7 +515,7 @@
         setTimeout(()=>{
           el.remove();
           onDone && onDone();
-        }, 700);
+        }, 400);
       }
     }, 50);
   }
@@ -533,10 +543,9 @@
 
   confirmReset.addEventListener('click', ()=>{
     if(love >= RESET_LV_REQ && exp >= RESET_EXP_REQ){
-      // consume EXP
       exp -= RESET_EXP_REQ;
 
-      // full reset effects: characters, EXP, LOVE, GOLD, NEXT reset
+      // full reset effects
       love = 0;
       exp = 0;
       gold = 0;
@@ -548,7 +557,6 @@
         roster[au].forEach(char=>{ char.owned = 0; });
       });
 
-      // reflect unlock (Underswap gated by resets)
       updateStats();
       renderAUList();
       resetOverlay.style.display = 'none';
@@ -582,7 +590,7 @@
     ], {duration:600});
   }
 
-  /* ===== AU panel behavior (characters deal damage; single purchase) ===== */
+  /* ===== AU panel behavior (characters deal damage; single purchase; scroll list) ===== */
   let auMode = 'list';
   let selectedAU = null;
 
@@ -657,14 +665,15 @@
     }
   }
 
-  /* ===== Passive damage per second from owned characters ===== */
+  /* ===== Passive damage per second from owned characters (dim on passive hits too) ===== */
   setInterval(()=>{
+    if(soulDisabled) return;
     let totalDps = 0;
     Object.values(roster).forEach(list=>{
       list.forEach(c=> totalDps += (c.dps * (c.owned ? 1 : 0)));
     });
-    if(totalDps > 0 && !soulDisabled){
-      applyDamage(totalDps);
+    if(totalDps > 0){
+      applyDamage(totalDps, true); // dim on passive damage for visibility
     }
   }, 1000);
 
