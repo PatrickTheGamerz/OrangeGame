@@ -119,7 +119,7 @@
     position:absolute;left:50%;top:0%;transform:translate(-50%,-120%);
     font-size:42px;font-weight:900;color:#000;
     text-shadow:2px 2px 0 #ff0000,-2px -2px 0 #ff0000,2px -2px 0 #ff0000,-2px 2px 0 #ff0000;
-    animation:dmgRise .8s ease-out forwards;pointer-events:none;z-index:11;
+    animation:dmgRise .8s ease-out forwards;pointer-events:none;z-index:11; /* above tray and slash */
   }
   @keyframes dmgRise{
     0%{opacity:1;transform:translate(-50%,-120%) translateY(0)}
@@ -133,33 +133,36 @@
     text-shadow:0 0 12px rgba(255,255,255,.35);
   }
 
-  /* Undertale 1:1-style curved tapered vertical slash (SVG overlay) */
+  /* Undertale-style traveling slash: behind menu tray, above the heart */
   .slashSVG{
     position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-    width:160px; height:200px; pointer-events:none; z-index:12;
+    width:160px; height:200px; pointer-events:none; z-index:8; /* layer 1 */
     filter:drop-shadow(0 0 18px rgba(255,47,87,.65)) drop-shadow(0 0 30px rgba(255,255,255,.55));
-    animation:slashAppear .22s cubic-bezier(.22,.61,.36,1) forwards, slashVanish .32s ease-out .18s forwards;
+    /* The slash travels downward with slight curve; no sudden appearance */
+    animation:slashTravel .26s cubic-bezier(.2,.8,.2,1) forwards, slashEnd .22s ease-out .26s forwards;
   }
-  @keyframes slashAppear{
-    0%{opacity:0; transform:translate(-50%,-55%) scaleY(0.6)}
-    100%{opacity:1; transform:translate(-50%,-50%) scaleY(1)}
+  @keyframes slashTravel{
+    0%{opacity:1; transform:translate(-50%,-60%) rotate(-6deg) scaleY(.92)}
+    50%{opacity:1; transform:translate(-50%,-50%) rotate(-2deg) scaleY(1)}
+    100%{opacity:1; transform:translate(-50%,-40%) rotate(3deg) scaleY(.98)}
   }
-  @keyframes slashVanish{
-    0%{opacity:1}
-    100%{opacity:0}
+  @keyframes slashEnd{
+    0%{opacity:1; transform:translate(-50%,-40%) rotate(3deg) scaleY(.98)}
+    100%{opacity:0; transform:translate(-50%,-36%) rotate(6deg) scaleY(.96)}
   }
-  /* impact flash ring */
+
+  /* impact flash ring — behind menu tray as well */
   .impactFlash{
     position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
     width:96px;height:96px;border-radius:50%;
     background:radial-gradient(circle,rgba(255,255,255,0.95) 0%, rgba(255,47,87,0.25) 55%, rgba(255,47,87,0.0) 70%);
     box-shadow:0 0 24px rgba(255,255,255,.7), 0 0 36px rgba(255,47,87,.6);
-    z-index:13;pointer-events:none;
+    z-index:7;pointer-events:none; /* below slash, below tray */
     animation:flashPop .28s ease-out forwards;
   }
   @keyframes flashPop{
-    0%{opacity:1; transform:translate(-50%,-50%) scale(0.7)}
-    100%{opacity:0; transform:translate(-50%,-50%) scale(1.25)}
+    0%{opacity:1; transform:translate(-50%,-40%) scale(0.7)}
+    100%{opacity:0; transform:translate(-50%,-40%) scale(1.25)}
   }
 
   /* Menu overlays directly on the soul */
@@ -167,12 +170,12 @@
     position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
     display:none;flex-direction:column;gap:8px;padding:12px;
     background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid rgba(122,162,247,.28);
-    border-radius:12px;width:220px;z-index:10;
+    border-radius:12px;width:220px;z-index:10; /* layer 2: above slash */
   }
   .trayBtn{padding:8px 12px;border-radius:8px;cursor:pointer;border:1px solid rgba(122,162,247,.22);background:#0d1118;color:var(--text);text-align:left;}
   #menuBtn{
     padding:10px 16px;border-radius:10px;border:1px solid rgba(122,162,247,.28);
-    background:linear-gradient(180deg,#111423,#0d1120);color:var(--text);cursor:pointer;width:220px;z-index:9;
+    background:linear-gradient(180deg,#111423,#0d1120);color:var(--text);cursor:pointer;width:220px;z-index:9; /* above slash, below tray/dmg text */
   }
 
   /* Reset overlay (above menu) */
@@ -386,7 +389,7 @@
     soulWrap.appendChild(d); setTimeout(()=> d.remove(),900);
   }
 
-  /* ===== FRISK slash emitter (true Undertale-style curved tapered slash via SVG) ===== */
+  /* ===== FRISK slash emitter (traveling curved tapered slash via SVG, behind menu tray) ===== */
   let friskSlashTimer = null;
   function startFriskSlashLoop(){
     stopFriskSlashLoop();
@@ -407,7 +410,7 @@
     if(friskSlashTimer){ clearTimeout(friskSlashTimer); friskSlashTimer=null; }
   }
 
-  // Single tapered curved path (no cubes, no bars) — visually matches the reference slash
+  // Single tapered curved path with inner highlight; travels downward then vanishes; behind menu tray
   function showFriskSlashSVG(){
     const svgNS = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(svgNS, "svg");
@@ -446,6 +449,7 @@
       "C114,82 108,68 100,54 " +
       "C92,40 86,26 80,10 Z"
     );
+
     // subtle inner highlight stroke
     const inner = document.createElementNS(svgNS, "path");
     inner.setAttribute("fill", "none");
@@ -458,15 +462,15 @@
     svg.appendChild(path);
     svg.appendChild(inner);
 
-    // impact flash
+    // impact flash (placed slightly below mid to match end of travel)
     const flash = document.createElement("div");
     flash.className = "impactFlash";
 
     soulWrap.appendChild(svg);
     soulWrap.appendChild(flash);
 
-    setTimeout(()=> svg.remove(), 460);
-    setTimeout(()=> flash.remove(), 300);
+    setTimeout(()=> svg.remove(), 520);
+    setTimeout(()=> flash.remove(), 360);
   }
 
   /* ===== Shatter sequence =====
