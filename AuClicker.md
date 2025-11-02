@@ -22,7 +22,7 @@
     width:280px;display:flex;flex-direction:column;gap:12px;padding:16px;
     background:linear-gradient(180deg,var(--panel),var(--panel-2));
     border:1px solid rgba(122,162,247,.28);border-radius:12px;
-    contain:layout paint; /* prevents reflow jitter on external animations */
+    contain:layout paint; /* prevents reflow/glitch when soul animates */
   }
   .statRow{
     display:flex;justify-content:space-between;align-items:center;
@@ -72,15 +72,26 @@
   }
   #soul.dim{filter:brightness(0.55);}
   @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
-  #soulWrap.shattered #soul{opacity:0.12;animation:none;}
+  /* When shattered: hide base heart completely to avoid "second heart" behind halves */
+  #soulWrap.shattered #soul{opacity:0;animation:none;}
 
-  /* Accurate heart halves (use same heart shape clipped per side) */
+  /* Accurate heart halves: each side clipped to match heart silhouette */
   .half{
-    position:absolute;top:0;width:50%;height:100%;background:#ff2f57;opacity:0.9;pointer-events:none;
-    clip-path:polygon(50% 15%,61% 0,75% 0,100% 25%,100% 55%,50% 100%,0 55%,0 25%,25% 0,39% 0);
+    position:absolute;top:0;width:50%;height:100%;background:#ff2f57;pointer-events:none;
   }
-  .half.left{left:0;clip-path:polygon(50% 15%,39% 0,25% 0,0 25%,0 55%,50% 100%,50% 55%,50% 15%);}
-  .half.right{right:0;clip-path:polygon(50% 15%,61% 0,75% 0,100% 25%,100% 55%,50% 100%,50% 55%,50% 15%);}
+  .half.left{
+    left:0;
+    clip-path:polygon(
+      50% 15%, 39% 0, 25% 0, 0 25%, 0 55%, 25% 70%, 40% 85%, 50% 100%, 50% 55%, 50% 15%
+    );
+  }
+  .half.right{
+    right:0;
+    clip-path:polygon(
+      50% 15%, 61% 0, 75% 0, 100% 25%, 100% 55%, 75% 70%, 60% 85%, 50% 100%, 50% 55%, 50% 15%
+    );
+  }
+  /* End-of-halves "stay in place" state — no movement; later animate out if needed */
   .halfAnim.left{animation:halfLeft .6s ease-out forwards;}
   .halfAnim.right{animation:halfRight .6s ease-out forwards;}
   @keyframes halfLeft{to{transform:translateX(-50px) rotate(-18deg);opacity:0}}
@@ -102,6 +113,18 @@
 
   /* "But it refused." one-line, above SOUL */
   .refused{position:absolute;left:50%;top:0%;transform:translate(-50%,-150%);font-size:32px;font-weight:800;color:#fff;z-index:11;white-space:nowrap;}
+
+  /* Undertale slash visual (FRISK special) */
+  .slash{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) rotate(-20deg);
+    width:0; height:0; border-left:2px solid transparent; border-right:2px solid transparent;
+    border-top:60px solid rgba(255,255,255,0.85); filter:drop-shadow(0 0 6px rgba(255,255,255,0.6));
+    animation:slashAnim .35s ease-out forwards; pointer-events:none; z-index:12;
+  }
+  @keyframes slashAnim{
+    0%{opacity:1; transform:translate(-50%,-50%) rotate(-20deg) scale(0.9)}
+    100%{opacity:0; transform:translate(-50%,-65%) rotate(-10deg) scale(1.1)}
+  }
 
   /* Menu overlays directly on the soul */
   #menuTray{
@@ -220,26 +243,26 @@
   const auContent  = document.getElementById('auContent');
   const auSubtitle = document.getElementById('auSubtitle');
 
-  /* ===== AU roster (Undertale single purchase, DPS; Underswap unlocks on reset) ===== */
+  /* ===== AU roster (Undertale single purchase; FRISK reworked slashes; Underswap unlocks on reset) ===== */
   const roster = {
     Undertale: [
-      { name:"FRISK: 50 G",   label:"FRISK: 50 G",   costGold:50,   dps:3,  owned:0 },
-      { name:"TORIEL: 120 G", label:"TORIEL: 120 G", costGold:120,  dps:5,  owned:0 },
-      { name:"PAPYRUS: 220 G",label:"PAPYRUS: 220 G",costGold:220,  dps:7,  owned:0 },
-      { name:"UNDYNE: 400 G", label:"UNDYNE: 400 G", costGold:400,  dps:10, owned:0 },
-      { name:"METTATON: 650 G",label:"METTATON: 650 G",costGold:650,dps:14, owned:0 },
-      { name:"SANS: 1200 G",  label:"SANS: 1200 G",  costGold:1200, dps:18, owned:0 },
-      { name:"ASGORE: 1800 G",label:"ASGORE: 1800 G",costGold:1800, dps:24, owned:0 }
+      { name:"FRISK: 50 G",   label:"FRISK: 50 G",   costGold:50,   dps:0,  owned:0, type:'frisk' }, // special
+      { name:"TORIEL: 120 G", label:"TORIEL: 120 G", costGold:120,  dps:5,  owned:0, type:'dps' },
+      { name:"PAPYRUS: 220 G",label:"PAPYRUS: 220 G",costGold:220,  dps:7,  owned:0, type:'dps' },
+      { name:"UNDYNE: 400 G", label:"UNDYNE: 400 G", costGold:400,  dps:10, owned:0, type:'dps' },
+      { name:"METTATON: 650 G",label:"METTATON: 650 G",costGold:650,dps:14, owned:0, type:'dps' },
+      { name:"SANS: 1200 G",  label:"SANS: 1200 G",  costGold:1200, dps:18, owned:0, type:'dps' },
+      { name:"ASGORE: 1800 G",label:"ASGORE: 1800 G",costGold:1800, dps:24, owned:0, type:'dps' }
     ],
     Underswap: [
-      { name:"Swap Sans",     label:"Swap Sans",     costGold:900,  dps:20, owned:0 },
-      { name:"Swap Papyrus",  label:"Swap Papyrus",  costGold:1300, dps:26, owned:0 },
-      { name:"Swap Toriel",   label:"Swap Toriel",   costGold:2200, dps:34, owned:0 }
+      { name:"Swap Sans",     label:"Swap Sans",     costGold:900,  dps:20, owned:0, type:'dps' },
+      { name:"Swap Papyrus",  label:"Swap Papyrus",  costGold:1300, dps:26, owned:0, type:'dps' },
+      { name:"Swap Toriel",   label:"Swap Toriel",   costGold:2200, dps:34, owned:0, type:'dps' }
     ]
   };
 
   /* ===== Persistence (autosave/load) ===== */
-  const SAVE_KEY = 'au_clicker_save_v5';
+  const SAVE_KEY = 'au_clicker_save_v6';
   function save(){
     const data = { love, exp, gold, resets, expNeeded, soulHP, roster };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -264,6 +287,7 @@
                 c.costGold = s.costGold ?? c.costGold;
                 c.dps      = s.dps ?? c.dps;
                 c.owned    = s.owned ?? c.owned;
+                c.type     = s.type ?? c.type;
               }
             });
           }
@@ -308,6 +332,7 @@
     soulHP -= dmg;
     showDamage(dmg);
     if(dim){ soul.classList.add('dim'); setTimeout(()=> soul.classList.remove('dim'),150); }
+    // subtle soul-only scale feedback
     soulWrap.animate([{transform:'scale(1)'},{transform:'scale(0.985)'},{transform:'scale(1)'}],{duration:120});
     if(soulHP <= 0){ shatterSoul(); }
     updateStats();
@@ -318,15 +343,40 @@
     soulWrap.appendChild(d); setTimeout(()=> d.remove(),900);
   }
 
-  // Shatter sequence rules:
-  // - Halves appear, remain intact; at end of halves' animation there is a short linger (few seconds).
-  // - After that linger, shards fly (normal case).
-  // - If "But it refused." (10%), doubles EXP/GOLD, halves linger longer then restore without shards.
+  // FRISK slash emitter (every 8–12s, 12–15 damage per slash)
+  let friskSlashTimer = null;
+  function startFriskSlashLoop(){
+    stopFriskSlashLoop();
+    const schedule = ()=>{
+      const delay = randInt(8000,12000);
+      friskSlashTimer = setTimeout(()=>{
+        if(!soulDisabled){
+          showSlash();
+          const slashDmg = randInt(12,15);
+          applyDamage(slashDmg, true); // dim on slash
+        }
+        schedule();
+      }, delay);
+    };
+    schedule();
+  }
+  function stopFriskSlashLoop(){
+    if(friskSlashTimer){ clearTimeout(friskSlashTimer); friskSlashTimer=null; }
+  }
+  function showSlash(){
+    const s=document.createElement('div'); s.className='slash';
+    soulWrap.appendChild(s); setTimeout(()=> s.remove(), 400);
+  }
+
+  // Shatter sequence:
+  // - Halves appear and STAY IN PLACE for a few seconds (no movement).
+  // - After that linger, halves animate out, shards fly (normal case).
+  // - If "But it refused." (10%), doubles EXP/GOLD, halves linger ~2s then restore with no shards.
   function shatterSoul(){
     soulDisabled = true;
     soulWrap.classList.add('shattered');
 
-    // show halves (static first)
+    // show halves (static)
     const leftHalf = document.createElement('div'); leftHalf.className='half left';
     const rightHalf= document.createElement('div'); rightHalf.className='half right';
     soulWrap.appendChild(leftHalf); soulWrap.appendChild(rightHalf);
@@ -342,35 +392,39 @@
 
     if(refused){
       typeRefusedInline("But it refused.", soulWrap, ()=>{
-        // linger halves for ~2s total (no shards), then restore
+        // halves stay ~2s, then restore (no shards, no halves animation)
         setTimeout(()=>{
           leftHalf.remove(); rightHalf.remove();
           soulWrap.classList.remove('shattered'); soulDisabled=false; soulHP=randInt(25,40);
         }, 2000);
       });
     } else {
-      // play halves animation to end, then linger briefly, then shards
-      leftHalf.classList.add('halfAnim','left');
-      rightHalf.classList.add('halfAnim','right');
-
-      // end-of-halves linger (few seconds) THEN produce shards and respawn
+      // keep halves in place for ~1.0s linger BEFORE animating them away
       setTimeout(()=>{
-        const shards=document.createElement('div'); shards.className='shards';
-        for(let i=0;i<18;i++){
-          const p=document.createElement('div'); p.className='shard';
-          p.style.setProperty('--dx', randInt(-110,110)+'px');
-          p.style.setProperty('--dy', randInt(-110,110)+'px');
-          p.style.setProperty('--rot', randInt(-180,180)+'deg');
-          p.style.left = randInt(60,160)+'px'; p.style.top = randInt(60,160)+'px';
-          shards.appendChild(p);
-        }
-        soulWrap.appendChild(shards);
-        // small shards duration then cleanup and respawn
+        // animate halves out
+        leftHalf.classList.add('halfAnim','left');
+        rightHalf.classList.add('halfAnim','right');
+
+        // after halves animation finishes (~0.6s), linger a bit more, then shards
         setTimeout(()=>{
-          shards.remove(); leftHalf.remove(); rightHalf.remove();
-          soulWrap.classList.remove('shattered'); soulDisabled=false; soulHP=randInt(25,40);
-        }, 900);
-      }, 1600); // halves anim ~600ms + ~1000ms linger before shards
+          const shards=document.createElement('div'); shards.className='shards';
+          for(let i=0;i<18;i++){
+            const p=document.createElement('div'); p.className='shard';
+            p.style.setProperty('--dx', randInt(-110,110)+'px');
+            p.style.setProperty('--dy', randInt(-110,110)+'px');
+            p.style.setProperty('--rot', randInt(-180,180)+'deg');
+            p.style.left = randInt(60,160)+'px'; p.style.top = randInt(60,160)+'px';
+            shards.appendChild(p);
+          }
+          soulWrap.appendChild(shards);
+
+          // cleanup and respawn after shards
+          setTimeout(()=>{
+            shards.remove(); leftHalf.remove(); rightHalf.remove();
+            soulWrap.classList.remove('shattered'); soulDisabled=false; soulHP=randInt(25,40);
+          }, 900);
+        }, 200); // small gap after halves animate out, then shards
+      }, 1000); // initial "stay-in-place" linger duration
     }
   }
 
@@ -403,6 +457,7 @@
       exp -= RESET_EXP_REQ;
       love=0; exp=0; gold=0; expNeeded=10; resets+=1;
       Object.keys(roster).forEach(au=> roster[au].forEach(c=> c.owned=0 ));
+      stopFriskSlashLoop();
       updateStats(); renderAUList(); resetOverlay.style.display='none';
       pulse(document.getElementById('statsPanel'));
     } else { shake(resetOverlay); }
@@ -445,20 +500,27 @@
     if(c.owned) return;
     if(gold>=c.costGold){
       gold -= c.costGold; c.owned = 1;
+      if(c.type==='frisk'){ startFriskSlashLoop(); } // start FRISK's slash loop when bought
       tryConvertExpToLove(); updateStats(); openAU(au); gentlePop(auContent);
     } else { shake(auContent); }
   }
 
-  /* ===== Passive DPS from owned characters (dims soul on passive hits too) ===== */
+  /* ===== Passive DPS from owned characters (FRISK excluded; dims soul on passive hits) ===== */
   setInterval(()=>{
     if(soulDisabled) return;
     let totalDps=0;
-    Object.values(roster).forEach(list=> list.forEach(c=> totalDps += c.owned ? c.dps : 0 ));
+    Object.values(roster).forEach(list=>{
+      list.forEach(c=>{
+        if(c.owned && c.type==='dps'){ totalDps += c.dps; }
+      });
+    });
     if(totalDps>0){ applyDamage(totalDps, true); }
   }, 1000);
 
   /* ===== INIT + LOAD ===== */
   load(); updateStats(); renderAUList();
+  // If a saved FRISK was owned, ensure slash loop runs
+  if(roster.Undertale.find(x=> x.type==='frisk' && x.owned)) startFriskSlashLoop();
 </script>
 </body>
 </html>
