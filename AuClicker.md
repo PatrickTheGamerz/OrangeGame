@@ -331,7 +331,7 @@
   };
 
   /* ===== Persistence ===== */
-  const SAVE_KEY = 'au_clicker_save_v14_papyrus_top_more_up_undyne_rotation';
+  const SAVE_KEY = 'au_clicker_save_v15_undyne_spear_rotation_180_more_distance';
   function save(){
     const data = { love, exp, gold, resets, expNeeded, soulHP, roster };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -604,16 +604,16 @@
     const wrapRect = soulWrap.getBoundingClientRect();
     const centerY = wrapRect.height/2;
 
-    // Top lane spawns "more up": bigger negative offset range; bottom lane standard
+    /* Top lane spawns "more up": bigger negative offset range; bottom lane standard */
     const laneTop = Math.random() < 0.5;
-    const y = laneTop ? centerY - randInt(110,140) : centerY + randInt(64,84);
+    const y = laneTop ? centerY - randInt(120,155) : centerY + randInt(64,84);
 
-    // Horizontal entry: from left/right; slow approach
+    /* Horizontal entry: from left/right; slow approach */
     const fromLeft = Math.random() < 0.5;
-    const startX = fromLeft ? -60 : wrapRect.width + 36;
+    const startX = fromLeft ? -80 : wrapRect.width + 52; /* start further away for nicer travel */
     const stopX   = fromLeft ? randInt(60,140) : randInt(60,140);
 
-    bone.style.top = Math.max(-20, Math.min(wrapRect.height - 120, y)) + 'px';
+    bone.style.top = Math.max(-40, Math.min(wrapRect.height - 120, y)) + 'px';
     bone.style.left = startX + 'px';
     soulWrap.appendChild(bone);
 
@@ -653,7 +653,7 @@
     };
   }
 
-  /* ===== Undyne spear loop (14–18s; 1s cooldown; rotation to face SOUL; small multi-chance; 8 dmg) ===== */
+  /* ===== Undyne spear loop (14–18s; 1s cooldown; rotation to face SOUL with +180°; more spawn distance; small multi-chance; 8 dmg) ===== */
   let undyneSpearTimer = null;
   function startUndyneSpearLoop(){
     stopUndyneSpearLoop();
@@ -680,16 +680,17 @@
     const centerX = wrapRect.width/2;
     const centerY = wrapRect.height/2;
 
+    /* Increase initial spawn margin for more distance from SOUL */
     const sides = ['left','right','top','bottom'];
     const side = sides[randInt(0, sides.length-1)];
-    const margin = 40;
+    const margin = 80; /* was ~40: now further out */
 
     let x = 0, y = 0;
 
     switch(side){
       case 'left':   x = -margin;                 y = randInt(20, wrapRect.height-120); break;
       case 'right':  x = wrapRect.width + margin; y = randInt(20, wrapRect.height-120); break;
-      case 'top':    x = randInt(20, wrapRect.width-20); y = -margin - 20; break;
+      case 'top':    x = randInt(20, wrapRect.width-20); y = -margin - 40; break;
       case 'bottom': x = randInt(20, wrapRect.width-20); y = wrapRect.height + margin; break;
     }
 
@@ -697,13 +698,17 @@
     spear.style.top  = y + 'px';
     soulWrap.appendChild(spear);
 
-    // Rotate spear so its tip faces the SOUL center (accounting spear's tip pointing "up")
-    const dx = (centerX - 4) - x;
-    const dy = (centerY - 50) - y;
-    const angleDeg = Math.atan2(dy, dx) * 180/Math.PI - 90; // spear graphic tip is upward; rotate accordingly
+    /* Rotate spear so its tip faces the SOUL center, then flip 180° to correct graphic orientation */
+    const aimX = centerX - 4;
+    const aimY = centerY - 50;
+    const dx = aimX - x;
+    const dy = aimY - y;
+    const baseAngleDeg = Math.atan2(dy, dx) * 180/Math.PI;
+    const angleDeg = baseAngleDeg + 180; /* requested fix: rotate 180 degrees */
     spear.style.transform = `rotate(${angleDeg}deg)`;
 
-    const travelMs = randInt(900,1300);
+    /* Travel animation towards SOUL */
+    const travelMs = randInt(1000,1400);
     const anim = spear.animate(
       [
         { transform: `translate(0,0) rotate(${angleDeg}deg)` },
@@ -712,9 +717,9 @@
       { duration: travelMs, easing: 'cubic-bezier(.22,.61,.36,1)' }
     );
 
+    /* Contact check — remove spear and deal 8 dmg on touch */
     const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 };
     const spearW = 8, spearH = 118;
-
     const checkInterval = setInterval(()=>{
       const elapsed = anim.currentTime || 0;
       const progress = Math.min(1, elapsed / travelMs);
