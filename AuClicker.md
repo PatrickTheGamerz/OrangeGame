@@ -138,7 +138,6 @@
     position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
     width:160px; height:200px; pointer-events:none; z-index:8; /* layer 1 */
     filter:drop-shadow(0 0 18px rgba(255,47,87,.65)) drop-shadow(0 0 30px rgba(255,255,255,.55));
-    /* The slash travels downward with slight curve; no sudden appearance */
     animation:slashTravel .26s cubic-bezier(.2,.8,.2,1) forwards, slashEnd .22s ease-out .26s forwards;
   }
   @keyframes slashTravel{
@@ -191,17 +190,40 @@
   .btn.danger{background:#2a0f18;border-color:#ff4d6d}
   .lock{margin-left:6px;color:#9aa0a6;font-size:12px}
 
-  /* Toriel fireballs (spawn outside, travel inward) */
+  /* Toriel flames — bigger, three-tipped silhouette */
   .torielFlame{
-    position:absolute; width:16px; height:16px; border-radius:50%;
-    background: radial-gradient(circle at 30% 30%, #fff 0%, #ffd3a3 35%, #ff8c3a 70%, #ff6a00 100%);
-    box-shadow: 0 0 14px rgba(255,106,0,.7), 0 0 24px rgba(255,180,120,.45);
-    z-index:8; pointer-events:none; /* behind tray, above heart */
+    position:absolute; width:44px; height:60px;
+    background: radial-gradient(circle at 45% 35%, #ffffff 0%, #ffdcb6 22%, #ff9c4a 52%, #ff6a00 100%);
+    box-shadow:0 0 22px rgba(255,106,0,.85), 0 0 38px rgba(255,180,120,.55);
+    /* Stylized triple-tip flame shape (inspired by your reference) */
+    clip-path: polygon(
+      50% 2%,
+      62% 12%,
+      74% 3%,
+      96% 32%,
+      86% 62%,
+      63% 85%,
+      50% 98%,
+      37% 85%,
+      14% 62%,
+      4% 32%,
+      26% 3%,
+      38% 12%
+    );
+    z-index:8; pointer-events:none;
+  }
+  .torielFlame::after{
+    /* Hollow center accent like the logo’s hole, softly glowing */
+    content:""; position:absolute; left:50%; top:46%;
+    width:18px; height:18px; transform:translate(-50%,-50%);
+    border-radius:50%;
+    background: radial-gradient(circle, rgba(255,255,255,.85) 0%, rgba(255,200,140,.25) 55%, rgba(255,106,0,0) 70%);
+    filter:blur(1px); mix-blend-mode:screen; opacity:.9;
   }
   .torielTrail{
-    position:absolute; width:6px; height:6px; border-radius:50%;
-    background: radial-gradient(circle, rgba(255,200,120,.9), rgba(255,106,0,.0));
-    filter: blur(2px); opacity:.65; pointer-events:none; z-index:8;
+    position:absolute; width:16px; height:16px; border-radius:50%;
+    background: radial-gradient(circle, rgba(255,210,150,.9), rgba(255,106,0,.0));
+    filter: blur(3.5px); opacity:.6; pointer-events:none; z-index:7;
   }
 </style>
 </head>
@@ -296,11 +318,11 @@
   const auContent  = document.getElementById('auContent');
   const auSubtitle = document.getElementById('auSubtitle');
 
-  /* ===== AU roster (Undertale single purchase; FRISK slashes; Underswap unlocks on reset) ===== */
+  /* ===== AU roster (Undertale single purchase; FRISK slashes; Toriel flames; Underswap unlocks on reset) ===== */
   const roster = {
     Undertale: [
       { name:"FRISK: 50 G",   label:"FRISK: 50 G",   costGold:50,   dps:0,  owned:0, type:'frisk' }, // special
-      { name:"TORIEL: 120 G", label:"TORIEL: 120 G", costGold:120,  dps:0,  owned:0, type:'toriel' }, // reworked: no DPS, periodic fire
+      { name:"TORIEL: 120 G", label:"TORIEL: 120 G", costGold:120,  dps:0,  owned:0, type:'toriel' }, // reworked: no DPS, periodic flame hits
       { name:"PAPYRUS: 220 G",label:"PAPYRUS: 220 G",costGold:220,  dps:7,  owned:0, type:'dps' },
       { name:"UNDYNE: 400 G", label:"UNDYNE: 400 G", costGold:400,  dps:10, owned:0, type:'dps' },
       { name:"METTATON: 650 G",label:"METTATON: 650 G",costGold:650,dps:14, owned:0, type:'dps' },
@@ -315,7 +337,7 @@
   };
 
   /* ===== Persistence (autosave/load) ===== */
-  const SAVE_KEY = 'au_clicker_save_v8_toriel_fire';
+  const SAVE_KEY = 'au_clicker_save_v9_toriel_flame_shape';
   function save(){
     const data = { love, exp, gold, resets, expNeeded, soulHP, roster };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -423,14 +445,12 @@
     if(friskSlashTimer){ clearTimeout(friskSlashTimer); friskSlashTimer=null; }
   }
 
-  // Single tapered curved path with inner highlight; travels downward then vanishes; behind menu tray
   function showFriskSlashSVG(){
     const svgNS = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(svgNS, "svg");
     svg.setAttribute("viewBox", "0 0 160 200");
     svg.classList.add("slashSVG");
 
-    // gradient for inner white to red
     const defs = document.createElementNS(svgNS, "defs");
     const grad = document.createElementNS(svgNS, "linearGradient");
     grad.setAttribute("id", "slashGrad");
@@ -446,36 +466,23 @@
     defs.appendChild(grad);
     svg.appendChild(defs);
 
-    // tapered curved shape: top thin, middle thick, bottom thin (closed path)
     const path = document.createElementNS(svgNS, "path");
     path.setAttribute("fill", "url(#slashGrad)");
     path.setAttribute("stroke", "rgba(255,255,255,0.85)");
     path.setAttribute("stroke-width", "1");
     path.setAttribute("d",
-      "M80,10 " +
-      "C78,16 76,24 78,34 " +
-      "C82,52 88,68 92,86 " +
-      "C96,104 96,122 92,140 " +
-      "C88,158 82,172 78,188 " +
-      "C86,178 98,164 106,148 " +
-      "C114,132 118,114 116,98 " +
-      "C114,82 108,68 100,54 " +
-      "C92,40 86,26 80,10 Z"
+      "M80,10 C78,16 76,24 78,34 C82,52 88,68 92,86 C96,104 96,122 92,140 C88,158 82,172 78,188 C86,178 98,164 106,148 C114,132 118,114 116,98 C114,82 108,68 100,54 C92,40 86,26 80,10 Z"
     );
 
-    // subtle inner highlight stroke
     const inner = document.createElementNS(svgNS, "path");
     inner.setAttribute("fill", "none");
     inner.setAttribute("stroke", "rgba(255,255,255,0.65)");
     inner.setAttribute("stroke-width", "2");
-    inner.setAttribute("d",
-      "M86,26 C94,44 103,64 108,90 C111,106 108,124 100,140"
-    );
+    inner.setAttribute("d", "M86,26 C94,44 103,64 108,90 C111,106 108,124 100,140");
 
     svg.appendChild(path);
     svg.appendChild(inner);
 
-    // impact flash (placed slightly below mid to match end of travel)
     const flash = document.createElement("div");
     flash.className = "impactFlash";
 
@@ -486,7 +493,7 @@
     setTimeout(()=> flash.remove(), 360);
   }
 
-  /* ===== Toriel fire loop (spawns flames from random sides every 14–16s; small chance of double) ===== */
+  /* ===== Toriel fire loop (spawns bigger, stylized flames from random sides every 14–16s; small chance of double) ===== */
   let torielFireTimer = null;
   function startTorielFireLoop(){
     stopTorielFireLoop();
@@ -494,8 +501,7 @@
       const delay = randInt(14000,16000);
       torielFireTimer = setTimeout(()=>{
         if(!soulDisabled){
-          // 20% chance to spawn two flames
-          const count = Math.random() < 0.20 ? 2 : 1;
+          const count = Math.random() < 0.20 ? 2 : 1; // 20% double flames
           for(let i=0;i<count;i++){
             spawnTorielFlame();
           }
@@ -512,82 +518,63 @@
     const flame = document.createElement('div');
     flame.className = 'torielFlame';
 
-    // Determine a random spawn side and position around soulWrap
+    // Random spawn side around soulWrap
     const wrapRect = soulWrap.getBoundingClientRect();
     const centerX = wrapRect.width/2;
     const centerY = wrapRect.height/2;
 
     const sides = ['left','right','top','bottom','top-left','top-right','bottom-left','bottom-right'];
     const side = sides[randInt(0, sides.length-1)];
-
-    // spawn distance outside the wrap
-    const margin = 30; // how far outside edge to spawn
+    const margin = 36; // spawn slightly outside edges
     let x = 0, y = 0;
 
     switch(side){
-      case 'left':
-        x = -margin; y = randInt(0, wrapRect.height);
-        break;
-      case 'right':
-        x = wrapRect.width + margin; y = randInt(0, wrapRect.height);
-        break;
-      case 'top':
-        x = randInt(0, wrapRect.width); y = -margin;
-        break;
-      case 'bottom':
-        x = randInt(0, wrapRect.width); y = wrapRect.height + margin;
-        break;
-      case 'top-left':
-        x = -margin; y = -margin;
-        break;
-      case 'top-right':
-        x = wrapRect.width + margin; y = -margin;
-        break;
-      case 'bottom-left':
-        x = -margin; y = wrapRect.height + margin;
-        break;
-      case 'bottom-right':
-        x = wrapRect.width + margin; y = wrapRect.height + margin;
-        break;
+      case 'left':        x = -margin;                 y = randInt(0, wrapRect.height); break;
+      case 'right':       x = wrapRect.width + margin; y = randInt(0, wrapRect.height); break;
+      case 'top':         x = randInt(0, wrapRect.width); y = -margin; break;
+      case 'bottom':      x = randInt(0, wrapRect.width); y = wrapRect.height + margin; break;
+      case 'top-left':    x = -margin;                 y = -margin; break;
+      case 'top-right':   x = wrapRect.width + margin; y = -margin; break;
+      case 'bottom-left': x = -margin;                 y = wrapRect.height + margin; break;
+      case 'bottom-right':x = wrapRect.width + margin; y = wrapRect.height + margin; break;
     }
 
     flame.style.left = x + 'px';
     flame.style.top  = y + 'px';
     soulWrap.appendChild(flame);
 
-    // Optional: small trail particle
+    // Soft trail
     const trail = document.createElement('div');
     trail.className = 'torielTrail';
     trail.style.left = x + 'px';
     trail.style.top  = y + 'px';
     soulWrap.appendChild(trail);
 
-    // Animate flame toward center
-    const travelMs = randInt(600,900);
-    const endX = centerX - 8; // flame width/2
-    const endY = centerY - 8;
+    // Travel to center
+    const travelMs = randInt(640,920);
+    const endX = centerX - 22; // half flame width
+    const endY = centerY - 30; // half flame height (visually center the tips)
 
     const anim = flame.animate(
       [
         { transform: `translate(0,0) scale(1)` },
-        { transform: `translate(${endX - x}px, ${endY - y}px) scale(1.05)` }
+        { transform: `translate(${endX - x}px, ${endY - y}px) scale(1.06)` }
       ],
       { duration: travelMs, easing: 'cubic-bezier(.22,.61,.36,1)' }
     );
 
-    // Trail fades and follows slightly
+    // Trail follows and fades
     trail.animate(
       [
-        { transform: `translate(0,0) scale(1)`, opacity: 0.65 },
-        { transform: `translate(${(endX - x)*0.85}px, ${(endY - y)*0.85}px) scale(0.9)`, opacity: 0 }
+        { transform: `translate(0,0) scale(1)`, opacity: 0.6 },
+        { transform: `translate(${(endX - x)*0.82}px, ${(endY - y)*0.82}px) scale(0.92)`, opacity: 0 }
       ],
-      { duration: travelMs+120, easing: 'ease-out', fill: 'forwards' }
+      { duration: travelMs+160, easing: 'ease-out', fill: 'forwards' }
     );
 
     anim.onfinish = ()=>{
-      // Remove flame visual
       flame.remove();
-      setTimeout(()=> trail.remove(), 240);
+      setTimeout(()=> trail.remove(), 260);
 
       // Impact + damage
       const flash = document.createElement('div');
@@ -600,21 +587,15 @@
     };
   }
 
-  /* ===== Shatter sequence =====
-     - Halves appear and STAY IN PLACE for a few seconds (no movement).
-     - After linger, halves animate out, then shards fly (normal case).
-     - If "But it refused." (10%), doubles EXP/GOLD, halves linger ~2s then restore with no shards.
-  */
+  /* ===== Shatter sequence ===== */
   function shatterSoul(){
     soulDisabled = true;
     soulWrap.classList.add('shattered');
 
-    // halves show and stay fixed
     const leftHalf = document.createElement('div'); leftHalf.className='half left';
     const rightHalf= document.createElement('div'); rightHalf.className='half right';
     soulWrap.appendChild(leftHalf); soulWrap.appendChild(rightHalf);
 
-    // rewards
     let gainedExp = Math.floor(randInt(2,24) * resetBonusMultiplier());
     let gainedGold= randInt(4,9);
 
@@ -625,19 +606,15 @@
 
     if(refused){
       typeRefusedInline("But it refused.", soulWrap, ()=>{
-        // halves linger ~2s, then restore (no shards, no halves animation)
         setTimeout(()=>{
           leftHalf.remove(); rightHalf.remove();
           soulWrap.classList.remove('shattered'); soulDisabled=false; soulHP=randInt(25,40);
         }, 2000);
       });
     } else {
-      // keep halves in place for ~1.0s, then animate them away
       setTimeout(()=>{
         leftHalf.classList.add('halfAnim','left');
         rightHalf.classList.add('halfAnim','right');
-
-        // after halves animation completes (~0.6s), linger a bit, then shards
         setTimeout(()=>{
           const shards=document.createElement('div'); shards.className='shards';
           for(let i=0;i<18;i++){
@@ -649,14 +626,12 @@
             shards.appendChild(p);
           }
           soulWrap.appendChild(shards);
-
-          // cleanup and respawn after shards
           setTimeout(()=>{
             shards.remove(); leftHalf.remove(); rightHalf.remove();
             soulWrap.classList.remove('shattered'); soulDisabled=false; soulHP=randInt(25,40);
           }, 900);
-        }, 200); // small linger after halves animate out
-      }, 1000); // initial "stay-in-place" linger duration
+        }, 200);
+      }, 1000);
     }
   }
 
