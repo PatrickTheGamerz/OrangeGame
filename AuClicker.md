@@ -26,7 +26,7 @@
     width:280px;display:flex;flex-direction:column;gap:12px;padding:16px;
     background:linear-gradient(180deg,var(--panel),var(--panel-2));
     border:1px solid rgba(122,162,247,.28);border-radius:12px;
-    contain:layout paint;will-change:opacity,transform;
+    contain:layout paint;
   }
   .statRow{
     display:flex;justify-content:space-between;align-items:center;
@@ -59,6 +59,7 @@
     background:#0d1118;color:var(--text);
   }
   .buyBtn:disabled{opacity:.6;cursor:not-allowed}
+  .lock{margin-left:6px;color:#9aa0a6;font-size:12px}
 
   /* CENTER: STAGE */
   #stage{
@@ -136,33 +137,34 @@
     text-shadow:0 0 12px rgba(255,255,255,.35);
   }
 
-  /* Undertale-style slash (SVG path drawn, behind menu tray) */
+  /* Undertale-style slash (pixel arc, drawn top→bottom; behind menu tray) */
   .slashSVG{
     position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
     width:200px;height:240px;pointer-events:none;z-index:5; /* layer 1 */
   }
   .slashPath{
-    fill:none;stroke:url(#grad);stroke-width:14;stroke-linecap:round;stroke-linejoin:round;
+    fill:none;stroke:url(#slashGrad);stroke-width:14;stroke-linecap:round;stroke-linejoin:round;
     filter:drop-shadow(0 0 14px rgba(255,47,87,.85)) drop-shadow(0 0 24px rgba(255,255,255,.45));
-    stroke-dasharray:620;stroke-dashoffset:620;
-    animation:drawSlash .26s cubic-bezier(.22,.61,.36,1) forwards,
-              lingerSlash .12s ease-out .26s forwards,
-              fadeSlash .22s ease-out .38s forwards;
+    stroke-dasharray:640;stroke-dashoffset:640;
+    animation:
+      drawSlash .24s cubic-bezier(.22,.61,.36,1) forwards,
+      lingerSlash .10s ease-out .24s forwards,
+      fadeSlash .22s ease-out .34s forwards;
   }
   @keyframes drawSlash{to{stroke-dashoffset:0}}
-  @keyframes lingerSlash{to{opacity:0.95}}
+  @keyframes lingerSlash{to{opacity:0.98}}
   @keyframes fadeSlash{to{opacity:0}}
 
   .impactFlash{
     position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-    width:100px;height:100px;border-radius:50%;
+    width:96px;height:96px;border-radius:50%;
     background:radial-gradient(circle,rgba(255,255,255,0.95),rgba(255,47,87,0.25));
     box-shadow:0 0 24px rgba(255,255,255,.7),0 0 36px rgba(255,47,87,.6);
-    z-index:6;pointer-events:none;animation:flashPop .28s ease-out forwards;
+    z-index:6;pointer-events:none;animation:flashPop .26s ease-out forwards;
   }
   @keyframes flashPop{
-    0%{opacity:1;transform:translate(-50%,-50%) scale(0.7)}
-    100%{opacity:0;transform:translate(-50%,-50%) scale(1.25)}
+    0%{opacity:1;transform:translate(-50%,-50%) scale(0.72)}
+    100%{opacity:0;transform:translate(-50%,-50%) scale(1.22)}
   }
 
   /* Menu overlays (above slash) */
@@ -189,7 +191,6 @@
   .row{display:flex;gap:8px;justify-content:flex-end;}
   .btn{padding:10px 14px;border-radius:8px;cursor:pointer;border:1px solid rgba(122,162,247,.28);background:#0d1118;color:var(--text);}
   .btn.danger{background:#2a0f18;border-color:#ff4d6d}
-  .lock{margin-left:6px;color:#9aa0a6;font-size:12px}
 </style>
 </head>
 <body>
@@ -410,6 +411,7 @@
     if(friskSlashTimer){ clearTimeout(friskSlashTimer); friskSlashTimer=null; }
   }
 
+  /* Pixel-style curved arc, drawn top->bottom */
   function showFriskSlashSVG(){
     const svgNS = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(svgNS, "svg");
@@ -418,31 +420,40 @@
 
     const defs = document.createElementNS(svgNS, "defs");
     const grad = document.createElementNS(svgNS, "linearGradient");
-    grad.setAttribute("id", "grad");
+    grad.setAttribute("id", "slashGrad");
     grad.setAttribute("x1", "0"); grad.setAttribute("y1", "0");
     grad.setAttribute("x2", "0"); grad.setAttribute("y2", "1");
-    const stop1 = document.createElementNS(svgNS, "stop");
-    stop1.setAttribute("offset", "0%"); stop1.setAttribute("stop-color", "#ffffff"); stop1.setAttribute("stop-opacity", "1");
-    const stop2 = document.createElementNS(svgNS, "stop");
-    stop2.setAttribute("offset", "55%"); stop2.setAttribute("stop-color", "#ff2f57"); stop2.setAttribute("stop-opacity", "0.95");
-    const stop3 = document.createElementNS(svgNS, "stop");
-    stop3.setAttribute("offset", "100%"); stop3.setAttribute("stop-color", "#ff2f57"); stop3.setAttribute("stop-opacity", "0.8");
-    grad.appendChild(stop1); grad.appendChild(stop2); grad.appendChild(stop3);
+    const s1 = document.createElementNS(svgNS, "stop");
+    s1.setAttribute("offset", "0%"); s1.setAttribute("stop-color", "#ffffff"); s1.setAttribute("stop-opacity", "1");
+    const s2 = document.createElementNS(svgNS, "stop");
+    s2.setAttribute("offset", "55%"); s2.setAttribute("stop-color", "#ff2f57"); s2.setAttribute("stop-opacity", "0.95");
+    const s3 = document.createElementNS(svgNS, "stop");
+    s3.setAttribute("offset", "100%"); s3.setAttribute("stop-color", "#ff2f57"); s3.setAttribute("stop-opacity", "0.82");
+    grad.appendChild(s1); grad.appendChild(s2); grad.appendChild(s3);
     defs.appendChild(grad);
     svg.appendChild(defs);
 
-    /* Curved tapered path approximating Undertale slash silhouette */
+    /* Stepped curve (pixel arc vibe): straight segments with slight horizontal offsets */
     const path = document.createElementNS(svgNS, "path");
     path.setAttribute("class", "slashPath");
     path.setAttribute("d",
-      "M100,6 " +
-      "C96,20 92,34 94,50 " +
-      "C98,70 108,92 118,112 " +
-      "C126,128 132,146 130,162 " +
-      "C128,178 120,196 110,214"
+      "M100,8 " +   // start near top center
+      "L98,20 " +
+      "L96,32 " +
+      "L97,44 " +
+      "L100,58 " +
+      "L104,72 " +
+      "L110,88 " +
+      "L118,104 " +
+      "L124,120 " +
+      "L126,136 " +
+      "L124,152 " +
+      "L118,168 " +
+      "L110,186 " +
+      "L104,204 " +
+      "L100,222"
     );
 
-    /* Impact flash slightly after draw start */
     const flash = document.createElement("div");
     flash.className = "impactFlash";
 
@@ -451,7 +462,7 @@
     soulWrap.appendChild(flash);
 
     setTimeout(()=> svg.remove(), 700);
-    setTimeout(()=> flash.remove(), 320);
+    setTimeout(()=> flash.remove(), 300);
   }
 
   /* ===== Shatter sequence ===== */
@@ -569,8 +580,13 @@
     auMode='list'; selectedAU=null; auSubtitle.textContent="Choose a timeline"; auContent.innerHTML="";
     const btnUT=document.createElement('button'); btnUT.className='auBtn'; btnUT.textContent='Undertale'; btnUT.addEventListener('click',()=> openAU('Undertale')); auContent.appendChild(btnUT);
     const btnUS=document.createElement('button'); btnUS.className='auBtn';
-    if(resets>=1){ btnUS.textContent='Underswap'; btnUS.addEventListener('click',()=> openAU('Underswap')); }
-    else { btnUS.innerHTML='Underswap <span class="lock">Locked (Requires 1 reset)</span>'; btnUS.disabled=true; btnUS.style.opacity=.7; btnUS.style.cursor='not-allowed'; }
+    if(resets>=1){
+      btnUS.textContent='Underswap';
+      btnUS.addEventListener('click',()=> openAU('Underswap'));
+    } else {
+      btnUS.innerHTML='Underswap <span class="lock">Locked (Requires 1 reset)</span>';
+      btnUS.disabled=true; btnUS.style.opacity=.7; btnUS.style.cursor='not-allowed';
+    }
     auContent.appendChild(btnUS);
   }
 
