@@ -210,6 +210,19 @@
   }
   .papyrusBone::before{ top:-4px; }
   .papyrusBone::after{ bottom:-4px; }
+
+  /* Undyne spears */
+  .undyneSpear{
+    position:absolute; width:8px; height:100px; z-index:8; pointer-events:none;
+    background: linear-gradient(180deg, #85e7ff 0%, #29c4ff 50%, #0aa2ff 100%);
+    box-shadow:0 0 16px rgba(10,162,255,.85), 0 0 28px rgba(133,231,255,.5);
+    border-radius:6px 6px 2px 2px;
+  }
+  .undyneSpear::after{
+    content:""; position:absolute; left:50%; top:-18px; transform:translateX(-50%);
+    width:0; height:0; border-left:14px solid transparent; border-right:14px solid transparent;
+    border-bottom:18px solid #85e7ff; filter:drop-shadow(0 0 8px rgba(133,231,255,.8));
+  }
 </style>
 </head>
 <body>
@@ -307,7 +320,7 @@
       { name:"FRISK: 50 G",   label:"FRISK: 50 G",   costGold:50,   dps:0,  owned:0, type:'frisk' },
       { name:"TORIEL: 120 G", label:"TORIEL: 120 G", costGold:120,  dps:0,  owned:0, type:'toriel' },
       { name:"PAPYRUS: 220 G",label:"PAPYRUS: 220 G",costGold:220,  dps:0,  owned:0, type:'papyrus' },
-      { name:"UNDYNE: 400 G", label:"UNDYNE: 400 G", costGold:400,  dps:10, owned:0, type:'dps' },
+      { name:"UNDYNE: 400 G", label:"UNDYNE: 400 G", costGold:400,  dps:0,  owned:0, type:'undyne' },
       { name:"METTATON: 650 G",label:"METTATON: 650 G",costGold:650,dps:14, owned:0, type:'dps' },
       { name:"SANS: 1200 G",  label:"SANS: 1200 G",  costGold:1200, dps:18, owned:0, type:'dps' },
       { name:"ASGORE: 1800 G",label:"ASGORE: 1800 G",costGold:1800, dps:24, owned:0, type:'dps' }
@@ -320,7 +333,7 @@
   };
 
   /* ===== Persistence ===== */
-  const SAVE_KEY = 'au_clicker_save_v12_toriel_papyrus_refused_gold_only';
+  const SAVE_KEY = 'au_clicker_save_v13_papyrus_top_undyne_spears';
   function save(){
     const data = { love, exp, gold, resets, expNeeded, soulHP, roster };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -593,14 +606,14 @@
     const wrapRect = soulWrap.getBoundingClientRect();
     const centerY = wrapRect.height/2;
 
-    // lane: above or below SOUL (standing bone)
+    // lane: above or below SOUL (top bones "more up" — increased offset)
     const laneTop = Math.random() < 0.5;
-    const y = laneTop ? centerY - randInt(64,84) : centerY + randInt(64,84);
+    const y = laneTop ? centerY - randInt(84,110) : centerY + randInt(64,84);
 
     // horizontal entry: from left or right, slower approach
     const fromLeft = Math.random() < 0.5;
     const startX = fromLeft ? -60 : wrapRect.width + 36;
-    const stopX   = fromLeft ? randInt(60,140) : randInt(60,140); // where it would end if no contact
+    const stopX   = fromLeft ? randInt(60,140) : randInt(60,140);
 
     bone.style.top = Math.max(0, Math.min(wrapRect.height - 120, y)) + 'px';
     bone.style.left = startX + 'px';
@@ -642,6 +655,92 @@
     };
   }
 
+  /* ===== Undyne spear loop (spears from four sides every 14–18s; 1s cooldown; small multi-chance) ===== */
+  let undyneSpearTimer = null;
+  function startUndyneSpearLoop(){
+    stopUndyneSpearLoop();
+    const schedule = ()=>{
+      const delay = randInt(14000,18000);
+      undyneSpearTimer = setTimeout(()=>{
+        if(!soulDisabled){
+          const count = pickCount({one:1, two:0.22, three:0.08});
+          spawnMultiple(spawnUndyneSpear, count, 1000);
+        }
+        schedule();
+      }, delay);
+    };
+    schedule();
+  }
+  function stopUndyneSpearLoop(){
+    if(undyneSpearTimer){ clearTimeout(undyneSpearTimer); undyneSpearTimer=null; }
+  }
+  function spawnUndyneSpear(){
+    const spear = document.createElement('div');
+    spear.className = 'undyneSpear';
+
+    const wrapRect = soulWrap.getBoundingClientRect();
+    const centerX = wrapRect.width/2;
+    const centerY = wrapRect.height/2;
+
+    const sides = ['left','right','top','bottom'];
+    const side = sides[randInt(0, sides.length-1)];
+    const margin = 40;
+
+    let x = 0, y = 0, endX = centerX - 4, endY = centerY - 50;
+
+    switch(side){
+      case 'left':
+        x = -margin; y = randInt(20, wrapRect.height-120);
+        break;
+      case 'right':
+        x = wrapRect.width + margin; y = randInt(20, wrapRect.height-120);
+        break;
+      case 'top':
+        x = randInt(20, wrapRect.width-20); y = -margin - 20;
+        break;
+      case 'bottom':
+        x = randInt(20, wrapRect.width-20); y = wrapRect.height + margin;
+        break;
+    }
+
+    spear.style.left = x + 'px';
+    spear.style.top  = y + 'px';
+    soulWrap.appendChild(spear);
+
+    // travel slower than slash, modest speed
+    const travelMs = randInt(900,1300);
+    const anim = spear.animate(
+      [
+        { transform: `translate(0,0)` },
+        { transform: `translate(${endX - x}px, ${endY - y}px)` }
+      ],
+      { duration: travelMs, easing: 'cubic-bezier(.22,.61,.36,1)' }
+    );
+
+    // approximate heart bounds; contact removes spear and deals 8 dmg
+    const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 };
+    const spearW = 8, spearH = 118; // body + head
+    const checkInterval = setInterval(()=>{
+      const elapsed = anim.currentTime || 0;
+      const progress = Math.min(1, elapsed / travelMs);
+      const curX = x + (endX - x) * progress;
+      const curY = y + (endY - y) * progress;
+      const intersectsX = (curX + spearW) >= soulBounds.x1 && curX <= soulBounds.x2;
+      const intersectsY = (curY + spearH) >= soulBounds.y1 && curY <= soulBounds.y2;
+      if(intersectsX && intersectsY){
+        clearInterval(checkInterval);
+        anim.cancel();
+        spear.remove();
+        applyDamage(8, true);
+      }
+    }, 40);
+
+    anim.onfinish = ()=>{
+      clearInterval(checkInterval);
+      spear.remove();
+    };
+  }
+
   /* ===== Utility spawner helpers ===== */
   function spawnMultiple(fn, count, cooldownMs){
     let spawned = 0;
@@ -655,9 +754,9 @@
   }
   function pickCount(weights){
     const roll = Math.random();
-    if(roll < (weights.four ?? 0)) return 4;
-    if(roll < (weights.three ?? 0) + (weights.four ?? 0)) return 3;
-    if(roll < (weights.two ?? 0) + (weights.three ?? 0) + (weights.four ?? 0)) return 2;
+    if(weights.four && roll < weights.four) return 4;
+    if(weights.three && roll < (weights.three + (weights.four||0))) return 3;
+    if(weights.two && roll < (weights.two + (weights.three||0) + (weights.four||0))) return 2;
     return 1;
   }
 
@@ -742,11 +841,12 @@
   confirmReset.addEventListener('click',()=>{
     if(love>=RESET_LV_REQ && exp>=RESET_EXP_REQ){
       exp -= RESET_EXP_REQ;
-      love=0; exp=0; gold=0; expNeeded=10; resets+=1;
+      love=0; exp=0; gold=10000; expNeeded=10; resets+=1;
       Object.keys(roster).forEach(au=> roster[au].forEach(c=> c.owned=0 ));
       stopFriskSlashLoop();
       stopTorielFireLoop();
       stopPapyrusBoneLoop();
+      stopUndyneSpearLoop();
       updateStats(); renderAUList(); resetOverlay.style.display='none';
       pulse(document.getElementById('statsPanel'));
     } else { shake(resetOverlay); }
@@ -807,11 +907,12 @@
       if(c.type==='frisk'){ startFriskSlashLoop(); }
       if(c.type==='toriel'){ startTorielFireLoop(); }
       if(c.type==='papyrus'){ startPapyrusBoneLoop(); }
+      if(c.type==='undyne'){ startUndyneSpearLoop(); }
       tryConvertExpToLove(); updateStats(); openAU(au); gentlePop(auContent);
     } else { shake(auContent); }
   }
 
-  /* ===== Passive DPS (FRISK/Toriel/Papyrus excluded) ===== */
+  /* ===== Passive DPS (FRISK/Toriel/Papyrus/Undyne excluded) ===== */
   setInterval(()=>{
     if(soulDisabled) return;
     let totalDps=0;
@@ -828,6 +929,7 @@
   if(roster.Undertale.find(x=> x.type==='frisk' && x.owned)) startFriskSlashLoop();
   if(roster.Undertale.find(x=> x.type==='toriel' && x.owned)) startTorielFireLoop();
   if(roster.Undertale.find(x=> x.type==='papyrus' && x.owned)) startPapyrusBoneLoop();
+  if(roster.Undertale.find(x=> x.type==='undyne'  && x.owned)) startUndyneSpearLoop();
 </script>
 </body>
 </html>
