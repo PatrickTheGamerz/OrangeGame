@@ -16,13 +16,12 @@
   }
   body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;height:100vh;overflow:hidden;}
 
-  /* LEFT: STATS (fixed, no jitter on soul animations) */
+  /* LEFT: STATS */
   #statsPanel{
     position:absolute;top:50%;left:5%;transform:translateY(-50%);
     width:280px;display:flex;flex-direction:column;gap:12px;padding:16px;
     background:linear-gradient(180deg,var(--panel),var(--panel-2));
     border:1px solid rgba(122,162,247,.28);border-radius:12px;
-    contain:layout paint;
   }
   .statRow{
     display:flex;justify-content:space-between;align-items:center;
@@ -31,7 +30,7 @@
   .statLabel{opacity:.85}
   .statValue{font-weight:600;color:var(--accent)}
 
-  /* RIGHT: AU SELECT (scroll if long) */
+  /* RIGHT: AU SELECT */
   #auPanel{
     position:absolute;top:50%;right:5%;transform:translateY(-50%);
     width:320px;display:flex;flex-direction:column;padding:16px;
@@ -56,7 +55,7 @@
   }
   .buyBtn:disabled{opacity:.6;cursor:not-allowed}
 
-  /* CENTER: STAGE — SOUL centered; menu overlays on top */
+  /* CENTER: STAGE */
   #stage{
     position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
     display:flex;flex-direction:column;align-items:center;gap:12px;
@@ -75,10 +74,8 @@
   @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
   #soulWrap.shattered #soul{opacity:0;animation:none;}
 
-  /* Accurate heart halves */
-  .half{
-    position:absolute;top:0;width:50%;height:100%;background:#ff2f57;pointer-events:none;
-  }
+  /* Heart halves */
+  .half{position:absolute;top:0;width:50%;height:100%;background:#ff2f57;pointer-events:none;}
   .half.left{
     left:0;
     clip-path:polygon(50% 15%, 39% 0, 25% 0, 0 25%, 0 55%, 20% 68%, 35% 82%, 50% 100%, 50% 70%, 50% 15%);
@@ -104,7 +101,7 @@
     100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(0.8)}
   }
 
-  /* Damage numbers */
+  /* Damage text */
   .dmg{
     position:absolute;left:50%;top:0%;transform:translate(-50%,-120%);
     font-size:42px;font-weight:900;color:#000;
@@ -116,14 +113,14 @@
     100%{opacity:0;transform:translate(-50%,-120%) translateY(-40px)}
   }
 
-  /* "But it refused." text */
+  /* "But it refused." */
   .refused{
     position:absolute;left:50%;top:0%;transform:translate(-50%,-150%);
     font-size:32px;font-weight:800;color:#fff;z-index:11;white-space:nowrap;
     text-shadow:0 0 12px rgba(255,255,255,.35);
   }
 
-  /* Slash (FRISK) */
+  /* FRISK slash */
   .slashSVG{
     position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
     width:160px; height:200px; pointer-events:none; z-index:8;
@@ -154,7 +151,7 @@
     100%{opacity:0; transform:translate(-50%,-40%) scale(1.25)}
   }
 
-  /* Menu overlays */
+  /* Menu tray */
   #menuTray{
     position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
     display:none;flex-direction:column;gap:8px;padding:12px;
@@ -180,7 +177,7 @@
   .btn.danger{background:#2a0f18;border-color:#ff4d6d}
   .lock{margin-left:6px;color:#9aa0a6;font-size:12px}
 
-  /* Toriel flames — bigger, stylized */
+  /* Toriel flames */
   .torielFlame{
     position:absolute; width:44px; height:60px;
     background: radial-gradient(circle at 45% 35%, #ffffff 0%, #ffdcb6 22%, #ff9c4a 52%, #ff6a00 100%);
@@ -217,6 +214,7 @@
     background: linear-gradient(180deg, #85e7ff 0%, #29c4ff 50%, #0aa2ff 100%);
     box-shadow:0 0 16px rgba(10,162,255,.85), 0 0 28px rgba(133,231,255,.5);
     border-radius:6px 6px 2px 2px;
+    transform-origin:50% 100%;
   }
   .undyneSpear::after{
     content:""; position:absolute; left:50%; top:-18px; transform:translateX(-50%);
@@ -319,8 +317,8 @@
     Undertale: [
       { name:"FRISK: 50 G",   label:"FRISK: 50 G",   costGold:50,   dps:0,  owned:0, type:'frisk' },
       { name:"TORIEL: 120 G", label:"TORIEL: 120 G", costGold:120,  dps:0,  owned:0, type:'toriel' },
-      { name:"PAPYRUS: 220 G",label:"PAPYRUS: 220 G",costGold:20,  dps:0,  owned:0, type:'papyrus' },
-      { name:"UNDYNE: 400 G", label:"UNDYNE: 400 G", costGold:40,  dps:0,  owned:0, type:'undyne' },
+      { name:"PAPYRUS: 220 G",label:"PAPYRUS: 220 G",costGold:220,  dps:0,  owned:0, type:'papyrus' },
+      { name:"UNDYNE: 400 G", label:"UNDYNE: 400 G", costGold:400,  dps:0,  owned:0, type:'undyne' },
       { name:"METTATON: 650 G",label:"METTATON: 650 G",costGold:650,dps:14, owned:0, type:'dps' },
       { name:"SANS: 1200 G",  label:"SANS: 1200 G",  costGold:1200, dps:18, owned:0, type:'dps' },
       { name:"ASGORE: 1800 G",label:"ASGORE: 1800 G",costGold:1800, dps:24, owned:0, type:'dps' }
@@ -333,7 +331,7 @@
   };
 
   /* ===== Persistence ===== */
-  const SAVE_KEY = 'au_clicker_save_v13_papyrus_top_undyne_spears';
+  const SAVE_KEY = 'au_clicker_save_v14_papyrus_top_more_up_undyne_rotation';
   function save(){
     const data = { love, exp, gold, resets, expNeeded, soulHP, roster };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -364,7 +362,7 @@
           }
         });
       }
-    }catch(e){ console.warn('Load failed', e); }
+    }catch(e){ /* ignore */ }
   }
 
   /* ===== UI helpers ===== */
@@ -573,7 +571,7 @@
     };
   }
 
-  /* ===== Papyrus bone loop (standing bones; above/below lanes; slower; max 6; 1s cooldown; multi-chance) ===== */
+  /* ===== Papyrus bone loop (standing bones; lanes above/below; slower; max 6; top spawns more up; 1s cooldown; multi-chance) ===== */
   let papyrusBoneTimer = null;
   let activeBones = 0;
   function startPapyrusBoneLoop(){
@@ -606,16 +604,16 @@
     const wrapRect = soulWrap.getBoundingClientRect();
     const centerY = wrapRect.height/2;
 
-    // lane: above or below SOUL (top bones "more up" — increased offset)
+    // Top lane spawns "more up": bigger negative offset range; bottom lane standard
     const laneTop = Math.random() < 0.5;
-    const y = laneTop ? centerY - randInt(84,110) : centerY + randInt(64,84);
+    const y = laneTop ? centerY - randInt(110,140) : centerY + randInt(64,84);
 
-    // horizontal entry: from left or right, slower approach
+    // Horizontal entry: from left/right; slow approach
     const fromLeft = Math.random() < 0.5;
     const startX = fromLeft ? -60 : wrapRect.width + 36;
     const stopX   = fromLeft ? randInt(60,140) : randInt(60,140);
 
-    bone.style.top = Math.max(0, Math.min(wrapRect.height - 120, y)) + 'px';
+    bone.style.top = Math.max(-20, Math.min(wrapRect.height - 120, y)) + 'px';
     bone.style.left = startX + 'px';
     soulWrap.appendChild(bone);
 
@@ -655,7 +653,7 @@
     };
   }
 
-  /* ===== Undyne spear loop (spears from four sides every 14–18s; 1s cooldown; small multi-chance) ===== */
+  /* ===== Undyne spear loop (14–18s; 1s cooldown; rotation to face SOUL; small multi-chance; 8 dmg) ===== */
   let undyneSpearTimer = null;
   function startUndyneSpearLoop(){
     stopUndyneSpearLoop();
@@ -686,45 +684,42 @@
     const side = sides[randInt(0, sides.length-1)];
     const margin = 40;
 
-    let x = 0, y = 0, endX = centerX - 4, endY = centerY - 50;
+    let x = 0, y = 0;
 
     switch(side){
-      case 'left':
-        x = -margin; y = randInt(20, wrapRect.height-120);
-        break;
-      case 'right':
-        x = wrapRect.width + margin; y = randInt(20, wrapRect.height-120);
-        break;
-      case 'top':
-        x = randInt(20, wrapRect.width-20); y = -margin - 20;
-        break;
-      case 'bottom':
-        x = randInt(20, wrapRect.width-20); y = wrapRect.height + margin;
-        break;
+      case 'left':   x = -margin;                 y = randInt(20, wrapRect.height-120); break;
+      case 'right':  x = wrapRect.width + margin; y = randInt(20, wrapRect.height-120); break;
+      case 'top':    x = randInt(20, wrapRect.width-20); y = -margin - 20; break;
+      case 'bottom': x = randInt(20, wrapRect.width-20); y = wrapRect.height + margin; break;
     }
 
     spear.style.left = x + 'px';
     spear.style.top  = y + 'px';
     soulWrap.appendChild(spear);
 
-    // travel slower than slash, modest speed
+    // Rotate spear so its tip faces the SOUL center (accounting spear's tip pointing "up")
+    const dx = (centerX - 4) - x;
+    const dy = (centerY - 50) - y;
+    const angleDeg = Math.atan2(dy, dx) * 180/Math.PI - 90; // spear graphic tip is upward; rotate accordingly
+    spear.style.transform = `rotate(${angleDeg}deg)`;
+
     const travelMs = randInt(900,1300);
     const anim = spear.animate(
       [
-        { transform: `translate(0,0)` },
-        { transform: `translate(${endX - x}px, ${endY - y}px)` }
+        { transform: `translate(0,0) rotate(${angleDeg}deg)` },
+        { transform: `translate(${dx}px, ${dy}px) rotate(${angleDeg}deg)` }
       ],
       { duration: travelMs, easing: 'cubic-bezier(.22,.61,.36,1)' }
     );
 
-    // approximate heart bounds; contact removes spear and deals 8 dmg
     const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 };
-    const spearW = 8, spearH = 118; // body + head
+    const spearW = 8, spearH = 118;
+
     const checkInterval = setInterval(()=>{
       const elapsed = anim.currentTime || 0;
       const progress = Math.min(1, elapsed / travelMs);
-      const curX = x + (endX - x) * progress;
-      const curY = y + (endY - y) * progress;
+      const curX = x + dx * progress;
+      const curY = y + dy * progress;
       const intersectsX = (curX + spearW) >= soulBounds.x1 && curX <= soulBounds.x2;
       const intersectsY = (curY + spearH) >= soulBounds.y1 && curY <= soulBounds.y2;
       if(intersectsX && intersectsY){
@@ -841,7 +836,7 @@
   confirmReset.addEventListener('click',()=>{
     if(love>=RESET_LV_REQ && exp>=RESET_EXP_REQ){
       exp -= RESET_EXP_REQ;
-      love=0; exp=0; gold=10000; expNeeded=10; resets+=1;
+      love=0; exp=0; gold=0; expNeeded=10; resets+=1;
       Object.keys(roster).forEach(au=> roster[au].forEach(c=> c.owned=0 ));
       stopFriskSlashLoop();
       stopTorielFireLoop();
@@ -930,6 +925,9 @@
   if(roster.Undertale.find(x=> x.type==='toriel' && x.owned)) startTorielFireLoop();
   if(roster.Undertale.find(x=> x.type==='papyrus' && x.owned)) startPapyrusBoneLoop();
   if(roster.Undertale.find(x=> x.type==='undyne'  && x.owned)) startUndyneSpearLoop();
+
+  /* ===== utils ===== */
+  function randFloat(min,max){ return Math.random()*(max-min)+min; }
 </script>
 </body>
 </html>
