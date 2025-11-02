@@ -73,7 +73,6 @@
   }
   #soul.dim{filter:brightness(0.55);}
   @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
-  /* When shattered: hide base heart completely (no second heart behind halves) */
   #soulWrap.shattered #soul{opacity:0;animation:none;}
 
   /* Accurate heart halves */
@@ -105,7 +104,7 @@
     100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(0.8)}
   }
 
-  /* Damage text above the SOUL (black fill, red outline) */
+  /* Damage numbers */
   .dmg{
     position:absolute;left:50%;top:0%;transform:translate(-50%,-120%);
     font-size:42px;font-weight:900;color:#000;
@@ -117,14 +116,14 @@
     100%{opacity:0;transform:translate(-50%,-120%) translateY(-40px)}
   }
 
-  /* "But it refused." one-line */
+  /* "But it refused." text */
   .refused{
     position:absolute;left:50%;top:0%;transform:translate(-50%,-150%);
     font-size:32px;font-weight:800;color:#fff;z-index:11;white-space:nowrap;
     text-shadow:0 0 12px rgba(255,255,255,.35);
   }
 
-  /* Undertale-style traveling slash: behind menu tray, above the heart */
+  /* Slash (FRISK) */
   .slashSVG{
     position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
     width:160px; height:200px; pointer-events:none; z-index:8;
@@ -141,7 +140,7 @@
     100%{opacity:0; transform:translate(-50%,-36%) rotate(6deg) scaleY(.96)}
   }
 
-  /* impact flash ring — behind menu tray as well */
+  /* Impact flash */
   .impactFlash{
     position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
     width:96px;height:96px;border-radius:50%;
@@ -155,7 +154,7 @@
     100%{opacity:0; transform:translate(-50%,-40%) scale(1.25)}
   }
 
-  /* Menu overlays directly on the soul */
+  /* Menu overlays */
   #menuTray{
     position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
     display:none;flex-direction:column;gap:8px;padding:12px;
@@ -181,7 +180,7 @@
   .btn.danger{background:#2a0f18;border-color:#ff4d6d}
   .lock{margin-left:6px;color:#9aa0a6;font-size:12px}
 
-  /* Toriel flames — bigger, three-tipped silhouette */
+  /* Toriel flames — bigger, stylized */
   .torielFlame{
     position:absolute; width:44px; height:60px;
     background: radial-gradient(circle at 45% 35%, #ffffff 0%, #ffdcb6 22%, #ff9c4a 52%, #ff6a00 100%);
@@ -195,21 +194,22 @@
     filter: blur(3.5px); opacity:.6; pointer-events:none; z-index:7;
   }
 
-  /* Papyrus bones — horizontal bones crossing above/below SOUL */
+  /* Papyrus bones — standing, slower sweep; max 6 active */
   .papyrusBone{
-    position:absolute; width:120px; height:22px; z-index:8; pointer-events:none;
+    position:absolute; width:24px; height:120px; z-index:8; pointer-events:none;
     filter: drop-shadow(0 0 10px rgba(255,255,255,.75));
   }
   .papyrusBone .shaft{
-    position:absolute; left:20px; right:20px; top:6px; height:10px;
-    background:#fff; border-radius:6px;
+    position:absolute; left:7px; right:7px; top:12px; bottom:12px;
+    background:#fff; border-radius:12px;
   }
   .papyrusBone::before, .papyrusBone::after{
-    content:""; position:absolute; top:0; width:22px; height:22px;
-    background: radial-gradient(circle, #fff 60%, rgba(255,255,255,.0) 61%);
+    content:""; position:absolute; left:50%; transform:translateX(-50%);
+    width:28px; height:28px; border-radius:50%;
+    background:#fff; box-shadow:0 0 8px rgba(255,255,255,.8);
   }
-  .papyrusBone::before{ left:0; }
-  .papyrusBone::after{ right:0; }
+  .papyrusBone::before{ top:-4px; }
+  .papyrusBone::after{ bottom:-4px; }
 </style>
 </head>
 <body>
@@ -268,23 +268,21 @@
 
 <script>
   /* ===== Core state ===== */
-  let love = 0;     // LV
-  let exp = 0;      // EXP
-  let gold = 0;     // GOLD
+  let love = 0;
+  let exp = 0;
+  let gold = 0;
   let resets = 0;
   let expNeeded = 10;
 
-  // Soul HP mechanics
   let soulHP = randInt(25,40);
   let soulDisabled = false;
 
-  // Reset requirements
   const RESET_EXP_REQ = 2500;
   const RESET_LV_REQ = 20;
 
   function resetBonusMultiplier(){ return 1 + resets * 0.1; }
 
-  // DOM refs
+  /* DOM refs */
   const loveStat = document.getElementById('loveStat');
   const expStat  = document.getElementById('expStat');
   const goldStat = document.getElementById('goldStat');
@@ -322,7 +320,7 @@
   };
 
   /* ===== Persistence ===== */
-  const SAVE_KEY = 'au_clicker_save_v10_toriel_papyrus';
+  const SAVE_KEY = 'au_clicker_save_v12_toriel_papyrus_refused_gold_only';
   function save(){
     const data = { love, exp, gold, resets, expNeeded, soulHP, roster };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -476,7 +474,7 @@
     setTimeout(()=> flash.remove(), 360);
   }
 
-  /* ===== Toriel fire loop (bigger stylized flames every 14–16s; chance of doubles) ===== */
+  /* ===== Toriel fire loop (stylized flames every 14–16s; chance multi; 1s cooldown) ===== */
   let torielFireTimer = null;
   function startTorielFireLoop(){
     stopTorielFireLoop();
@@ -485,7 +483,7 @@
       torielFireTimer = setTimeout(()=>{
         if(!soulDisabled){
           const count = pickCount({one:1, two:0.20, three:0.08, four:0.03});
-          spawnMultiple(spawnTorielFlame, count, 1000); // 1s cooldown between flames
+          spawnMultiple(spawnTorielFlame, count, 1000);
         }
         schedule();
       }, delay);
@@ -562,16 +560,17 @@
     };
   }
 
-  /* ===== Papyrus bone loop (bones sweep above/below SOUL every 12–16s; 1s cooldown between spawns) ===== */
+  /* ===== Papyrus bone loop (standing bones; above/below lanes; slower; max 6; 1s cooldown; multi-chance) ===== */
   let papyrusBoneTimer = null;
+  let activeBones = 0;
   function startPapyrusBoneLoop(){
     stopPapyrusBoneLoop();
     const schedule = ()=>{
       const delay = randInt(12000,16000);
       papyrusBoneTimer = setTimeout(()=>{
-        if(!soulDisabled){
-          const count = pickCount({one:1, two:0.25, three:0.10, four:0.04}); // decreasing chances
-          spawnMultiple(spawnPapyrusBone, count, 1000); // 1s cooldown between bones
+        if(!soulDisabled && activeBones < 6){
+          const count = pickCount({one:1, two:0.25, three:0.10, four:0.04});
+          spawnMultiple(spawnPapyrusBone, Math.min(count, 6 - activeBones), 1000);
         }
         schedule();
       }, delay);
@@ -581,7 +580,69 @@
   function stopPapyrusBoneLoop(){
     if(papyrusBoneTimer){ clearTimeout(papyrusBoneTimer); papyrusBoneTimer=null; }
   }
-  // Utility: spawn N with cooldown spacing
+  function spawnPapyrusBone(){
+    if(activeBones>=6) return;
+    activeBones++;
+
+    const bone = document.createElement('div');
+    bone.className = 'papyrusBone';
+    const shaft = document.createElement('div');
+    shaft.className = 'shaft';
+    bone.appendChild(shaft);
+
+    const wrapRect = soulWrap.getBoundingClientRect();
+    const centerY = wrapRect.height/2;
+
+    // lane: above or below SOUL (standing bone)
+    const laneTop = Math.random() < 0.5;
+    const y = laneTop ? centerY - randInt(64,84) : centerY + randInt(64,84);
+
+    // horizontal entry: from left or right, slower approach
+    const fromLeft = Math.random() < 0.5;
+    const startX = fromLeft ? -60 : wrapRect.width + 36;
+    const stopX   = fromLeft ? randInt(60,140) : randInt(60,140); // where it would end if no contact
+
+    bone.style.top = Math.max(0, Math.min(wrapRect.height - 120, y)) + 'px';
+    bone.style.left = startX + 'px';
+    soulWrap.appendChild(bone);
+
+    const travelMs = randInt(1400,1900);
+    const deltaX = (fromLeft ? 1 : -1) * Math.abs(stopX - startX);
+    const anim = bone.animate(
+      [
+        { transform: `translate(0,0)` },
+        { transform: `translate(${deltaX}px, 0)` }
+      ],
+      { duration: travelMs, easing: 'cubic-bezier(.22,.61,.36,1)' }
+    );
+
+    const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 };
+    const boneW = 24, boneH = 120;
+
+    const checkInterval = setInterval(()=>{
+      const elapsed = anim.currentTime || 0;
+      const progress = Math.min(1, elapsed / travelMs);
+      const curX = startX + deltaX * progress;
+      const curY = y;
+      const intersectsX = (curX + boneW) >= soulBounds.x1 && curX <= soulBounds.x2;
+      const intersectsY = (curY + boneH) >= soulBounds.y1 && curY <= soulBounds.y2;
+      if(intersectsX && intersectsY){
+        clearInterval(checkInterval);
+        anim.cancel();
+        bone.remove();
+        activeBones = Math.max(0, activeBones-1);
+        applyDamage(4, true);
+      }
+    }, 40);
+
+    anim.onfinish = ()=>{
+      clearInterval(checkInterval);
+      bone.remove();
+      activeBones = Math.max(0, activeBones-1);
+    };
+  }
+
+  /* ===== Utility spawner helpers ===== */
   function spawnMultiple(fn, count, cooldownMs){
     let spawned = 0;
     const tick = ()=>{
@@ -592,7 +653,6 @@
     };
     tick();
   }
-  // Utility: pick count with weighted chances
   function pickCount(weights){
     const roll = Math.random();
     if(roll < (weights.four ?? 0)) return 4;
@@ -600,63 +660,8 @@
     if(roll < (weights.two ?? 0) + (weights.three ?? 0) + (weights.four ?? 0)) return 2;
     return 1;
   }
-  function spawnPapyrusBone(){
-    const bone = document.createElement('div');
-    bone.className = 'papyrusBone';
-    const shaft = document.createElement('div');
-    shaft.className = 'shaft';
-    bone.appendChild(shaft);
 
-    const wrapRect = soulWrap.getBoundingClientRect();
-    const centerY = wrapRect.height/2;
-
-    // vertical track: above or below the SOUL centerline
-    const track = Math.random() < 0.5 ? 'above' : 'below';
-    const y = track === 'above' ? centerY - randInt(46,66) : centerY + randInt(46,66);
-
-    // horizontal direction: left -> right or right -> left
-    const fromLeft = Math.random() < 0.5;
-    const startX = fromLeft ? -140 : wrapRect.width + 20;
-    const endX   = fromLeft ? wrapRect.width + 20 : -140;
-
-    bone.style.top = Math.max(0, Math.min(wrapRect.height - 22, y)) + 'px';
-    bone.style.left = startX + 'px';
-    soulWrap.appendChild(bone);
-
-    const travelMs = randInt(900,1200);
-    const anim = bone.animate(
-      [
-        { transform: `translate(0,0)` },
-        { transform: `translate(${endX - startX}px, 0)` }
-      ],
-      { duration: travelMs, easing: 'cubic-bezier(.22,.61,.36,1)' }
-    );
-
-    // Impact detection: when crossing the SOUL horizontal bounds, apply damage and remove
-    const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 }; // rough heart bounds inside 220x220
-    const checkInterval = setInterval(()=>{
-      // current left position from computed style + transform isn't trivial; approximate via progress
-      const elapsed = anim.currentTime || 0;
-      const progress = Math.min(1, elapsed / travelMs);
-      const curX = startX + (endX - startX) * progress;
-      const curY = y;
-      const intersectsX = (curX + 60) >= soulBounds.x1 && (curX) <= soulBounds.x2; // bone length ~120
-      const intersectsY = curY+22 >= soulBounds.y1 && curY <= soulBounds.y2;
-      if(intersectsX && intersectsY){
-        clearInterval(checkInterval);
-        anim.cancel();
-        bone.remove();
-        applyDamage(4, true);
-      }
-    }, 30);
-
-    anim.onfinish = ()=>{
-      clearInterval(checkInterval);
-      bone.remove();
-    };
-  }
-
-  /* ===== Shatter sequence ===== */
+  /* ===== Shatter sequence — "But it refused." = 2x GOLD, 0 EXP ===== */
   function shatterSoul(){
     soulDisabled = true;
     soulWrap.classList.add('shattered');
@@ -669,7 +674,10 @@
     let gainedGold= randInt(4,9);
 
     const refused = Math.random() < 0.10;
-    if(refused){ gainedExp*=2; gainedGold*=2; }
+    if(refused){
+      gainedGold*=2;
+      gainedExp = 0;
+    }
 
     exp += gainedExp; gold += gainedGold; tryConvertExpToLove(); updateStats();
 
@@ -815,14 +823,11 @@
     if(totalDps>0){ applyDamage(totalDps, true); }
   }, 1000);
 
-  /* ===== INIT + LOAD ===== */
+  /* ===== INIT ===== */
   load(); updateStats(); renderAUList();
   if(roster.Undertale.find(x=> x.type==='frisk' && x.owned)) startFriskSlashLoop();
   if(roster.Undertale.find(x=> x.type==='toriel' && x.owned)) startTorielFireLoop();
   if(roster.Undertale.find(x=> x.type==='papyrus' && x.owned)) startPapyrusBoneLoop();
-
-  /* ===== utils ===== */
-  function randFloat(min,max){ return Math.random()*(max-min)+min; }
 </script>
 </body>
 </html>
