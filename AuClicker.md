@@ -64,7 +64,6 @@
   #soulWrap{
     width:220px;height:220px;position:relative;
     filter:drop-shadow(0 0 20px rgba(255,0,70,.45));
-    will-change:transform;
   }
   #soul{
     width:100%;height:100%;background:#ff2f57;
@@ -134,43 +133,33 @@
     text-shadow:0 0 12px rgba(255,255,255,.35);
   }
 
-  /* Undertale-style vertical slash with stacked segments (inspired by your image) */
-  .slash{
+  /* Undertale 1:1-style curved tapered vertical slash (SVG overlay) */
+  .slashSVG{
     position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-    width:140px; height:160px; display:flex; align-items:center; justify-content:center;
-    pointer-events:none; z-index:12;
+    width:160px; height:200px; pointer-events:none; z-index:12;
+    filter:drop-shadow(0 0 18px rgba(255,47,87,.65)) drop-shadow(0 0 30px rgba(255,255,255,.55));
+    animation:slashAppear .22s cubic-bezier(.22,.61,.36,1) forwards, slashVanish .32s ease-out .18s forwards;
   }
-  .slashColumn{
-    position:relative; width:16px; height:160px; display:flex; flex-direction:column; gap:6px;
-    filter:drop-shadow(0 0 12px rgba(255,47,87,.65));
-    animation:slashFadeOut .45s ease-out forwards;
+  @keyframes slashAppear{
+    0%{opacity:0; transform:translate(-50%,-55%) scaleY(0.6)}
+    100%{opacity:1; transform:translate(-50%,-50%) scaleY(1)}
   }
-  @keyframes slashFadeOut{
-    0%{opacity:1; transform:translate(-2px,-4px) scale(1)}
-    100%{opacity:0; transform:translate(0,-8px) scale(1.06)}
+  @keyframes slashVanish{
+    0%{opacity:1}
+    100%{opacity:0}
   }
-  .slashSeg{
-    width:16px; height:18px; background:linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,47,87,0.55));
-    border-radius:3px;
-    transform-origin:center;
-    animation:segPunch .26s cubic-bezier(.22,.61,.36,1) forwards;
-  }
-  @keyframes segPunch{
-    0%{transform:translateX(0) scaleY(0.4); opacity:1}
-    60%{transform:translateX(var(--offset)) scaleY(1.15); opacity:1}
-    100%{transform:translateX(var(--offset)) scaleY(1.0); opacity:0}
-  }
+  /* impact flash ring */
   .impactFlash{
     position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-    width:88px;height:88px;border-radius:50%;
-    background:radial-gradient(circle,rgba(255,255,255,0.95),rgba(255,47,87,0.28));
-    box-shadow:0 0 24px rgba(255,255,255,.8), 0 0 36px rgba(255,47,87,.6);
+    width:96px;height:96px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,255,255,0.95) 0%, rgba(255,47,87,0.25) 55%, rgba(255,47,87,0.0) 70%);
+    box-shadow:0 0 24px rgba(255,255,255,.7), 0 0 36px rgba(255,47,87,.6);
     z-index:13;pointer-events:none;
-    animation:flashPop .34s ease-out forwards;
+    animation:flashPop .28s ease-out forwards;
   }
   @keyframes flashPop{
-    0%{opacity:1; transform:translate(-50%,-50%) scale(0.65)}
-    100%{opacity:0; transform:translate(-50%,-50%) scale(1.35)}
+    0%{opacity:1; transform:translate(-50%,-50%) scale(0.7)}
+    100%{opacity:0; transform:translate(-50%,-50%) scale(1.25)}
   }
 
   /* Menu overlays directly on the soul */
@@ -383,7 +372,7 @@
       soul.classList.add('dim');
       setTimeout(()=> soul.classList.remove('dim'),150);
     }
-    // FIX: animate only the SOUL, not the wrapper (prevents stats jitter/reflow)
+    // Animate only the SOUL to avoid any panel jitter
     soul.animate(
       [{transform:'scale(1)'},{transform:'scale(0.985)'},{transform:'scale(1)'}],
       {duration:120, easing:'ease-out'}
@@ -397,7 +386,7 @@
     soulWrap.appendChild(d); setTimeout(()=> d.remove(),900);
   }
 
-  /* ===== FRISK slash emitter (Undertale-like stacked vertical segments) ===== */
+  /* ===== FRISK slash emitter (true Undertale-style curved tapered slash via SVG) ===== */
   let friskSlashTimer = null;
   function startFriskSlashLoop(){
     stopFriskSlashLoop();
@@ -405,7 +394,7 @@
       const delay = randInt(8000,12000);
       friskSlashTimer = setTimeout(()=>{
         if(!soulDisabled){
-          showUndertaleSlash();
+          showFriskSlashSVG();
           const slashDmg = randInt(12,15);
           applyDamage(slashDmg, true);
         }
@@ -418,35 +407,66 @@
     if(friskSlashTimer){ clearTimeout(friskSlashTimer); friskSlashTimer=null; }
   }
 
-  // Visual: stacked segments with slight horizontal offsets, impact flash
-  function showUndertaleSlash(){
-    const container = document.createElement('div');
-    container.className = 'slash';
+  // Single tapered curved path (no cubes, no bars) — visually matches the reference slash
+  function showFriskSlashSVG(){
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("viewBox", "0 0 160 200");
+    svg.classList.add("slashSVG");
 
-    const col = document.createElement('div');
-    col.className = 'slashColumn';
+    // gradient for inner white to red
+    const defs = document.createElementNS(svgNS, "defs");
+    const grad = document.createElementNS(svgNS, "linearGradient");
+    grad.setAttribute("id", "slashGrad");
+    grad.setAttribute("x1", "0"); grad.setAttribute("y1", "0");
+    grad.setAttribute("x2", "0"); grad.setAttribute("y2", "1");
+    const stop1 = document.createElementNS(svgNS, "stop");
+    stop1.setAttribute("offset", "0%"); stop1.setAttribute("stop-color", "#ffffff"); stop1.setAttribute("stop-opacity", "0.95");
+    const stop2 = document.createElementNS(svgNS, "stop");
+    stop2.setAttribute("offset", "60%"); stop2.setAttribute("stop-color", "#ff2f57"); stop2.setAttribute("stop-opacity", "0.9");
+    const stop3 = document.createElementNS(svgNS, "stop");
+    stop3.setAttribute("offset", "100%"); stop3.setAttribute("stop-color", "#ff2f57"); stop3.setAttribute("stop-opacity", "0.75");
+    grad.appendChild(stop1); grad.appendChild(stop2); grad.appendChild(stop3);
+    defs.appendChild(grad);
+    svg.appendChild(defs);
 
-    // Segment heights and offsets give the staggered zig-zag feel (inspired by your reference)
-    const segCount = 8;
-    const offsets = [-3, 2, -2, 3, -1, 2, -2, 1]; // px, creates zig-zag look
-    for(let i=0;i<segCount;i++){
-      const seg = document.createElement('div');
-      seg.className = 'slashSeg';
-      seg.style.setProperty('--offset', offsets[i]+'px');
-      seg.style.animationDelay = (i * 0.025)+'s';
-      col.appendChild(seg);
-    }
+    // tapered curved shape: top thin, middle thick, bottom thin (closed path)
+    const path = document.createElementNS(svgNS, "path");
+    path.setAttribute("fill", "url(#slashGrad)");
+    path.setAttribute("stroke", "rgba(255,255,255,0.85)");
+    path.setAttribute("stroke-width", "1");
+    path.setAttribute("d",
+      "M80,10 " +
+      "C78,16 76,24 78,34 " +
+      "C82,52 88,68 92,86 " +
+      "C96,104 96,122 92,140 " +
+      "C88,158 82,172 78,188 " +
+      "C86,178 98,164 106,148 " +
+      "C114,132 118,114 116,98 " +
+      "C114,82 108,68 100,54 " +
+      "C92,40 86,26 80,10 Z"
+    );
+    // subtle inner highlight stroke
+    const inner = document.createElementNS(svgNS, "path");
+    inner.setAttribute("fill", "none");
+    inner.setAttribute("stroke", "rgba(255,255,255,0.65)");
+    inner.setAttribute("stroke-width", "2");
+    inner.setAttribute("d",
+      "M86,26 C94,44 103,64 108,90 C111,106 108,124 100,140"
+    );
 
-    // Impact flash for punch
-    const flash = document.createElement('div');
-    flash.className = 'impactFlash';
+    svg.appendChild(path);
+    svg.appendChild(inner);
 
-    container.appendChild(col);
-    soulWrap.appendChild(container);
+    // impact flash
+    const flash = document.createElement("div");
+    flash.className = "impactFlash";
+
+    soulWrap.appendChild(svg);
     soulWrap.appendChild(flash);
 
-    setTimeout(()=> { container.remove(); }, 480);
-    setTimeout(()=> { flash.remove(); }, 360);
+    setTimeout(()=> svg.remove(), 460);
+    setTimeout(()=> flash.remove(), 300);
   }
 
   /* ===== Shatter sequence =====
