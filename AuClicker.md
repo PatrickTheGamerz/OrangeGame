@@ -191,7 +191,7 @@
     filter: blur(3.5px); opacity:.6; pointer-events:none; z-index:7;
   }
 
-  /* Papyrus bones — standing, slower sweep; max 6 active */
+  /* Papyrus bones */
   .papyrusBone{
     position:absolute; width:24px; height:120px; z-index:8; pointer-events:none;
     filter: drop-shadow(0 0 10px rgba(255,255,255,.75));
@@ -229,15 +229,13 @@
     box-shadow:0 0 6px rgba(255,255,255,.6);
   }
 
-  /* Mettaton bomb — 1:1 white circle with black cross and top nub */
+  /* Mettaton bomb — white circle with black cross and top nub */
   .mettatonBomb{
     position:absolute; width:40px; height:40px; border-radius:50%;
     background:#ffffff; box-shadow:0 0 12px rgba(255,255,255,.8);
     z-index:9; pointer-events:none;
   }
-  .mettatonBomb::before, .mettatonBomb::after{
-    content:""; position:absolute; background:#000;
-  }
+  .mettatonBomb::before, .mettatonBomb::after{content:""; position:absolute; background:#000;}
   .mettatonBomb::before{ left:50%; top:6px; width:6px; height:28px; transform:translateX(-50%); border-radius:3px; }
   .mettatonBomb::after{ left:6px; top:50%; width:28px; height:6px; transform:translateY(-50%); border-radius:3px; }
   .mettatonFuse{ position:absolute; left:50%; top:-8px; transform:translateX(-50%); width:10px; height:10px; border-radius:2px 2px 6px 6px; background:#000; }
@@ -268,7 +266,7 @@
     100%{height:160px;opacity:0;}
   }
 
-  /* Optional radial wave ring for extra punch */
+  /* Optional radial wave ring */
   .bombWave{
     position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
     width:20px; height:20px; border-radius:50%;
@@ -341,7 +339,7 @@
   /* ===== Core state ===== */
   let love = 0;
   let exp = 0;
-  let gold = 99999999999990;
+  let gold = 9990;
   let resets = 0;
   let expNeeded = 10;
 
@@ -392,7 +390,7 @@
   };
 
   /* ===== Persistence ===== */
-  const SAVE_KEY = 'au_clicker_save_v24_sans_rework_tiny_bone_bottom_only';
+  const SAVE_KEY = 'au_clicker_save_v25_sans_bottom_lane_mtt_lines_invert_spear_facing';
   function save(){
     const data = { love, exp, gold, resets, expNeeded, soulHP, roster };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -633,7 +631,7 @@
     };
   }
 
-  /* ===== Papyrus bone loop (top spawns more up) ===== */
+  /* ===== Papyrus bone loop ===== */
   let papyrusBoneTimer = null;
   let activeBones = 0;
   function startPapyrusBoneLoop(){
@@ -824,7 +822,6 @@
     bomb.appendChild(fuse);
 
     const wrapRect = soulWrap.getBoundingClientRect();
-    const centerX = wrapRect.width/2;
     const centerY = wrapRect.height/2;
 
     const x = randInt(30, wrapRect.width-30);
@@ -891,7 +888,7 @@
     setTimeout(()=> wave.remove(), 600);
   }
 
-  /* ===== Sans rework: tiny slow bone from bottom every 8–12s, 1 active, 1 dmg ===== */
+  /* ===== Sans rework: tiny slow bone from bottom lane every 8–12s, 1 active, 1 dmg ===== */
   let sansBoneTimer = null;
   let sansBoneActive = false;
 
@@ -918,32 +915,34 @@
     bone.className = 'sansBone';
 
     const wrapRect = soulWrap.getBoundingClientRect();
-    const startX = wrapRect.width/2 - 5;    /* center bottom (bone width 10) */
-    const startY = wrapRect.height - 10;    /* just inside bottom */
+    const centerY = wrapRect.height/2;
+
+    /* Bottom lane region like Papyrus bottom: centerY + [64..84] */
+    const y = Math.max(-40, Math.min(wrapRect.height - 40, centerY + randInt(64,84)));
+    const startX = -30; /* spawn off-screen left */
+    const endX = 240;   /* travel distance across the soul area */
 
     bone.style.left = startX + 'px';
-    bone.style.top  = startY + 'px';
+    bone.style.top  = y + 'px';
     soulWrap.appendChild(bone);
 
-    /* Slow upward travel; despawn on hit; only 1 dmg */
-    const travelMs = 4200;
-    const endY = 20; /* top edge of soul bounds */
+    const travelMs = 4200; /* slower than Papyrus */
     const anim = bone.animate(
       [
-        { transform: `translate(0,0)` },
-        { transform: `translate(0, ${endY - startY}px)` }
+        { transform: `translateX(0)` },
+        { transform: `translateX(${endX - startX}px)` }
       ],
       { duration: travelMs, easing:'linear' }
     );
 
-    /* Simple AABB vs SOUL bounds */
+    /* Collision check with SOUL bounds */
     const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 };
     const boneW = 10, boneH = 40;
     const checkInterval = setInterval(()=>{
       const elapsed = anim.currentTime || 0;
       const progress = Math.min(1, elapsed / travelMs);
-      const curX = startX;
-      const curY = startY + (endY - startY) * progress;
+      const curX = startX + (endX - startX) * progress;
+      const curY = y;
 
       const intersectsX = (curX + boneW) >= soulBounds.x1 && curX <= soulBounds.x2;
       const intersectsY = (curY + boneH) >= soulBounds.y1 && curY <= soulBounds.y2;
@@ -1133,7 +1132,7 @@
       if(c.type==='papyrus'){ startPapyrusBoneLoop(); }
       if(c.type==='undyne'){ startUndyneSpearLoop(); }
       if(c.type==='mettaton'){ startMettatonBombLoop(); }
-      if(c.type==='sans'){ startSansBoneLoop(); } /* start Sans rework loop */
+      if(c.type==='sans'){ startSansBoneLoop(); }
       tryConvertExpToLove(); updateStats(); openAU(au); gentlePop(auContent);
     } else { shake(auContent); }
   }
