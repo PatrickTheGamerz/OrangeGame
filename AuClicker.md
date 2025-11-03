@@ -214,7 +214,7 @@
     background: linear-gradient(180deg, #85e7ff 0%, #29c4ff 50%, #0aa2ff 100%);
     box-shadow:0 0 16px rgba(10,162,255,.85), 0 0 28px rgba(133,231,255,.5);
     border-radius:6px 6px 2px 2px;
-    transform-origin:50% 100%;
+    transform-origin:50% 0%; /* rotate around spear tip */
   }
   .undyneSpear::after{
     content:""; position:absolute; left:50%; top:-18px; transform:translateX(-50%);
@@ -281,7 +281,7 @@
   /* ===== Core state ===== */
   let love = 0;
   let exp = 0;
-  let gold = 9999990;
+  let gold = 0;
   let resets = 0;
   let expNeeded = 10;
 
@@ -331,7 +331,7 @@
   };
 
   /* ===== Persistence ===== */
-  const SAVE_KEY = 'au_clicker_save_v15_undyne_spear_rotation_180_more_distance';
+  const SAVE_KEY = 'au_clicker_save_v17_top_bones_more_up_undyne_tip_rotation_margin';
   function save(){
     const data = { love, exp, gold, resets, expNeeded, soulHP, roster };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -485,7 +485,7 @@
     setTimeout(()=> flash.remove(), 360);
   }
 
-  /* ===== Toriel fire loop (stylized flames every 14–16s; chance multi; 1s cooldown) ===== */
+  /* ===== Toriel fire loop ===== */
   let torielFireTimer = null;
   function startTorielFireLoop(){
     stopTorielFireLoop();
@@ -571,7 +571,7 @@
     };
   }
 
-  /* ===== Papyrus bone loop (standing bones; lanes above/below; slower; max 6; top spawns more up; 1s cooldown; multi-chance) ===== */
+  /* ===== Papyrus bone loop (top spawns more up) ===== */
   let papyrusBoneTimer = null;
   let activeBones = 0;
   function startPapyrusBoneLoop(){
@@ -604,13 +604,11 @@
     const wrapRect = soulWrap.getBoundingClientRect();
     const centerY = wrapRect.height/2;
 
-    /* Top lane spawns "more up": bigger negative offset range; bottom lane standard */
     const laneTop = Math.random() < 0.5;
-    const y = laneTop ? centerY - randInt(120,155) : centerY + randInt(64,84);
+    const y = laneTop ? centerY - randInt(130,165) : centerY + randInt(64,84);
 
-    /* Horizontal entry: from left/right; slow approach */
     const fromLeft = Math.random() < 0.5;
-    const startX = fromLeft ? -80 : wrapRect.width + 52; /* start further away for nicer travel */
+    const startX = fromLeft ? -80 : wrapRect.width + 52;
     const stopX   = fromLeft ? randInt(60,140) : randInt(60,140);
 
     bone.style.top = Math.max(-40, Math.min(wrapRect.height - 120, y)) + 'px';
@@ -653,7 +651,7 @@
     };
   }
 
-  /* ===== Undyne spear loop (14–18s; 1s cooldown; rotation to face SOUL with +180°; more spawn distance; small multi-chance; 8 dmg) ===== */
+  /* ===== Undyne spear loop (tip rotation +180°, more distance, stop before SOUL) ===== */
   let undyneSpearTimer = null;
   function startUndyneSpearLoop(){
     stopUndyneSpearLoop();
@@ -680,39 +678,43 @@
     const centerX = wrapRect.width/2;
     const centerY = wrapRect.height/2;
 
-    /* Increase initial spawn margin for more distance from SOUL */
     const sides = ['left','right','top','bottom'];
     const side = sides[randInt(0, sides.length-1)];
-    const margin = 80; /* was ~40: now further out */
+    const margin = 90; /* more distance from SOUL */
 
     let x = 0, y = 0;
-
     switch(side){
-      case 'left':   x = -margin;                 y = randInt(20, wrapRect.height-120); break;
-      case 'right':  x = wrapRect.width + margin; y = randInt(20, wrapRect.height-120); break;
-      case 'top':    x = randInt(20, wrapRect.width-20); y = -margin - 40; break;
-      case 'bottom': x = randInt(20, wrapRect.width-20); y = wrapRect.height + margin; break;
+      case 'left':   x = -margin;                 y = randInt(24, wrapRect.height-120); break;
+      case 'right':  x = wrapRect.width + margin; y = randInt(24, wrapRect.height-120); break;
+      case 'top':    x = randInt(24, wrapRect.width-24); y = -margin - 44; break;
+      case 'bottom': x = randInt(24, wrapRect.width-24); y = wrapRect.height + margin; break;
     }
 
     spear.style.left = x + 'px';
     spear.style.top  = y + 'px';
     soulWrap.appendChild(spear);
 
-    /* Rotate spear so its tip faces the SOUL center, then flip 180° to correct graphic orientation */
-    const aimX = centerX - 4;
-    const aimY = centerY - 50;
+    /* Aim to SOUL center, rotate tip +180°, and travel stopping short for better alignment */
+    const aimX = centerX;
+    const aimY = centerY;
     const dx = aimX - x;
     const dy = aimY - y;
-    const baseAngleDeg = Math.atan2(dy, dx) * 180/Math.PI;
-    const angleDeg = baseAngleDeg + 180; /* requested fix: rotate 180 degrees */
+    const baseAngle = Math.atan2(dy, dx) * 180/Math.PI;
+    const angleDeg = baseAngle + 180; /* flip to correct sprite orientation */
     spear.style.transform = `rotate(${angleDeg}deg)`;
 
-    /* Travel animation towards SOUL */
+    /* Stop before center to avoid clipping through heart */
+    const stopDist = 26;
+    const len = Math.max(1, Math.hypot(dx, dy));
+    const nx = dx / len, ny = dy / len;
+    const travelX = dx - nx * stopDist;
+    const travelY = dy - ny * stopDist;
+
     const travelMs = randInt(1000,1400);
     const anim = spear.animate(
       [
         { transform: `translate(0,0) rotate(${angleDeg}deg)` },
-        { transform: `translate(${dx}px, ${dy}px) rotate(${angleDeg}deg)` }
+        { transform: `translate(${travelX}px, ${travelY}px) rotate(${angleDeg}deg)` }
       ],
       { duration: travelMs, easing: 'cubic-bezier(.22,.61,.36,1)' }
     );
@@ -723,8 +725,8 @@
     const checkInterval = setInterval(()=>{
       const elapsed = anim.currentTime || 0;
       const progress = Math.min(1, elapsed / travelMs);
-      const curX = x + dx * progress;
-      const curY = y + dy * progress;
+      const curX = x + travelX * progress;
+      const curY = y + travelY * progress;
       const intersectsX = (curX + spearW) >= soulBounds.x1 && curX <= soulBounds.x2;
       const intersectsY = (curY + spearH) >= soulBounds.y1 && curY <= soulBounds.y2;
       if(intersectsX && intersectsY){
@@ -760,7 +762,7 @@
     return 1;
   }
 
-  /* ===== Shatter sequence — "But it refused." = 2x GOLD, 0 EXP ===== */
+  /* ===== Shatter sequence — "But it refused." ===== */
   function shatterSoul(){
     soulDisabled = true;
     soulWrap.classList.add('shattered');
