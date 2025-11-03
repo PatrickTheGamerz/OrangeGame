@@ -214,7 +214,7 @@
     background: linear-gradient(180deg, #85e7ff 0%, #29c4ff 50%, #0aa2ff 100%);
     box-shadow:0 0 16px rgba(10,162,255,.85), 0 0 28px rgba(133,231,255,.5);
     border-radius:6px 6px 2px 2px;
-    transform-origin:50% 0%; /* rotate around spear tip */
+    transform-origin:50% 0%; /* tip is the rotation origin */
   }
   .undyneSpear::after{
     content:""; position:absolute; left:50%; top:-18px; transform:translateX(-50%);
@@ -281,7 +281,7 @@
   /* ===== Core state ===== */
   let love = 0;
   let exp = 0;
-  let gold = 99999999; // set G to normal
+  let gold = 0; // normal starting gold
   let resets = 0;
   let expNeeded = 10;
 
@@ -331,7 +331,7 @@
   };
 
   /* ===== Persistence ===== */
-  const SAVE_KEY = 'au_clicker_save_v17_top_bones_more_up_undyne_tip_rotation_margin';
+  const SAVE_KEY = 'au_clicker_save_v18_spear_tip_alignment_fix';
   function save(){
     const data = { love, exp, gold, resets, expNeeded, soulHP, roster };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -652,7 +652,7 @@
     };
   }
 
-  /* ===== Undyne spear loop (fixed rotation, more distance, stop before SOUL) ===== */
+  /* ===== Undyne spear loop (tip-aligned rotation, more distance, stop before SOUL) ===== */
   let undyneSpearTimer = null;
   function startUndyneSpearLoop(){
     stopUndyneSpearLoop();
@@ -695,12 +695,11 @@
     spear.style.top  = y + 'px';
     soulWrap.appendChild(spear);
 
-    /* Aim to SOUL center and use base angle (no +180 flip) */
-    const aimX = centerX;
-    const aimY = centerY;
-    const dx = aimX - x;
-    const dy = aimY - y;
-    const angleDeg = Math.atan2(dy, dx) * 180/Math.PI;
+    /* Tip-aligned rotation: default spear axis points downward from tip.
+       Rotate so the spear's axis aligns with the vector from tip to SOUL. */
+    const dx = centerX - x;
+    const dy = centerY - y;
+    const angleDeg = Math.atan2(dx, dy) * 180 / Math.PI; // align +Y (down) with (dx,dy)
     spear.style.transform = `rotate(${angleDeg}deg)`;
 
     /* Stop before center to avoid clipping through heart */
