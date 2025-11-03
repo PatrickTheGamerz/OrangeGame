@@ -208,7 +208,7 @@
   .papyrusBone::before{ top:-4px; }
   .papyrusBone::after{ bottom:-4px; }
 
-  /* Undyne spears (visual tip points correct by side) */
+  /* Undyne spears (side-based facing) */
   .undyneSpear{
     position:absolute; width:8px; height:100px; z-index:8; pointer-events:none;
     background: linear-gradient(180deg, #85e7ff 0%, #29c4ff 50%, #0aa2ff 100%);
@@ -220,6 +220,13 @@
     content:""; position:absolute; left:50%; top:-18px; transform:translateX(-50%);
     width:0; height:0; border-left:14px solid transparent; border-right:14px solid transparent;
     border-bottom:18px solid #85e7ff; filter:drop-shadow(0 0 8px rgba(133,231,255,.8));
+  }
+
+  /* Sans tiny bone (reworked) */
+  .sansBone{
+    position:absolute; width:10px; height:40px; z-index:8; pointer-events:none;
+    background:#fff; border-radius:8px;
+    box-shadow:0 0 6px rgba(255,255,255,.6);
   }
 
   /* Mettaton bomb — 1:1 white circle with black cross and top nub */
@@ -334,7 +341,7 @@
   /* ===== Core state ===== */
   let love = 0;
   let exp = 0;
-  let gold = 999999990;
+  let gold = 99999999999990;
   let resets = 0;
   let expNeeded = 10;
 
@@ -372,9 +379,9 @@
       { name:"TORIEL: 120 G", label:"TORIEL: 120 G", costGold:120,  dps:0,  owned:0, type:'toriel' },
       { name:"PAPYRUS: 220 G",label:"PAPYRUS: 220 G",costGold:220,  dps:0,  owned:0, type:'papyrus' },
       { name:"UNDYNE: 400 G", label:"UNDYNE: 400 G", costGold:400,  dps:0,  owned:0, type:'undyne' },
-      /* METTATON: bombs only (no passive DPS) */
       { name:"METTATON: 650 G",label:"METTATON: 650 G",costGold:650,dps:0,  owned:0, type:'mettaton' },
-      { name:"SANS: 1200 G",  label:"SANS: 1200 G",  costGold:1200, dps:18, owned:0, type:'dps' },
+      /* SANS reworked: timed tiny bone, no DPS */
+      { name:"SANS: 1200 G",  label:"SANS: 1200 G",  costGold:1200, dps:0,  owned:0, type:'sans' },
       { name:"ASGORE: 1800 G",label:"ASGORE: 1800 G",costGold:1800, dps:24, owned:0, type:'dps' }
     ],
     Underswap: [
@@ -385,7 +392,7 @@
   };
 
   /* ===== Persistence ===== */
-  const SAVE_KEY = 'au_clicker_save_v23_mtt_bomb_lines_invert_spear_side_facing';
+  const SAVE_KEY = 'au_clicker_save_v24_sans_rework_tiny_bone_bottom_only';
   function save(){
     const data = { love, exp, gold, resets, expNeeded, soulHP, roster };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -434,7 +441,6 @@
     while(n>=1000 && u<units.length-1){ n/=1000; u++; }
     return n.toFixed(2)+" "+units[u];
   }
-
   function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
   function randFloat(min,max){ return Math.random()*(max-min)+min; }
 
@@ -791,7 +797,7 @@
     };
   }
 
-  /* ===== Mettaton bomb loop (16–20s, 1–3 bombs, 1s cooldown; invert flicker + crossing lines explosion) ===== */
+  /* ===== Mettaton bomb loop (invert flicker + crossing lines explosion) ===== */
   let mettatonBombTimer = null;
   function startMettatonBombLoop(){
     stopMettatonBombLoop();
@@ -847,11 +853,9 @@
         exploded = true;
         clearInterval(checkInterval);
         anim.cancel();
-        /* Flicker invert before explosion */
         bomb.classList.add('bombFlashing');
         setTimeout(()=>{
-          const cx = x; const cy = endY; // center for explosion visuals
-          showBombExplosionAt(cx, cy);
+          showBombExplosionAt(x, endY);
           bomb.remove();
           applyDamage(6, true);
         }, 420);
@@ -872,7 +876,6 @@
   }
 
   function showBombExplosionAt(cx, cy){
-    /* Crossing explosion lines */
     const explosion = document.createElement('div');
     explosion.className = 'bombExplosion animate';
     explosion.style.left = cx + 'px';
@@ -880,13 +883,85 @@
     soulWrap.appendChild(explosion);
     setTimeout(()=> explosion.remove(), 600);
 
-    /* Optional radial ring for extra impact */
     const wave = document.createElement('div');
     wave.className = 'bombWave';
     wave.style.left = cx + 'px';
     wave.style.top  = cy + 'px';
     soulWrap.appendChild(wave);
     setTimeout(()=> wave.remove(), 600);
+  }
+
+  /* ===== Sans rework: tiny slow bone from bottom every 8–12s, 1 active, 1 dmg ===== */
+  let sansBoneTimer = null;
+  let sansBoneActive = false;
+
+  function startSansBoneLoop(){
+    stopSansBoneLoop();
+    const schedule = ()=>{
+      const delay = randInt(8000,12000);
+      sansBoneTimer = setTimeout(()=>{
+        if(!soulDisabled && !sansBoneActive){
+          spawnSansBone();
+        }
+        schedule();
+      }, delay);
+    };
+    schedule();
+  }
+  function stopSansBoneLoop(){
+    if(sansBoneTimer){ clearTimeout(sansBoneTimer); sansBoneTimer=null; }
+  }
+  function spawnSansBone(){
+    sansBoneActive = true;
+
+    const bone = document.createElement('div');
+    bone.className = 'sansBone';
+
+    const wrapRect = soulWrap.getBoundingClientRect();
+    const startX = wrapRect.width/2 - 5;    /* center bottom (bone width 10) */
+    const startY = wrapRect.height - 10;    /* just inside bottom */
+
+    bone.style.left = startX + 'px';
+    bone.style.top  = startY + 'px';
+    soulWrap.appendChild(bone);
+
+    /* Slow upward travel; despawn on hit; only 1 dmg */
+    const travelMs = 4200;
+    const endY = 20; /* top edge of soul bounds */
+    const anim = bone.animate(
+      [
+        { transform: `translate(0,0)` },
+        { transform: `translate(0, ${endY - startY}px)` }
+      ],
+      { duration: travelMs, easing:'linear' }
+    );
+
+    /* Simple AABB vs SOUL bounds */
+    const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 };
+    const boneW = 10, boneH = 40;
+    const checkInterval = setInterval(()=>{
+      const elapsed = anim.currentTime || 0;
+      const progress = Math.min(1, elapsed / travelMs);
+      const curX = startX;
+      const curY = startY + (endY - startY) * progress;
+
+      const intersectsX = (curX + boneW) >= soulBounds.x1 && curX <= soulBounds.x2;
+      const intersectsY = (curY + boneH) >= soulBounds.y1 && curY <= soulBounds.y2;
+
+      if(intersectsX && intersectsY){
+        clearInterval(checkInterval);
+        anim.cancel();
+        bone.remove();
+        applyDamage(1, true);
+        sansBoneActive = false;
+      }
+    }, 80);
+
+    anim.onfinish = ()=>{
+      clearInterval(checkInterval);
+      bone.remove();
+      sansBoneActive = false;
+    };
   }
 
   /* ===== Utility spawner helpers ===== */
@@ -995,6 +1070,7 @@
       stopPapyrusBoneLoop();
       stopUndyneSpearLoop();
       stopMettatonBombLoop();
+      stopSansBoneLoop();
       updateStats(); renderAUList(); resetOverlay.style.display='none';
       pulse(document.getElementById('statsPanel'));
     } else { shake(resetOverlay); }
@@ -1057,11 +1133,12 @@
       if(c.type==='papyrus'){ startPapyrusBoneLoop(); }
       if(c.type==='undyne'){ startUndyneSpearLoop(); }
       if(c.type==='mettaton'){ startMettatonBombLoop(); }
+      if(c.type==='sans'){ startSansBoneLoop(); } /* start Sans rework loop */
       tryConvertExpToLove(); updateStats(); openAU(au); gentlePop(auContent);
     } else { shake(auContent); }
   }
 
-  /* ===== Passive DPS (FRISK/Toriel/Papyrus/Undyne/Mettaton excluded) ===== */
+  /* ===== Passive DPS (FRISK/Toriel/Papyrus/Undyne/Mettaton/Sans excluded) ===== */
   setInterval(()=>{
     if(soulDisabled) return;
     let totalDps=0;
@@ -1080,6 +1157,7 @@
   if(roster.Undertale.find(x=> x.type==='papyrus' && x.owned)) startPapyrusBoneLoop();
   if(roster.Undertale.find(x=> x.type==='undyne'  && x.owned)) startUndyneSpearLoop();
   if(roster.Undertale.find(x=> x.type==='mettaton' && x.owned)) startMettatonBombLoop();
+  if(roster.Undertale.find(x=> x.type==='sans' && x.owned)) startSansBoneLoop();
 
   /* ===== utils ===== */
   function randFloat(min,max){ return Math.random()*(max-min)+min; }
