@@ -214,7 +214,7 @@
     background: linear-gradient(180deg, #85e7ff 0%, #29c4ff 50%, #0aa2ff 100%);
     box-shadow:0 0 16px rgba(10,162,255,.85), 0 0 28px rgba(133,231,255,.5);
     border-radius:6px 6px 2px 2px;
-    transform-origin:50% 0%; /* tip is rotation origin */
+    transform-origin:50% 0%; /* rotate around spear tip */
   }
   .undyneSpear::after{
     content:""; position:absolute; left:50%; top:-18px; transform:translateX(-50%);
@@ -222,40 +222,29 @@
     border-bottom:18px solid #85e7ff; filter:drop-shadow(0 0 8px rgba(133,231,255,.8));
   }
 
-  /* Mettaton bomb — 1:1 white circle with black cross and top nub */
+  /* Mettaton bomb — white circle with black cross and top nub (1:1 style) */
   .mettatonBomb{
     position:absolute; width:40px; height:40px; border-radius:50%;
     background:#ffffff; box-shadow:0 0 12px rgba(255,255,255,.8);
     z-index:9; pointer-events:none;
   }
-  .mettatonBomb::before, .mettatonBomb::after{
-    content:""; position:absolute; background:#000;
-  }
-  .mettatonBomb::before{ /* vertical bar of cross */
-    left:50%; top:6px; width:6px; height:28px; transform:translateX(-50%);
-    border-radius:3px;
-  }
-  .mettatonBomb::after{ /* horizontal bar of cross */
-    left:6px; top:50%; width:28px; height:6px; transform:translateY(-50%);
-    border-radius:3px;
-  }
-  .mettatonFuse{
-    position:absolute; left:50%; top:-8px; transform:translateX(-50%);
-    width:10px; height:10px; border-radius:2px 2px 6px 6px; background:#000;
-  }
+  .mettatonBomb::before, .mettatonBomb::after{content:""; position:absolute; background:#000;}
+  .mettatonBomb::before{ left:50%; top:6px; width:6px; height:28px; transform:translateX(-50%); border-radius:3px; }
+  .mettatonBomb::after{ left:6px; top:50%; width:28px; height:6px; transform:translateY(-50%); border-radius:3px; }
+  .mettatonFuse{ position:absolute; left:50%; top:-8px; transform:translateX(-50%); width:10px; height:10px; border-radius:2px 2px 6px 6px; background:#000; }
 
-  /* Explosion wave (Undertale-style ring, visual only) */
+  /* Explosion wave (Undertale ring) */
   .bombWave{
     position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
     width:20px; height:20px; border-radius:50%;
-    box-shadow:0 0 24px rgba(255,255,255,.8);
     border:3px solid rgba(255,255,255,0.95);
+    box-shadow:0 0 24px rgba(255,255,255,.8);
     animation:waveExpand .6s ease-out forwards;
     pointer-events:none; z-index:10;
   }
   @keyframes waveExpand{
     0%{opacity:1; transform:translate(-50%,-50%) scale(0.2)}
-    100%{opacity:0; transform:translate(-50%,-50%) scale(2.2)}
+    100%{opacity:0; transform:translate(-50%,-50%) scale(2.4)}
   }
 </style>
 </head>
@@ -317,7 +306,7 @@
   /* ===== Core state ===== */
   let love = 0;
   let exp = 0;
-  let gold = 99990;
+  let gold = 99999999999999999999999999999999999999999999999999999999999999990;
   let resets = 0;
   let expNeeded = 10;
 
@@ -355,7 +344,7 @@
       { name:"TORIEL: 120 G", label:"TORIEL: 120 G", costGold:120,  dps:0,  owned:0, type:'toriel' },
       { name:"PAPYRUS: 220 G",label:"PAPYRUS: 220 G",costGold:220,  dps:0,  owned:0, type:'papyrus' },
       { name:"UNDYNE: 400 G", label:"UNDYNE: 400 G", costGold:400,  dps:0,  owned:0, type:'undyne' },
-      /* METTATON REMADE: bombs instead of passive DPS */
+      /* Mettaton remade: bombs, no DPS */
       { name:"METTATON: 650 G",label:"METTATON: 650 G",costGold:650,dps:0,  owned:0, type:'mettaton' },
       { name:"SANS: 1200 G",  label:"SANS: 1200 G",  costGold:1200, dps:18, owned:0, type:'dps' },
       { name:"ASGORE: 1800 G",label:"ASGORE: 1800 G",costGold:1800, dps:24, owned:0, type:'dps' }
@@ -368,7 +357,7 @@
   };
 
   /* ===== Persistence ===== */
-  const SAVE_KEY = 'au_clicker_save_v20_spear_fix_mtt_wave_damage';
+  const SAVE_KEY = 'au_clicker_save_v22_spear_tip_fix_mtt_wave_explosion';
   function save(){
     const data = { love, exp, gold, resets, expNeeded, soulHP, roster };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -690,7 +679,7 @@
     };
   }
 
-  /* ===== Undyne spear loop (robust tip alignment) ===== */
+  /* ===== Undyne spear loop (tip-aligned rotation, correct from any side) ===== */
   let undyneSpearTimer = null;
   function startUndyneSpearLoop(){
     stopUndyneSpearLoop();
@@ -733,11 +722,12 @@
     spear.style.top  = y + 'px';
     soulWrap.appendChild(spear);
 
-    /* Compute angle so the spear's tip (local +Y from tip) points to SOUL */
+    /* Rotate so spear’s local +Y (down from tip) points to the SOUL vector */
     const dx = centerX - x;
     const dy = centerY - y;
-    const angleDeg = Math.atan2(dx, dy) * 180 / Math.PI; /* align local +Y to (dx,dy) */
-    spear.style.transform = `rotate(${angleDeg}deg)`; /* no flips */
+    const angleRad = Math.atan2(dx, dy);  // maps +Y to (dx,dy)
+    const angleDeg = angleRad * 180 / Math.PI;
+    spear.style.transform = `rotate(${angleDeg}deg)`;
 
     /* Stop short to avoid clipping */
     const stopDist = 26;
@@ -755,7 +745,7 @@
       { duration: travelMs, easing: 'cubic-bezier(.22,.61,.36,1)' }
     );
 
-    /* Contact check — remove spear and deal 8 dmg on touch */
+    /* Contact check — deal 8 dmg */
     const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 };
     const spearW = 8, spearH = 118;
     const checkInterval = setInterval(()=>{
@@ -779,7 +769,7 @@
     };
   }
 
-  /* ===== Mettaton bomb loop (16–20s, 1–3 bombs, 1s cooldown; explode at SOUL Y) ===== */
+  /* ===== Mettaton bomb loop (16–20s, 1–3 bombs with 1s spacing; explode at SOUL Y) ===== */
   let mettatonBombTimer = null;
   function startMettatonBombLoop(){
     stopMettatonBombLoop();
@@ -815,14 +805,14 @@
     soulWrap.appendChild(bomb);
 
     const fallMs = randInt(1600,2200);
-    const endY = centerY - 20; /* explode near SOUL y-level */
+    const endY = centerY - 20; /* explode when reaching around SOUL Y */
 
     const anim = bomb.animate(
       [
         { transform:`translate(0,0)` },
         { transform:`translate(0, ${endY - startY}px)` }
       ],
-      { duration: fallMs, easing:'cubic-bezier(.22,.61,.36,1)' }
+      { duration: fallMs, easing:'cubic-bezier(.22,.61,.36,1)', fill:'forwards' }
     );
 
     let exploded=false;
@@ -835,21 +825,27 @@
         clearInterval(checkInterval);
         anim.cancel();
         bomb.remove();
-
-        /* Undertale-like explosion wave (visual only); damage applied once at explosion */
-        const wave = document.createElement('div');
-        wave.className = 'bombWave';
-        soulWrap.appendChild(wave);
-        setTimeout(()=> wave.remove(), 600);
-
-        applyDamage(6, true);
+        spawnBombWaveAndDamage();
       }
     }, 40);
 
     anim.onfinish = ()=>{
       clearInterval(checkInterval);
-      bomb.remove();
+      if(!exploded){
+        bomb.remove();
+        spawnBombWaveAndDamage();
+      }
     };
+  }
+
+  function spawnBombWaveAndDamage(){
+    /* Visual wave ring */
+    const wave = document.createElement('div');
+    wave.className = 'bombWave';
+    soulWrap.appendChild(wave);
+    setTimeout(()=> wave.remove(), 600);
+    /* Damage application (6) */
+    applyDamage(6, true);
   }
 
   /* ===== Utility spawner helpers ===== */
@@ -1043,6 +1039,9 @@
   if(roster.Undertale.find(x=> x.type==='papyrus' && x.owned)) startPapyrusBoneLoop();
   if(roster.Undertale.find(x=> x.type==='undyne'  && x.owned)) startUndyneSpearLoop();
   if(roster.Undertale.find(x=> x.type==='mettaton' && x.owned)) startMettatonBombLoop();
+
+  /* ===== utils ===== */
+  function randFloat(min,max){ return Math.random()*(max-min)+min; }
 </script>
 </body>
 </html>
