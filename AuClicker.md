@@ -222,12 +222,22 @@
     border-bottom:18px solid #85e7ff; filter:drop-shadow(0 0 8px rgba(133,231,255,.8));
   }
 
-  /* Sans tiny bone (reworked) */
+  /* Sans tiny bone — 1:1 build like Papyrus, but 10x40 */
   .sansBone{
     position:absolute; width:10px; height:40px; z-index:8; pointer-events:none;
-    background:#fff; border-radius:8px;
-    box-shadow:0 0 6px rgba(255,255,255,.6);
+    filter: drop-shadow(0 0 6px rgba(255,255,255,.6));
   }
+  .sansBone .shaft{
+    position:absolute; left:3px; right:3px; top:8px; bottom:8px;
+    background:#fff; border-radius:8px;
+  }
+  .sansBone::before, .sansBone::after{
+    content:""; position:absolute; left:50%; transform:translateX(-50%);
+    width:12px; height:12px; border-radius:50%;
+    background:#fff; box-shadow:0 0 4px rgba(255,255,255,.7);
+  }
+  .sansBone::before{ top:-3px; }
+  .sansBone::after{ bottom:-3px; }
 
   /* Mettaton bomb — white circle with black cross and top nub */
   .mettatonBomb{
@@ -913,6 +923,9 @@
 
     const bone = document.createElement('div');
     bone.className = 'sansBone';
+    const shaft = document.createElement('div');
+    shaft.className = 'shaft';
+    bone.appendChild(shaft);
 
     const wrapRect = soulWrap.getBoundingClientRect();
     const centerY = wrapRect.height/2;
@@ -1163,4 +1176,3 @@
 </script>
 </body>
 </html>
-```
