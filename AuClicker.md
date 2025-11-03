@@ -191,6 +191,15 @@
     filter: blur(3.5px); opacity:.6; pointer-events:none; z-index:7;
   }
 
+  /* Asgore flames (copied texture from Toriel) */
+  .asgoreFlame{
+    position:absolute; width:44px; height:60px;
+    background: radial-gradient(circle at 45% 35%, #ffffff 0%, #ffdcb6 22%, #ff9c4a 52%, #ff6a00 100%);
+    box-shadow:0 0 22px rgba(255,106,0,.85), 0 0 38px rgba(255,180,120,.55);
+    clip-path: polygon(50% 2%,62% 12%,74% 3%,96% 32%,86% 62%,63% 85%,50% 98%,37% 85%,14% 62%,4% 32%,26% 3%,38% 12%);
+    z-index:8; pointer-events:none;
+  }
+
   /* Papyrus bones */
   .papyrusBone{
     position:absolute; width:24px; height:120px; z-index:8; pointer-events:none;
@@ -390,7 +399,8 @@
       { name:"METTATON: 650 G",label:"METTATON: 650 G",costGold:650,dps:0,  owned:0, type:'mettaton' },
       /* SANS reworked: timed tiny bone, no DPS */
       { name:"SANS: 1200 G",  label:"SANS: 1200 G",  costGold:1200, dps:0,  owned:0, type:'sans' },
-      { name:"ASGORE: 1800 G",label:"ASGORE: 1800 G",costGold:1800, dps:24, owned:0, type:'dps' }
+      /* ASGORE reworked: wave flames, no DPS */
+      { name:"ASGORE: 1800 G",label:"ASGORE: 1800 G",costGold:1800, dps:0,  owned:0, type:'asgore' }
     ],
     Underswap: [
       { name:"Swap Sans",     label:"Swap Sans",     costGold:900,  dps:20, owned:0, type:'dps' },
@@ -400,7 +410,7 @@
   };
 
   /* ===== Persistence ===== */
-  const SAVE_KEY = 'au_clicker_save_v25_sans_bottom_lane_mtt_lines_invert_spear_facing';
+  const SAVE_KEY = 'au_clicker_save_v26_asgore_wave_flames_sans_papyrus_build';
   function save(){
     const data = { love, exp, gold, resets, expNeeded, soulHP, roster };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -686,7 +696,8 @@
     soulWrap.appendChild(bone);
 
     const travelMs = randInt(1400,1900);
-    const deltaX = (fromLeft ? 1 : -1) * Math.abs(stopX - startX);
+    const deltaX = (fromLeft ? 1 : -1) * Math.abs(stopX - startX;
+    )
     const anim = bone.animate(
       [
         { transform: `translate(0,0)` },
@@ -754,10 +765,10 @@
 
     let x = 0, y = 0, angle = 0;
     switch(side){
-      case 'left':   x = -margin;                 y = randInt(24, wrapRect.height-120); angle = 90;  break;  // -->
-      case 'right':  x = wrapRect.width + margin; y = randInt(24, wrapRect.height-120); angle = -90; break;  // <--
-      case 'top':    x = randInt(24, wrapRect.width-24); y = -margin - 44; angle = 180; break;       // | \/
-      case 'bottom': x = randInt(24, wrapRect.width-24); y = wrapRect.height + margin; angle = 0;    break;  // /\ |
+      case 'left':   x = -margin;                 y = randInt(24, wrapRect.height-120); angle = 90;  break;
+      case 'right':  x = wrapRect.width + margin; y = randInt(24, wrapRect.height-120); angle = -90; break;
+      case 'top':    x = randInt(24, wrapRect.width-24); y = -margin - 44; angle = 180; break;
+      case 'bottom': x = randInt(24, wrapRect.width-24); y = wrapRect.height + margin; angle = 0;    break;
     }
 
     spear.style.left = x + 'px';
@@ -765,7 +776,6 @@
     spear.style.transform = `rotate(${angle}deg)`;
     soulWrap.appendChild(spear);
 
-    /* Travel toward SOUL but stop short */
     const dx = centerX - x, dy = centerY - y;
     const stopDist = 26;
     const len = Math.max(1, Math.hypot(dx, dy));
@@ -930,16 +940,15 @@
     const wrapRect = soulWrap.getBoundingClientRect();
     const centerY = wrapRect.height/2;
 
-    /* Bottom lane region like Papyrus bottom: centerY + [64..84] */
     const y = Math.max(-40, Math.min(wrapRect.height - 40, centerY + randInt(64,84)));
-    const startX = -30; /* spawn off-screen left */
-    const endX = 240;   /* travel distance across the soul area */
+    const startX = -30;
+    const endX = 240;
 
     bone.style.left = startX + 'px';
     bone.style.top  = y + 'px';
     soulWrap.appendChild(bone);
 
-    const travelMs = 4200; /* slower than Papyrus */
+    const travelMs = 4200;
     const anim = bone.animate(
       [
         { transform: `translateX(0)` },
@@ -948,7 +957,6 @@
       { duration: travelMs, easing:'linear' }
     );
 
-    /* Collision check with SOUL bounds */
     const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 };
     const boneW = 10, boneH = 40;
     const checkInterval = setInterval(()=>{
@@ -973,6 +981,93 @@
       clearInterval(checkInterval);
       bone.remove();
       sansBoneActive = false;
+    };
+  }
+
+  /* ===== ASGORE rework: wave flames ===== */
+  let asgoreWaveTimer = null;
+  function startAsgoreWaveLoop(){
+    stopAsgoreWaveLoop();
+    const schedule = ()=>{
+      const delay = randInt(16000,24000);
+      asgoreWaveTimer = setTimeout(()=>{
+        if(!soulDisabled){
+          spawnAsgoreWave();
+        }
+        schedule();
+      }, delay);
+    };
+    schedule();
+  }
+  function stopAsgoreWaveLoop(){
+    if(asgoreWaveTimer){ clearTimeout(asgoreWaveTimer); asgoreWaveTimer=null; }
+  }
+  function spawnAsgoreWave(){
+    const count = randInt(4,9);
+    let spawned = 0;
+    const tick = ()=>{
+      if(soulDisabled) return;
+      spawnAsgoreFlame();
+      spawned++;
+      if(spawned < count) setTimeout(tick, 500);
+    };
+    tick();
+  }
+  function spawnAsgoreFlame(){
+    const flame = document.createElement('div');
+    flame.className = 'asgoreFlame';
+
+    const wrapRect = soulWrap.getBoundingClientRect();
+    const centerX = wrapRect.width/2;
+
+    const startX = randInt(20, wrapRect.width - 64);
+    const startY = -160; /* a lot more up from soul */
+    flame.style.left = startX + 'px';
+    flame.style.top  = startY + 'px';
+    soulWrap.appendChild(flame);
+
+    /* Wavy descent parameters */
+    const endY = randInt(40, 220); /* can pass through the soul area */
+    const travelMs = randInt(1600,2200);
+    const amp = randInt(12,28);         /* horizontal wave amplitude */
+    const freq = randFloat(1.2,2.2);    /* oscillation frequency */
+
+    /* Build keyframes with horizontal oscillation */
+    const steps = 8;
+    const kfs = [];
+    for(let i=0;i<=steps;i++){
+      const t = i/steps;
+      const y = (endY - startY) * t;
+      const x = amp * Math.sin(t * Math.PI * 2 * freq);
+      kfs.push({ transform: `translate(${x}px, ${y}px)` });
+    }
+
+    const anim = flame.animate(kfs, { duration: travelMs, easing:'linear' });
+
+    /* Collision check with SOUL bounds */
+    const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 };
+    const flameW = 44, flameH = 60;
+
+    const checkInterval = setInterval(()=>{
+      const elapsed = anim.currentTime || 0;
+      const progress = Math.min(1, elapsed / travelMs);
+      const y = startY + (endY - startY) * progress;
+      const x = startX + amp * Math.sin(progress * Math.PI * 2 * freq);
+
+      const intersectsX = (x + flameW) >= soulBounds.x1 && x <= soulBounds.x2;
+      const intersectsY = (y + flameH) >= soulBounds.y1 && y <= soulBounds.y2;
+
+      if(intersectsX && intersectsY){
+        clearInterval(checkInterval);
+        anim.cancel();
+        flame.remove();
+        applyDamage(8, true);
+      }
+    }, 60);
+
+    anim.onfinish = ()=>{
+      clearInterval(checkInterval);
+      flame.remove();
     };
   }
 
@@ -1083,6 +1178,7 @@
       stopUndyneSpearLoop();
       stopMettatonBombLoop();
       stopSansBoneLoop();
+      stopAsgoreWaveLoop();
       updateStats(); renderAUList(); resetOverlay.style.display='none';
       pulse(document.getElementById('statsPanel'));
     } else { shake(resetOverlay); }
@@ -1146,11 +1242,12 @@
       if(c.type==='undyne'){ startUndyneSpearLoop(); }
       if(c.type==='mettaton'){ startMettatonBombLoop(); }
       if(c.type==='sans'){ startSansBoneLoop(); }
+      if(c.type==='asgore'){ startAsgoreWaveLoop(); }
       tryConvertExpToLove(); updateStats(); openAU(au); gentlePop(auContent);
     } else { shake(auContent); }
   }
 
-  /* ===== Passive DPS (FRISK/Toriel/Papyrus/Undyne/Mettaton/Sans excluded) ===== */
+  /* ===== Passive DPS (only 'dps' type contributes) ===== */
   setInterval(()=>{
     if(soulDisabled) return;
     let totalDps=0;
@@ -1170,6 +1267,7 @@
   if(roster.Undertale.find(x=> x.type==='undyne'  && x.owned)) startUndyneSpearLoop();
   if(roster.Undertale.find(x=> x.type==='mettaton' && x.owned)) startMettatonBombLoop();
   if(roster.Undertale.find(x=> x.type==='sans' && x.owned)) startSansBoneLoop();
+  if(roster.Undertale.find(x=> x.type==='asgore' && x.owned)) startAsgoreWaveLoop();
 
   /* ===== utils ===== */
   function randFloat(min,max){ return Math.random()*(max-min)+min; }
