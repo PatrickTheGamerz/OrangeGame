@@ -208,13 +208,13 @@
   .papyrusBone::before{ top:-4px; }
   .papyrusBone::after{ bottom:-4px; }
 
-  /* Undyne spears (tip points to SOUL) */
+  /* Undyne spears (visual tip points correct by side) */
   .undyneSpear{
     position:absolute; width:8px; height:100px; z-index:8; pointer-events:none;
     background: linear-gradient(180deg, #85e7ff 0%, #29c4ff 50%, #0aa2ff 100%);
     box-shadow:0 0 16px rgba(10,162,255,.85), 0 0 28px rgba(133,231,255,.5);
     border-radius:6px 6px 2px 2px;
-    transform-origin:50% 0%; /* rotate around spear tip */
+    transform-origin:50% 0%;
   }
   .undyneSpear::after{
     content:""; position:absolute; left:50%; top:-18px; transform:translateX(-50%);
@@ -222,18 +222,46 @@
     border-bottom:18px solid #85e7ff; filter:drop-shadow(0 0 8px rgba(133,231,255,.8));
   }
 
-  /* Mettaton bomb — white circle with black cross and top nub (1:1 style) */
+  /* Mettaton bomb — 1:1 white circle with black cross and top nub */
   .mettatonBomb{
     position:absolute; width:40px; height:40px; border-radius:50%;
     background:#ffffff; box-shadow:0 0 12px rgba(255,255,255,.8);
     z-index:9; pointer-events:none;
   }
-  .mettatonBomb::before, .mettatonBomb::after{content:""; position:absolute; background:#000;}
+  .mettatonBomb::before, .mettatonBomb::after{
+    content:""; position:absolute; background:#000;
+  }
   .mettatonBomb::before{ left:50%; top:6px; width:6px; height:28px; transform:translateX(-50%); border-radius:3px; }
   .mettatonBomb::after{ left:6px; top:50%; width:28px; height:6px; transform:translateY(-50%); border-radius:3px; }
   .mettatonFuse{ position:absolute; left:50%; top:-8px; transform:translateX(-50%); width:10px; height:10px; border-radius:2px 2px 6px 6px; background:#000; }
 
-  /* Explosion wave (Undertale ring) */
+  /* Bomb pre-explosion invert flicker */
+  @keyframes bombInvert{
+    0%,100%{filter:invert(0);}
+    20%,60%{filter:invert(1);}
+  }
+  .bombFlashing{ animation:bombInvert 0.4s steps(2,end) 3; }
+
+  /* Explosion crossing lines (wave look) */
+  .bombExplosion{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:0; height:0; z-index:10; pointer-events:none;
+  }
+  .bombExplosion::before, .bombExplosion::after{
+    content:""; position:absolute; left:50%; top:50%; width:4px; height:0; background:#fff;
+    transform-origin:center; opacity:0.9;
+  }
+  .bombExplosion::before{ transform:translate(-50%,-50%) rotate(45deg); }
+  .bombExplosion::after{ transform:translate(-50%,-50%) rotate(-45deg); }
+  .bombExplosion.animate::before, .bombExplosion.animate::after{
+    animation:explosionLine 0.5s ease-out forwards;
+  }
+  @keyframes explosionLine{
+    0%{height:0;opacity:1;}
+    100%{height:160px;opacity:0;}
+  }
+
+  /* Optional radial wave ring for extra punch */
   .bombWave{
     position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
     width:20px; height:20px; border-radius:50%;
@@ -306,7 +334,7 @@
   /* ===== Core state ===== */
   let love = 0;
   let exp = 0;
-  let gold = 99999999999999999999999999999999999999999999999999999999999999990;
+  let gold = 999999990;
   let resets = 0;
   let expNeeded = 10;
 
@@ -344,7 +372,7 @@
       { name:"TORIEL: 120 G", label:"TORIEL: 120 G", costGold:120,  dps:0,  owned:0, type:'toriel' },
       { name:"PAPYRUS: 220 G",label:"PAPYRUS: 220 G",costGold:220,  dps:0,  owned:0, type:'papyrus' },
       { name:"UNDYNE: 400 G", label:"UNDYNE: 400 G", costGold:400,  dps:0,  owned:0, type:'undyne' },
-      /* Mettaton remade: bombs, no DPS */
+      /* METTATON: bombs only (no passive DPS) */
       { name:"METTATON: 650 G",label:"METTATON: 650 G",costGold:650,dps:0,  owned:0, type:'mettaton' },
       { name:"SANS: 1200 G",  label:"SANS: 1200 G",  costGold:1200, dps:18, owned:0, type:'dps' },
       { name:"ASGORE: 1800 G",label:"ASGORE: 1800 G",costGold:1800, dps:24, owned:0, type:'dps' }
@@ -357,7 +385,7 @@
   };
 
   /* ===== Persistence ===== */
-  const SAVE_KEY = 'au_clicker_save_v22_spear_tip_fix_mtt_wave_explosion';
+  const SAVE_KEY = 'au_clicker_save_v23_mtt_bomb_lines_invert_spear_side_facing';
   function save(){
     const data = { love, exp, gold, resets, expNeeded, soulHP, roster };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -679,7 +707,7 @@
     };
   }
 
-  /* ===== Undyne spear loop (tip-aligned rotation, correct from any side) ===== */
+  /* ===== Undyne spear loop (side-based facing + approach) ===== */
   let undyneSpearTimer = null;
   function startUndyneSpearLoop(){
     stopUndyneSpearLoop();
@@ -688,7 +716,7 @@
       undyneSpearTimer = setTimeout(()=>{
         if(!soulDisabled){
           const count = pickCount({one:1, two:0.22, three:0.08});
-          spawnMultiple(spawnUndyneSpear, count, 1000);
+          spawnMultiple(()=>spawnUndyneSpear(), count, 1000);
         }
         schedule();
       }, delay);
@@ -710,26 +738,21 @@
     const side = sides[randInt(0, sides.length-1)];
     const margin = 90;
 
-    let x = 0, y = 0;
+    let x = 0, y = 0, angle = 0;
     switch(side){
-      case 'left':   x = -margin;                 y = randInt(24, wrapRect.height-120); break;
-      case 'right':  x = wrapRect.width + margin; y = randInt(24, wrapRect.height-120); break;
-      case 'top':    x = randInt(24, wrapRect.width-24); y = -margin - 44; break;
-      case 'bottom': x = randInt(24, wrapRect.width-24); y = wrapRect.height + margin; break;
+      case 'left':   x = -margin;                 y = randInt(24, wrapRect.height-120); angle = 90;  break;  // -->
+      case 'right':  x = wrapRect.width + margin; y = randInt(24, wrapRect.height-120); angle = -90; break;  // <--
+      case 'top':    x = randInt(24, wrapRect.width-24); y = -margin - 44; angle = 180; break;       // | \/
+      case 'bottom': x = randInt(24, wrapRect.width-24); y = wrapRect.height + margin; angle = 0;    break;  // /\ |
     }
 
     spear.style.left = x + 'px';
     spear.style.top  = y + 'px';
+    spear.style.transform = `rotate(${angle}deg)`;
     soulWrap.appendChild(spear);
 
-    /* Rotate so spear’s local +Y (down from tip) points to the SOUL vector */
-    const dx = centerX - x;
-    const dy = centerY - y;
-    const angleRad = Math.atan2(dx, dy);  // maps +Y to (dx,dy)
-    const angleDeg = angleRad * 180 / Math.PI;
-    spear.style.transform = `rotate(${angleDeg}deg)`;
-
-    /* Stop short to avoid clipping */
+    /* Travel toward SOUL but stop short */
+    const dx = centerX - x, dy = centerY - y;
     const stopDist = 26;
     const len = Math.max(1, Math.hypot(dx, dy));
     const nx = dx / len, ny = dy / len;
@@ -739,13 +762,12 @@
     const travelMs = randInt(1000,1400);
     const anim = spear.animate(
       [
-        { transform: `translate(0,0) rotate(${angleDeg}deg)` },
-        { transform: `translate(${travelX}px, ${travelY}px) rotate(${angleDeg}deg)` }
+        { transform: `translate(0,0) rotate(${angle}deg)` },
+        { transform: `translate(${travelX}px, ${travelY}px) rotate(${angle}deg)` }
       ],
       { duration: travelMs, easing: 'cubic-bezier(.22,.61,.36,1)' }
     );
 
-    /* Contact check — deal 8 dmg */
     const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 };
     const spearW = 8, spearH = 118;
     const checkInterval = setInterval(()=>{
@@ -769,7 +791,7 @@
     };
   }
 
-  /* ===== Mettaton bomb loop (16–20s, 1–3 bombs with 1s spacing; explode at SOUL Y) ===== */
+  /* ===== Mettaton bomb loop (16–20s, 1–3 bombs, 1s cooldown; invert flicker + crossing lines explosion) ===== */
   let mettatonBombTimer = null;
   function startMettatonBombLoop(){
     stopMettatonBombLoop();
@@ -796,16 +818,17 @@
     bomb.appendChild(fuse);
 
     const wrapRect = soulWrap.getBoundingClientRect();
+    const centerX = wrapRect.width/2;
     const centerY = wrapRect.height/2;
 
     const x = randInt(30, wrapRect.width-30);
-    const startY = -44; /* spawn above */
+    const startY = -44;
     bomb.style.left = x + 'px';
     bomb.style.top = startY + 'px';
     soulWrap.appendChild(bomb);
 
     const fallMs = randInt(1600,2200);
-    const endY = centerY - 20; /* explode when reaching around SOUL Y */
+    const endY = centerY - 20;
 
     const anim = bomb.animate(
       [
@@ -824,28 +847,46 @@
         exploded = true;
         clearInterval(checkInterval);
         anim.cancel();
-        bomb.remove();
-        spawnBombWaveAndDamage();
+        /* Flicker invert before explosion */
+        bomb.classList.add('bombFlashing');
+        setTimeout(()=>{
+          const cx = x; const cy = endY; // center for explosion visuals
+          showBombExplosionAt(cx, cy);
+          bomb.remove();
+          applyDamage(6, true);
+        }, 420);
       }
     }, 40);
 
     anim.onfinish = ()=>{
       clearInterval(checkInterval);
       if(!exploded){
-        bomb.remove();
-        spawnBombWaveAndDamage();
+        bomb.classList.add('bombFlashing');
+        setTimeout(()=>{
+          showBombExplosionAt(x, endY);
+          bomb.remove();
+          applyDamage(6, true);
+        }, 420);
       }
     };
   }
 
-  function spawnBombWaveAndDamage(){
-    /* Visual wave ring */
+  function showBombExplosionAt(cx, cy){
+    /* Crossing explosion lines */
+    const explosion = document.createElement('div');
+    explosion.className = 'bombExplosion animate';
+    explosion.style.left = cx + 'px';
+    explosion.style.top  = cy + 'px';
+    soulWrap.appendChild(explosion);
+    setTimeout(()=> explosion.remove(), 600);
+
+    /* Optional radial ring for extra impact */
     const wave = document.createElement('div');
     wave.className = 'bombWave';
+    wave.style.left = cx + 'px';
+    wave.style.top  = cy + 'px';
     soulWrap.appendChild(wave);
     setTimeout(()=> wave.remove(), 600);
-    /* Damage application (6) */
-    applyDamage(6, true);
   }
 
   /* ===== Utility spawner helpers ===== */
