@@ -281,7 +281,7 @@
   /* ===== Core state ===== */
   let love = 0;
   let exp = 0;
-  let gold = 9990;
+  let gold = 99999999; // set G to normal
   let resets = 0;
   let expNeeded = 10;
 
@@ -380,6 +380,7 @@
     while(n>=1000 && u<units.length-1){ n/=1000; u++; }
     return n.toFixed(2)+" "+units[u];
   }
+
   function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
 
   function tryConvertExpToLove(){
@@ -651,7 +652,7 @@
     };
   }
 
-  /* ===== Undyne spear loop (tip rotation +180°, more distance, stop before SOUL) ===== */
+  /* ===== Undyne spear loop (fixed rotation, more distance, stop before SOUL) ===== */
   let undyneSpearTimer = null;
   function startUndyneSpearLoop(){
     stopUndyneSpearLoop();
@@ -694,13 +695,12 @@
     spear.style.top  = y + 'px';
     soulWrap.appendChild(spear);
 
-    /* Aim to SOUL center, rotate tip +180°, and travel stopping short for better alignment */
+    /* Aim to SOUL center and use base angle (no +180 flip) */
     const aimX = centerX;
     const aimY = centerY;
     const dx = aimX - x;
     const dy = aimY - y;
-    const baseAngle = Math.atan2(dy, dx) * 180/Math.PI;
-    const angleDeg = baseAngle + 180; /* flip to correct sprite orientation */
+    const angleDeg = Math.atan2(dy, dx) * 180/Math.PI;
     spear.style.transform = `rotate(${angleDeg}deg)`;
 
     /* Stop before center to avoid clipping through heart */
