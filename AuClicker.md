@@ -191,7 +191,7 @@
     filter: blur(3.5px); opacity:.6; pointer-events:none; z-index:7;
   }
 
-  /* Asgore flames (copied texture from Toriel) */
+  /* Asgore flames (same texture as Toriel) */
   .asgoreFlame{
     position:absolute; width:44px; height:60px;
     background: radial-gradient(circle at 45% 35%, #ffffff 0%, #ffdcb6 22%, #ff9c4a 52%, #ff6a00 100%);
@@ -397,7 +397,6 @@
       { name:"PAPYRUS: 220 G",label:"PAPYRUS: 220 G",costGold:220,  dps:0,  owned:0, type:'papyrus' },
       { name:"UNDYNE: 400 G", label:"UNDYNE: 400 G", costGold:400,  dps:0,  owned:0, type:'undyne' },
       { name:"METTATON: 650 G",label:"METTATON: 650 G",costGold:650,dps:0,  owned:0, type:'mettaton' },
-      /* SANS reworked: timed tiny bone, no DPS */
       { name:"SANS: 1200 G",  label:"SANS: 1200 G",  costGold:1200, dps:0,  owned:0, type:'sans' },
       /* ASGORE reworked: wave flames, no DPS */
       { name:"ASGORE: 1800 G",label:"ASGORE: 1800 G",costGold:1800, dps:0,  owned:0, type:'asgore' }
@@ -689,15 +688,14 @@
 
     const fromLeft = Math.random() < 0.5;
     const startX = fromLeft ? -80 : wrapRect.width + 52;
-    const stopX   = fromLeft ? randInt(60,140) : randInt(60,140);
+    const stopX   = randInt(60,140);
 
     bone.style.top = Math.max(-40, Math.min(wrapRect.height - 120, y)) + 'px';
     bone.style.left = startX + 'px';
     soulWrap.appendChild(bone);
 
     const travelMs = randInt(1400,1900);
-    const deltaX = (fromLeft ? 1 : -1) * Math.abs(stopX - startX;
-    )
+    const deltaX = (fromLeft ? 1 : -1) * Math.abs(stopX - startX);
     const anim = bone.animate(
       [
         { transform: `translate(0,0)` },
@@ -940,15 +938,16 @@
     const wrapRect = soulWrap.getBoundingClientRect();
     const centerY = wrapRect.height/2;
 
+    /* Bottom lane region like Papyrus bottom: centerY + [64..84] */
     const y = Math.max(-40, Math.min(wrapRect.height - 40, centerY + randInt(64,84)));
-    const startX = -30;
-    const endX = 240;
+    const startX = -30; /* spawn off-screen left */
+    const endX = 240;   /* travel distance across the soul area */
 
     bone.style.left = startX + 'px';
     bone.style.top  = y + 'px';
     soulWrap.appendChild(bone);
 
-    const travelMs = 4200;
+    const travelMs = 4200; /* slower than Papyrus */
     const anim = bone.animate(
       [
         { transform: `translateX(0)` },
@@ -957,6 +956,7 @@
       { duration: travelMs, easing:'linear' }
     );
 
+    /* Collision check with SOUL bounds */
     const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 };
     const boneW = 10, boneH = 40;
     const checkInterval = setInterval(()=>{
@@ -1018,16 +1018,13 @@
     flame.className = 'asgoreFlame';
 
     const wrapRect = soulWrap.getBoundingClientRect();
-    const centerX = wrapRect.width/2;
-
     const startX = randInt(20, wrapRect.width - 64);
     const startY = -160; /* a lot more up from soul */
     flame.style.left = startX + 'px';
     flame.style.top  = startY + 'px';
     soulWrap.appendChild(flame);
 
-    /* Wavy descent parameters */
-    const endY = randInt(40, 220); /* can pass through the soul area */
+    const endY = randInt(40, 220); /* may pass through soul zone */
     const travelMs = randInt(1600,2200);
     const amp = randInt(12,28);         /* horizontal wave amplitude */
     const freq = randFloat(1.2,2.2);    /* oscillation frequency */
