@@ -156,7 +156,7 @@
     position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
     display:none;flex-direction:column;gap:8px;padding:12px;
     background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid rgba(122,162,247,.28);
-    border-radius:12px;width:240px;z-index:10;
+    border-radius:12px;width:260px;z-index:10;
   }
   .trayBtn{padding:8px 12px;border-radius:8px;cursor:pointer;border:1px solid rgba(122,162,247,.22);background:#0d1118;color:var(--text);text-align:left;}
   #menuBtn{
@@ -266,7 +266,7 @@
   }
   .bombFlashing{ animation:bombInvert 0.4s steps(2,end) 3; }
 
-  /* Explosion crossing lines (wave look) */
+  /* Explosion crossing lines + wave ring */
   .bombExplosion{
     position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
     width:0; height:0; z-index:10; pointer-events:none;
@@ -284,7 +284,6 @@
     0%{height:0;opacity:1;}
     100%{height:160px;opacity:0;}
   }
-
   .bombWave{
     position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
     width:20px; height:20px; border-radius:50%;
@@ -298,25 +297,25 @@
     100%{opacity:0; transform:translate(-50%,-50%) scale(2.4)}
   }
 
-  /* Upgrades overlay */
+  /* Upgrades overlay — larger, higher, wide, scrollable */
   #upgradesOverlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);z-index:30;}
   #upgradesCard{
-    width:780px;max-width:95vw;height:480px;max-height:90vh;padding:0;border-radius:12px;overflow:hidden;
+    width:1200px;max-width:96vw;height:720px;max-height:96vh;padding:0;border-radius:14px;overflow:hidden;
     background:linear-gradient(180deg,#121826,#0e1322);border:1px solid rgba(122,162,247,.28);box-shadow:var(--shadow);
-    display:grid;grid-template-columns:220px 1fr;
+    display:grid;grid-template-columns:280px 1fr;
   }
   #ownedList{
     border-right:1px solid rgba(122,162,247,.18);
-    padding:12px;overflow:auto;
+    padding:12px;overflow-y:auto;
   }
   #ownedList h3{margin:0 0 10px;font-size:14px;color:#9cdcfe;opacity:.85}
-  .ownedItem{display:block;width:100%;text-align:left;padding:8px;border-radius:8px;margin:4px 0;border:1px solid rgba(122,162,247,.22);background:#0d1118;color:var(--text);cursor:pointer;}
+  .ownedItem{display:block;width:100%;text-align:left;padding:10px;border-radius:10px;margin:6px 0;border:1px solid rgba(122,162,247,.22);background:#0d1118;color:var(--text);cursor:pointer;}
   .ownedItem.active{border-color:#7aa2f7;background:#111423}
-  #upgradeTree{padding:12px;overflow:auto;}
+  #upgradeTree{padding:16px;overflow:auto;}
   #upgradeTree h3{margin:0 0 10px}
-  .treeGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .treeGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;min-width:800px;}
   .node{
-    background:#0c121c;border:1px solid rgba(122,162,247,.18);border-radius:10px;padding:10px;
+    background:#0c121c;border:1px solid rgba(122,162,247,.18);border-radius:10px;padding:12px;
   }
   .node .title{font-weight:700;margin-bottom:6px}
   .node .desc{font-size:12px;opacity:.85;margin-bottom:8px}
@@ -372,7 +371,6 @@
       <div id="upgradesCard">
         <div id="ownedList">
           <h3>Owned characters</h3>
-          <!-- buttons injected -->
         </div>
         <div id="upgradeTree">
           <h3>Upgrades</h3>
@@ -433,13 +431,13 @@
   /* ===== AU roster ===== */
   const roster = {
     Undertale: [
-      { name:"FRISK: 50 G",   label:"FRISK: 50 G",   costGold:50,   dps:0,  owned:0, type:'frisk' },
-      { name:"TORIEL: 120 G", label:"TORIEL: 120 G", costGold:120,  dps:0,  owned:0, type:'toriel' },
-      { name:"PAPYRUS: 220 G",label:"PAPYRUS: 220 G",costGold:220,  dps:0,  owned:0, type:'papyrus' },
-      { name:"UNDYNE: 400 G", label:"UNDYNE: 400 G", costGold:400,  dps:0,  owned:0, type:'undyne' },
-      { name:"METTATON: 650 G",label:"METTATON: 650 G",costGold:650,dps:0,  owned:0, type:'mettaton' },
-      { name:"SANS: 1200 G",  label:"SANS: 1200 G",  costGold:1200, dps:0,  owned:0, type:'sans' },
-      { name:"ASGORE: 1800 G",label:"ASGORE: 1800 G",costGold:1800, dps:0,  owned:0, type:'asgore' }
+      { name:"FRISK: 50 G",   label:"FRISK",   costGold:50,   dps:0,  owned:0, type:'frisk' },
+      { name:"TORIEL: 120 G", label:"TORIEL",  costGold:120,  dps:0,  owned:0, type:'toriel' },
+      { name:"PAPYRUS: 220 G",label:"PAPYRUS", costGold:220,  dps:0,  owned:0, type:'papyrus' },
+      { name:"UNDYNE: 400 G", label:"UNDYNE",  costGold:400,  dps:0,  owned:0, type:'undyne' },
+      { name:"METTATON: 650 G",label:"METTATON",costGold:650, dps:0,  owned:0, type:'mettaton' },
+      { name:"SANS: 1200 G",  label:"SANS",    costGold:1200, dps:0,  owned:0, type:'sans' },
+      { name:"ASGORE: 1800 G",label:"ASGORE",  costGold:1800, dps:0,  owned:0, type:'asgore' }
     ],
     Underswap: [
       { name:"Swap Sans",     label:"Swap Sans",     costGold:900,  dps:20, owned:0, type:'dps' },
@@ -449,7 +447,7 @@
   };
 
   /* ===== Persistence ===== */
-  const SAVE_KEY = 'au_clicker_save_v27_soul_damage_lock_upgrades_overlay';
+  const SAVE_KEY = 'au_clicker_save_v28_upgrades_large_soul_lock';
   function save(){
     const data = { love, exp, gold, resets, expNeeded, soulHP, roster };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -475,6 +473,7 @@
                 c.dps      = s.dps ?? c.dps;
                 c.owned    = s.owned ?? c.owned;
                 c.type     = s.type ?? c.type;
+                c.label    = s.label ?? c.label;
               }
             });
           }
@@ -509,7 +508,7 @@
     if(leveled){ gentlePop(document.getElementById('statsPanel')); }
   }
 
-  /* ===== SOUL interactions (damage lock while shattered) ===== */
+  /* ===== SOUL interactions — hard damage lock while shattered ===== */
   soul.addEventListener('click', ()=>{
     if(soulDisabled) return;
     const dmg = randInt(5,16);
@@ -517,8 +516,7 @@
   });
 
   function applyDamage(dmg, dim=true){
-    /* Hard lock: no damage processing during shattered/disabled state */
-    if(soulDisabled) return;
+    if(soulDisabled) return; /* lock: no damage while shattered */
 
     soulHP -= dmg;
     showDamage(dmg);
@@ -539,7 +537,7 @@
     soulWrap.appendChild(d); setTimeout(()=> d.remove(),900);
   }
 
-  /* ===== FRISK slash emitter ===== */
+  /* ===== FRISK slash ===== */
   let friskSlashTimer = null;
   function startFriskSlashLoop(){
     stopFriskSlashLoop();
@@ -607,7 +605,7 @@
     setTimeout(()=> flash.remove(), 360);
   }
 
-  /* ===== Toriel fire loop ===== */
+  /* ===== Toriel fire ===== */
   let torielFireTimer = null;
   function startTorielFireLoop(){
     stopTorielFireLoop();
@@ -693,7 +691,7 @@
     };
   }
 
-  /* ===== Papyrus bone loop ===== */
+  /* ===== Papyrus bones ===== */
   let papyrusBoneTimer = null;
   let activeBones = 0;
   function startPapyrusBoneLoop(){
@@ -775,7 +773,7 @@
     };
   }
 
-  /* ===== Undyne spear loop (side-based facing + approach) ===== */
+  /* ===== Undyne spears ===== */
   let undyneSpearTimer = null;
   function startUndyneSpearLoop(){
     stopUndyneSpearLoop();
@@ -860,7 +858,7 @@
     };
   }
 
-  /* ===== Mettaton bomb loop (invert flicker + crossing lines explosion) ===== */
+  /* ===== Mettaton bomb ===== */
   let mettatonBombTimer = null;
   function startMettatonBombLoop(){
     stopMettatonBombLoop();
@@ -955,7 +953,7 @@
     setTimeout(()=> wave.remove(), 600);
   }
 
-  /* ===== Sans tiny bone loop ===== */
+  /* ===== Sans tiny bone ===== */
   let sansBoneTimer = null;
   let sansBoneActive = false;
 
@@ -1068,7 +1066,7 @@
 
     const wrapRect = soulWrap.getBoundingClientRect();
     const startX = randInt(20, wrapRect.width - 64);
-    const startY = -160; /* much higher than soul */
+    const startY = -160;
     flame.style.left = startX + 'px';
     flame.style.top  = startY + 'px';
     soulWrap.appendChild(flame);
@@ -1119,7 +1117,6 @@
 
   /* ===== Upgrades overlay behavior ===== */
   function openUpgrades(){
-    // Populate owned list
     ownedList.innerHTML = '<h3>Owned characters</h3>';
     const owned = [];
     Object.values(roster).forEach(list=> list.forEach(c=>{ if(c.owned){ owned.push(c); } }));
@@ -1156,7 +1153,9 @@
       { key:'style',  title:'Style I',  desc:'+visual flair', cost:80 },
       { key:'power2', title:'Power II', desc:'+20% impact', cost:250 },
       { key:'speed2', title:'Speed II', desc:'-20% cooldown', cost:300 },
-      { key:'unique', title:'Unique',   desc:'Signature mechanic', cost:500 }
+      { key:'unique', title:`${char.label} Signature`,   desc:'Unlocks signature mechanic', cost:500 },
+      { key:'mastery',title:'Mastery',  desc:'+special handling', cost:800 },
+      { key:'focus',  title:'Focus',    desc:'Consistency boost', cost:220 }
     ];
     nodes.forEach(n=>{
       const node = document.createElement('div'); node.className='node';
@@ -1178,12 +1177,11 @@
     });
     upgradeTree.appendChild(grid);
   }
-  // close overlay on backdrop click
   upgradesOverlay.addEventListener('click', (e)=>{
     if(e.target === upgradesOverlay){ upgradesOverlay.style.display='none'; }
   });
 
-  /* ===== Menu (overlay) ===== */
+  /* ===== Menu ===== */
   menuBtn.addEventListener('click', ()=>{
     const open = menuTray.style.display==='flex';
     menuTray.style.display = open ? 'none':'flex';
@@ -1219,7 +1217,7 @@
     } else { shake(resetOverlay); }
   });
 
-  /* ===== Feedback (scoped) ===== */
+  /* ===== Feedback ===== */
   function shake(el){
     el.animate(
       [{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],
@@ -1239,7 +1237,7 @@
     );
   }
 
-  /* ===== AU panel behavior ===== */
+  /* ===== AU panel ===== */
   let auMode='list'; let selectedAU=null;
 
   function renderAUList(){
@@ -1257,7 +1255,7 @@
 
     roster[name].forEach((c,i)=>{
       const row=document.createElement('div'); row.className='charRow';
-      const left=document.createElement('div'); left.className='charName'; left.textContent=c.label;
+      const left=document.createElement('div'); left.className='charName'; left.textContent=c.name;
       const buy=document.createElement('button'); buy.className='buyBtn';
       buy.textContent = c.owned ? 'Owned' : 'Buy';
       buy.disabled = !!c.owned;
@@ -1282,7 +1280,7 @@
     } else { shake(auContent); }
   }
 
-  /* ===== Passive DPS (only 'dps' type contributes) ===== */
+  /* ===== Passive DPS ===== */
   setInterval(()=>{
     if(soulDisabled) return;
     let totalDps=0;
@@ -1294,9 +1292,9 @@
     if(totalDps>0){ applyDamage(totalDps, true); }
   }, 1000);
 
-  /* ===== Shatter sequence — "But it refused." ===== */
+  /* ===== Shatter sequence ===== */
   function shatterSoul(){
-    if(soulDisabled) return;
+    if(soulDisabled) return; /* prevent duplicate shatters */
     soulDisabled = true;
     soulWrap.classList.add('shattered');
 
