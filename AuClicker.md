@@ -33,7 +33,7 @@
   /* RIGHT: AU SELECT */
   #auPanel{
     position:absolute;top:50%;right:5%;transform:translateY(-50%);
-    width:320px;display:flex;flex-direction:column;padding:16px;
+    width:360px;display:flex;flex-direction:column;padding:16px;
     background:linear-gradient(180deg,var(--panel),var(--panel-2));
     border:1px solid rgba(122,162,247,.28);border-radius:12px;max-height:80vh;
   }
@@ -156,7 +156,7 @@
     position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
     display:none;flex-direction:column;gap:8px;padding:12px;
     background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid rgba(122,162,247,.28);
-    border-radius:12px;width:220px;z-index:10;
+    border-radius:12px;width:240px;z-index:10;
   }
   .trayBtn{padding:8px 12px;border-radius:8px;cursor:pointer;border:1px solid rgba(122,162,247,.22);background:#0d1118;color:var(--text);text-align:left;}
   #menuBtn{
@@ -285,7 +285,6 @@
     100%{height:160px;opacity:0;}
   }
 
-  /* Optional radial wave ring */
   .bombWave{
     position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
     width:20px; height:20px; border-radius:50%;
@@ -298,6 +297,30 @@
     0%{opacity:1; transform:translate(-50%,-50%) scale(0.2)}
     100%{opacity:0; transform:translate(-50%,-50%) scale(2.4)}
   }
+
+  /* Upgrades overlay */
+  #upgradesOverlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);z-index:30;}
+  #upgradesCard{
+    width:780px;max-width:95vw;height:480px;max-height:90vh;padding:0;border-radius:12px;overflow:hidden;
+    background:linear-gradient(180deg,#121826,#0e1322);border:1px solid rgba(122,162,247,.28);box-shadow:var(--shadow);
+    display:grid;grid-template-columns:220px 1fr;
+  }
+  #ownedList{
+    border-right:1px solid rgba(122,162,247,.18);
+    padding:12px;overflow:auto;
+  }
+  #ownedList h3{margin:0 0 10px;font-size:14px;color:#9cdcfe;opacity:.85}
+  .ownedItem{display:block;width:100%;text-align:left;padding:8px;border-radius:8px;margin:4px 0;border:1px solid rgba(122,162,247,.22);background:#0d1118;color:var(--text);cursor:pointer;}
+  .ownedItem.active{border-color:#7aa2f7;background:#111423}
+  #upgradeTree{padding:12px;overflow:auto;}
+  #upgradeTree h3{margin:0 0 10px}
+  .treeGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .node{
+    background:#0c121c;border:1px solid rgba(122,162,247,.18);border-radius:10px;padding:10px;
+  }
+  .node .title{font-weight:700;margin-bottom:6px}
+  .node .desc{font-size:12px;opacity:.85;margin-bottom:8px}
+  .node .btn{padding:8px 10px;border-radius:8px;border:1px solid rgba(122,162,247,.28);background:#0d1118;color:var(--text);cursor:pointer;}
 </style>
 </head>
 <body>
@@ -316,11 +339,11 @@
     <div id="soulWrap">
       <div id="soul" aria-label="SOUL"></div>
       <div id="menuTray">
+        <button class="trayBtn" data-panel="upgrades">Upgrades</button>
         <button class="trayBtn" data-panel="settings">Settings</button>
         <button class="trayBtn" data-panel="leaderboard">Leaderboard</button>
         <button class="trayBtn" data-panel="reset">Reset</button>
         <button class="trayBtn" data-panel="stats">Stats</button>
-        <button class="trayBtn" data-panel="upgrades">Upgrades</button>
       </div>
     </div>
     <button id="menuBtn">Menu</button>
@@ -340,6 +363,20 @@
         <div class="row">
           <button class="btn" id="cancelReset">Cancel</button>
           <button class="btn danger" id="confirmReset">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upgrades overlay -->
+    <div id="upgradesOverlay">
+      <div id="upgradesCard">
+        <div id="ownedList">
+          <h3>Owned characters</h3>
+          <!-- buttons injected -->
+        </div>
+        <div id="upgradeTree">
+          <h3>Upgrades</h3>
+          <div class="desc">Select a character on the left to view their upgrade tree.</div>
         </div>
       </div>
     </div>
@@ -386,6 +423,10 @@
   const cancelReset  = document.getElementById('cancelReset');
   const confirmReset = document.getElementById('confirmReset');
 
+  const upgradesOverlay = document.getElementById('upgradesOverlay');
+  const ownedList = document.getElementById('ownedList');
+  const upgradeTree = document.getElementById('upgradeTree');
+
   const auContent  = document.getElementById('auContent');
   const auSubtitle = document.getElementById('auSubtitle');
 
@@ -398,7 +439,6 @@
       { name:"UNDYNE: 400 G", label:"UNDYNE: 400 G", costGold:400,  dps:0,  owned:0, type:'undyne' },
       { name:"METTATON: 650 G",label:"METTATON: 650 G",costGold:650,dps:0,  owned:0, type:'mettaton' },
       { name:"SANS: 1200 G",  label:"SANS: 1200 G",  costGold:1200, dps:0,  owned:0, type:'sans' },
-      /* ASGORE reworked: wave flames, no DPS */
       { name:"ASGORE: 1800 G",label:"ASGORE: 1800 G",costGold:1800, dps:0,  owned:0, type:'asgore' }
     ],
     Underswap: [
@@ -409,7 +449,7 @@
   };
 
   /* ===== Persistence ===== */
-  const SAVE_KEY = 'au_clicker_save_v26_asgore_wave_flames_sans_papyrus_build';
+  const SAVE_KEY = 'au_clicker_save_v27_soul_damage_lock_upgrades_overlay';
   function save(){
     const data = { love, exp, gold, resets, expNeeded, soulHP, roster };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -469,7 +509,7 @@
     if(leveled){ gentlePop(document.getElementById('statsPanel')); }
   }
 
-  /* ===== SOUL interactions ===== */
+  /* ===== SOUL interactions (damage lock while shattered) ===== */
   soul.addEventListener('click', ()=>{
     if(soulDisabled) return;
     const dmg = randInt(5,16);
@@ -477,6 +517,9 @@
   });
 
   function applyDamage(dmg, dim=true){
+    /* Hard lock: no damage processing during shattered/disabled state */
+    if(soulDisabled) return;
+
     soulHP -= dmg;
     showDamage(dmg);
     if(dim){
@@ -708,6 +751,8 @@
     const boneW = 24, boneH = 120;
 
     const checkInterval = setInterval(()=>{
+      if(soulDisabled){ clearInterval(checkInterval); anim.cancel(); bone.remove(); activeBones=Math.max(0,activeBones-1); return; }
+
       const elapsed = anim.currentTime || 0;
       const progress = Math.min(1, elapsed / travelMs);
       const curX = startX + deltaX * progress;
@@ -793,6 +838,8 @@
     const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 };
     const spearW = 8, spearH = 118;
     const checkInterval = setInterval(()=>{
+      if(soulDisabled){ clearInterval(checkInterval); anim.cancel(); spear.remove(); return; }
+
       const elapsed = anim.currentTime || 0;
       const progress = Math.min(1, elapsed / travelMs);
       const curX = x + travelX * progress;
@@ -861,6 +908,8 @@
 
     let exploded=false;
     const checkInterval = setInterval(()=>{
+      if(soulDisabled){ clearInterval(checkInterval); anim.cancel(); bomb.remove(); return; }
+
       const elapsed = anim.currentTime || 0;
       const progress = Math.min(1, elapsed / fallMs);
       const curY = startY + (endY - startY) * progress;
@@ -906,7 +955,7 @@
     setTimeout(()=> wave.remove(), 600);
   }
 
-  /* ===== Sans rework: tiny slow bone from bottom lane every 8–12s, 1 active, 1 dmg ===== */
+  /* ===== Sans tiny bone loop ===== */
   let sansBoneTimer = null;
   let sansBoneActive = false;
 
@@ -938,16 +987,15 @@
     const wrapRect = soulWrap.getBoundingClientRect();
     const centerY = wrapRect.height/2;
 
-    /* Bottom lane region like Papyrus bottom: centerY + [64..84] */
     const y = Math.max(-40, Math.min(wrapRect.height - 40, centerY + randInt(64,84)));
-    const startX = -30; /* spawn off-screen left */
-    const endX = 240;   /* travel distance across the soul area */
+    const startX = -30;
+    const endX = 240;
 
     bone.style.left = startX + 'px';
     bone.style.top  = y + 'px';
     soulWrap.appendChild(bone);
 
-    const travelMs = 4200; /* slower than Papyrus */
+    const travelMs = 4200;
     const anim = bone.animate(
       [
         { transform: `translateX(0)` },
@@ -956,10 +1004,11 @@
       { duration: travelMs, easing:'linear' }
     );
 
-    /* Collision check with SOUL bounds */
     const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 };
     const boneW = 10, boneH = 40;
     const checkInterval = setInterval(()=>{
+      if(soulDisabled){ clearInterval(checkInterval); anim.cancel(); bone.remove(); sansBoneActive=false; return; }
+
       const elapsed = anim.currentTime || 0;
       const progress = Math.min(1, elapsed / travelMs);
       const curX = startX + (endX - startX) * progress;
@@ -1019,17 +1068,16 @@
 
     const wrapRect = soulWrap.getBoundingClientRect();
     const startX = randInt(20, wrapRect.width - 64);
-    const startY = -160; /* a lot more up from soul */
+    const startY = -160; /* much higher than soul */
     flame.style.left = startX + 'px';
     flame.style.top  = startY + 'px';
     soulWrap.appendChild(flame);
 
-    const endY = randInt(40, 220); /* may pass through soul zone */
+    const endY = randInt(40, 220);
     const travelMs = randInt(1600,2200);
-    const amp = randInt(12,28);         /* horizontal wave amplitude */
-    const freq = randFloat(1.2,2.2);    /* oscillation frequency */
+    const amp = randInt(12,28);
+    const freq = randFloat(1.2,2.2);
 
-    /* Build keyframes with horizontal oscillation */
     const steps = 8;
     const kfs = [];
     for(let i=0;i<=steps;i++){
@@ -1041,11 +1089,12 @@
 
     const anim = flame.animate(kfs, { duration: travelMs, easing:'linear' });
 
-    /* Collision check with SOUL bounds */
     const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 };
     const flameW = 44, flameH = 60;
 
     const checkInterval = setInterval(()=>{
+      if(soulDisabled){ clearInterval(checkInterval); anim.cancel(); flame.remove(); return; }
+
       const elapsed = anim.currentTime || 0;
       const progress = Math.min(1, elapsed / travelMs);
       const y = startY + (endY - startY) * progress;
@@ -1068,83 +1117,71 @@
     };
   }
 
-  /* ===== Utility spawner helpers ===== */
-  function spawnMultiple(fn, count, cooldownMs){
-    let spawned = 0;
-    const tick = ()=>{
-      if(spawned>=count) return;
-      fn();
-      spawned++;
-      if(spawned<count) setTimeout(tick, cooldownMs);
-    };
-    tick();
-  }
-  function pickCount(weights){
-    const roll = Math.random();
-    if(weights.three && roll < weights.three) return 3;
-    if(weights.two && roll < (weights.two + (weights.three||0))) return 2;
-    return 1;
-  }
-
-  /* ===== Shatter sequence — "But it refused." ===== */
-  function shatterSoul(){
-    soulDisabled = true;
-    soulWrap.classList.add('shattered');
-
-    const leftHalf = document.createElement('div'); leftHalf.className='half left';
-    const rightHalf= document.createElement('div'); rightHalf.className='half right';
-    soulWrap.appendChild(leftHalf); soulWrap.appendChild(rightHalf);
-
-    let gainedExp = Math.floor(randInt(2,24) * resetBonusMultiplier());
-    let gainedGold= randInt(4,9);
-
-    const refused = Math.random() < 0.10;
-    if(refused){
-      gainedGold*=2;
-      gainedExp = 0;
-    }
-
-    exp += gainedExp; gold += gainedGold; tryConvertExpToLove(); updateStats();
-
-    if(refused){
-      typeRefusedInline("But it refused.", soulWrap, ()=>{
-        setTimeout(()=>{
-          leftHalf.remove(); rightHalf.remove();
-          soulWrap.classList.remove('shattered'); soulDisabled=false; soulHP=randInt(25,40);
-        }, 2000);
+  /* ===== Upgrades overlay behavior ===== */
+  function openUpgrades(){
+    // Populate owned list
+    ownedList.innerHTML = '<h3>Owned characters</h3>';
+    const owned = [];
+    Object.values(roster).forEach(list=> list.forEach(c=>{ if(c.owned){ owned.push(c); } }));
+    owned.forEach((c,idx)=>{
+      const b = document.createElement('button');
+      b.className = 'ownedItem' + (idx===0 ? ' active':'');
+      b.textContent = c.label;
+      b.addEventListener('click', ()=>{
+        [...ownedList.querySelectorAll('.ownedItem')].forEach(x=> x.classList.remove('active'));
+        b.classList.add('active');
+        renderUpgradeTree(c);
       });
-    } else {
-      setTimeout(()=>{
-        leftHalf.classList.add('halfAnim','left');
-        rightHalf.classList.add('halfAnim','right');
-        setTimeout(()=>{
-          const shards=document.createElement('div'); shards.className='shards';
-          for(let i=0;i<18;i++){
-            const p=document.createElement('div'); p.className='shard';
-            p.style.setProperty('--dx', randInt(-110,110)+'px');
-            p.style.setProperty('--dy', randInt(-110,110)+'px');
-            p.style.setProperty('--rot', randInt(-180,180)+'deg');
-            p.style.left = randInt(60,160)+'px'; p.style.top = randInt(60,160)+'px';
-            shards.appendChild(p);
-          }
-          soulWrap.appendChild(shards);
-          setTimeout(()=>{
-            shards.remove(); leftHalf.remove(); rightHalf.remove();
-            soulWrap.classList.remove('shattered'); soulDisabled=false; soulHP=randInt(25,40);
-          }, 900);
-        }, 200);
-      }, 1000);
-    }
+      ownedList.appendChild(b);
+    });
+    renderUpgradeTree(owned[0] || null);
+    upgradesOverlay.style.display='flex';
   }
+  function renderUpgradeTree(char){
+    upgradeTree.innerHTML = '';
+    const title = document.createElement('h3');
+    title.textContent = char ? (char.label + ' upgrade tree') : 'Upgrades';
+    const desc = document.createElement('div');
+    desc.className='desc';
+    desc.textContent = char ? 'Choose an upgrade node to improve this character.' : 'No owned characters yet.';
+    upgradeTree.appendChild(title);
+    upgradeTree.appendChild(desc);
+    if(!char) return;
 
-  function typeRefusedInline(text, container, onDone){
-    const el=document.createElement('div'); el.className='refused'; el.textContent="";
-    container.appendChild(el); let i=0;
-    const tick=setInterval(()=>{
-      el.textContent=text.slice(0, i+1); i++;
-      if(i>=text.length){ clearInterval(tick); setTimeout(()=>{ el.remove(); onDone && onDone(); }, 400); }
-    }, 50);
+    const grid = document.createElement('div');
+    grid.className='treeGrid';
+    const nodes = [
+      { key:'power',  title:'Power I',  desc:'+10% impact', cost:100 },
+      { key:'speed',  title:'Speed I',  desc:'-10% cooldown', cost:120 },
+      { key:'style',  title:'Style I',  desc:'+visual flair', cost:80 },
+      { key:'power2', title:'Power II', desc:'+20% impact', cost:250 },
+      { key:'speed2', title:'Speed II', desc:'-20% cooldown', cost:300 },
+      { key:'unique', title:'Unique',   desc:'Signature mechanic', cost:500 }
+    ];
+    nodes.forEach(n=>{
+      const node = document.createElement('div'); node.className='node';
+      const t = document.createElement('div'); t.className='title'; t.textContent=n.title;
+      const d = document.createElement('div'); d.className='desc'; d.textContent=n.desc;
+      const btn = document.createElement('button'); btn.className='btn'; btn.textContent=`Buy (${n.cost} G)`;
+      btn.addEventListener('click', ()=>{
+        if(gold >= n.cost){
+          gold -= n.cost;
+          gentlePop(upgradeTree);
+          updateStats();
+          btn.disabled = true; btn.textContent='Purchased';
+        } else {
+          shake(upgradeTree);
+        }
+      });
+      node.appendChild(t); node.appendChild(d); node.appendChild(btn);
+      grid.appendChild(node);
+    });
+    upgradeTree.appendChild(grid);
   }
+  // close overlay on backdrop click
+  upgradesOverlay.addEventListener('click', (e)=>{
+    if(e.target === upgradesOverlay){ upgradesOverlay.style.display='none'; }
+  });
 
   /* ===== Menu (overlay) ===== */
   menuBtn.addEventListener('click', ()=>{
@@ -1155,6 +1192,7 @@
     const btn=e.target.closest('.trayBtn'); if(!btn) return;
     const panel=btn.getAttribute('data-panel');
     if(panel==='reset'){ openResetOverlay(); }
+    else if(panel==='upgrades'){ openUpgrades(); }
     else {
       auSubtitle.textContent=panel.charAt(0).toUpperCase()+panel.slice(1)+" panel (WIP)";
       setTimeout(()=> auSubtitle.textContent="Choose a timeline",1500);
@@ -1255,6 +1293,67 @@
     });
     if(totalDps>0){ applyDamage(totalDps, true); }
   }, 1000);
+
+  /* ===== Shatter sequence — "But it refused." ===== */
+  function shatterSoul(){
+    if(soulDisabled) return;
+    soulDisabled = true;
+    soulWrap.classList.add('shattered');
+
+    const leftHalf = document.createElement('div'); leftHalf.className='half left';
+    const rightHalf= document.createElement('div'); rightHalf.className='half right';
+    soulWrap.appendChild(leftHalf); soulWrap.appendChild(rightHalf);
+
+    let gainedExp = Math.floor(randInt(2,24) * resetBonusMultiplier());
+    let gainedGold= randInt(4,9);
+
+    const refused = Math.random() < 0.10;
+    if(refused){
+      gainedGold*=2;
+      gainedExp = 0;
+    }
+
+    exp += gainedExp; gold += gainedGold; tryConvertExpToLove(); updateStats();
+
+    if(refused){
+      typeRefusedInline("But it refused.", soulWrap, ()=>{
+        setTimeout(()=>{
+          leftHalf.remove(); rightHalf.remove();
+          soulWrap.classList.remove('shattered'); soulDisabled=false; soulHP=randInt(25,40);
+        }, 2000);
+      });
+    } else {
+      setTimeout(()=>{
+        leftHalf.classList.add('halfAnim','left');
+        rightHalf.classList.add('halfAnim','right');
+        setTimeout(()=>{
+          const shards=document.createElement('div'); shards.className='shards';
+          for(let i=0;i<18;i++){
+            const p=document.createElement('div'); p.className='shard';
+            p.style.setProperty('--dx', randInt(-110,110)+'px');
+            p.style.setProperty('--dy', randInt(-110,110)+'px');
+            p.style.setProperty('--rot', randInt(-180,180)+'deg');
+            p.style.left = randInt(60,160)+'px'; p.style.top = randInt(60,160)+'px';
+            shards.appendChild(p);
+          }
+          soulWrap.appendChild(shards);
+          setTimeout(()=>{
+            shards.remove(); leftHalf.remove(); rightHalf.remove();
+            soulWrap.classList.remove('shattered'); soulDisabled=false; soulHP=randInt(25,40);
+          }, 900);
+        }, 200);
+      }, 1000);
+    }
+  }
+
+  function typeRefusedInline(text, container, onDone){
+    const el=document.createElement('div'); el.className='refused'; el.textContent="";
+    container.appendChild(el); let i=0;
+    const tick=setInterval(()=>{
+      el.textContent=text.slice(0, i+1); i++;
+      if(i>=text.length){ clearInterval(tick); setTimeout(()=>{ el.remove(); onDone && onDone(); }, 400); }
+    }, 50);
+  }
 
   /* ===== INIT ===== */
   load(); updateStats(); renderAUList();
