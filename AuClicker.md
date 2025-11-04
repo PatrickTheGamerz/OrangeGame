@@ -191,7 +191,7 @@
     filter: blur(3.5px); opacity:.6; pointer-events:none; z-index:7;
   }
 
-  /* Asgore flames (same texture as Toriel) */
+  /* Asgore flames */
   .asgoreFlame{
     position:absolute; width:44px; height:60px;
     background: radial-gradient(circle at 45% 35%, #ffffff 0%, #ffdcb6 22%, #ff9c4a 52%, #ff6a00 100%);
@@ -217,7 +217,7 @@
   .papyrusBone::before{ top:-4px; }
   .papyrusBone::after{ bottom:-4px; }
 
-  /* Undyne spears (side-based facing) */
+  /* Undyne spears */
   .undyneSpear{
     position:absolute; width:8px; height:100px; z-index:8; pointer-events:none;
     background: linear-gradient(180deg, #85e7ff 0%, #29c4ff 50%, #0aa2ff 100%);
@@ -231,7 +231,7 @@
     border-bottom:18px solid #85e7ff; filter:drop-shadow(0 0 8px rgba(133,231,255,.8));
   }
 
-  /* Sans tiny bone — 1:1 build like Papyrus, but 10x40 */
+  /* Sans tiny bone */
   .sansBone{
     position:absolute; width:10px; height:40px; z-index:8; pointer-events:none;
     filter: drop-shadow(0 0 6px rgba(255,255,255,.6));
@@ -248,7 +248,7 @@
   .sansBone::before{ top:-3px; }
   .sansBone::after{ bottom:-3px; }
 
-  /* Mettaton bomb — white circle with black cross and top nub */
+  /* Mettaton bomb */
   .mettatonBomb{
     position:absolute; width:40px; height:40px; border-radius:50%;
     background:#ffffff; box-shadow:0 0 12px rgba(255,255,255,.8);
@@ -266,7 +266,7 @@
   }
   .bombFlashing{ animation:bombInvert 0.4s steps(2,end) 3; }
 
-  /* Explosion crossing lines + wave ring */
+  /* Explosion lines + wave ring */
   .bombExplosion{
     position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
     width:0; height:0; z-index:10; pointer-events:none;
@@ -297,12 +297,12 @@
     100%{opacity:0; transform:translate(-50%,-50%) scale(2.4)}
   }
 
-  /* Upgrades overlay — larger, higher, wide, scrollable */
+  /* Upgrades overlay — much wider */
   #upgradesOverlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);z-index:30;}
   #upgradesCard{
-    width:1200px;max-width:96vw;height:720px;max-height:96vh;padding:0;border-radius:14px;overflow:hidden;
+    width:1600px;max-width:98vw;height:800px;max-height:96vh;padding:0;border-radius:14px;overflow:hidden;
     background:linear-gradient(180deg,#121826,#0e1322);border:1px solid rgba(122,162,247,.28);box-shadow:var(--shadow);
-    display:grid;grid-template-columns:280px 1fr;
+    display:grid;grid-template-columns:360px 1fr;
   }
   #ownedList{
     border-right:1px solid rgba(122,162,247,.18);
@@ -323,71 +323,72 @@
 </style>
 </head>
 <body>
-  <!-- LEFT: STATS -->
-  <aside id="statsPanel">
-    <h2>STATS</h2>
-    <div class="statRow"><span class="statLabel">LV</span><span class="statValue" id="loveStat">0</span></div>
-    <div class="statRow"><span class="statLabel">EXP</span><span class="statValue" id="expStat">0</span></div>
-    <div class="statRow"><span class="statLabel">GOLD</span><span class="statValue" id="goldStat">0</span></div>
-    <div class="statRow"><span class="statLabel">RESET</span><span class="statValue" id="resetStat">0</span></div>
-    <div class="statRow"><span class="statLabel">NEXT</span><span class="statValue" id="needStat">10 EXP</span></div>
-  </aside>
 
-  <!-- CENTER: STAGE -->
-  <main id="stage">
-    <div id="soulWrap">
-      <div id="soul" aria-label="SOUL"></div>
-      <div id="menuTray">
-        <button class="trayBtn" data-panel="upgrades">Upgrades</button>
-        <button class="trayBtn" data-panel="settings">Settings</button>
-        <button class="trayBtn" data-panel="leaderboard">Leaderboard</button>
-        <button class="trayBtn" data-panel="reset">Reset</button>
-        <button class="trayBtn" data-panel="stats">Stats</button>
+<!-- LEFT: STATS -->
+<aside id="statsPanel">
+  <h2>STATS</h2>
+  <div class="statRow"><span class="statLabel">LV</span><span class="statValue" id="loveStat">0</span></div>
+  <div class="statRow"><span class="statLabel">EXP</span><span class="statValue" id="expStat">0</span></div>
+  <div class="statRow"><span class="statLabel">GOLD</span><span class="statValue" id="goldStat">0</span></div>
+  <div class="statRow"><span class="statLabel">RESET</span><span class="statValue" id="resetStat">0</span></div>
+  <div class="statRow"><span class="statLabel">NEXT</span><span class="statValue" id="needStat">10 EXP</span></div>
+</aside>
+
+<!-- CENTER: STAGE -->
+<main id="stage">
+  <div id="soulWrap">
+    <div id="soul" aria-label="SOUL"></div>
+    <div id="menuTray">
+      <button class="trayBtn" data-panel="upgrades">Upgrades</button>
+      <button class="trayBtn" data-panel="settings">Settings</button>
+      <button class="trayBtn" data-panel="leaderboard">Leaderboard</button>
+      <button class="trayBtn" data-panel="reset">Reset</button>
+      <button class="trayBtn" data-panel="stats">Stats</button>
+    </div>
+  </div>
+  <button id="menuBtn">Menu</button>
+
+  <!-- Reset overlay -->
+  <div id="resetOverlay">
+    <div id="resetCard">
+      <h3>RESET</h3>
+      <div class="desc">
+        Requirements:
+        <ul style="margin:8px 0 12px 16px;padding:0">
+          <li>LV: 20</li>
+          <li>EXP: 2,500</li>
+        </ul>
+        <div>All your progress will be reset</div>
+      </div>
+      <div class="row">
+        <button class="btn" id="cancelReset">Cancel</button>
+        <button class="btn danger" id="confirmReset">Reset</button>
       </div>
     </div>
-    <button id="menuBtn">Menu</button>
+  </div>
 
-    <!-- Reset overlay -->
-    <div id="resetOverlay">
-      <div id="resetCard">
-        <h3>RESET</h3>
-        <div class="desc">
-          Requirements:
-          <ul style="margin:8px 0 12px 16px;padding:0">
-            <li>LV: 20</li>
-            <li>EXP: 2,500</li>
-          </ul>
-          <div>All your progress will be reset</div>
-        </div>
-        <div class="row">
-          <button class="btn" id="cancelReset">Cancel</button>
-          <button class="btn danger" id="confirmReset">Reset</button>
-        </div>
+  <!-- Upgrades overlay -->
+  <div id="upgradesOverlay">
+    <div id="upgradesCard">
+      <div id="ownedList">
+        <h3>Owned characters</h3>
+      </div>
+      <div id="upgradeTree">
+        <h3>Upgrades</h3>
+        <div class="desc">Select a character on the left to view their upgrade tree.</div>
       </div>
     </div>
+  </div>
+</main>
 
-    <!-- Upgrades overlay -->
-    <div id="upgradesOverlay">
-      <div id="upgradesCard">
-        <div id="ownedList">
-          <h3>Owned characters</h3>
-        </div>
-        <div id="upgradeTree">
-          <h3>Upgrades</h3>
-          <div class="desc">Select a character on the left to view their upgrade tree.</div>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <!-- RIGHT: AU SELECT -->
-  <aside id="auPanel">
-    <div id="auHeader">
-      <h2>AU Select</h2>
-      <div class="subtitle" id="auSubtitle">Choose a timeline</div>
-    </div>
-    <div id="auContent"></div>
-  </aside>
+<!-- RIGHT: AU SELECT -->
+<aside id="auPanel">
+  <div id="auHeader">
+    <h2>AU Select</h2>
+    <div class="subtitle" id="auSubtitle">Choose a timeline</div>
+  </div>
+  <div id="auContent"></div>
+</aside>
 
 <script>
   /* ===== Core state ===== */
@@ -1115,8 +1116,9 @@
     };
   }
 
-  /* ===== Upgrades overlay behavior ===== */
+  /* ===== Upgrades overlay behavior (wider + owned list clickable + outside click to close) ===== */
   function openUpgrades(){
+    // Populate left list with all owned characters across AUs
     ownedList.innerHTML = '<h3>Owned characters</h3>';
     const owned = [];
     Object.values(roster).forEach(list=> list.forEach(c=>{ if(c.owned){ owned.push(c); } }));
@@ -1177,6 +1179,7 @@
     });
     upgradeTree.appendChild(grid);
   }
+  // Close upgrades when clicking outside the card
   upgradesOverlay.addEventListener('click', (e)=>{
     if(e.target === upgradesOverlay){ upgradesOverlay.style.display='none'; }
   });
@@ -1365,6 +1368,18 @@
 
   /* ===== utils ===== */
   function randFloat(min,max){ return Math.random()*(max-min)+min; }
+  function pickCount(weights){
+    const r=Math.random();
+    if(r<weights.four) return 4;
+    if(r<weights.three+weights.four) return 3;
+    if(r<weights.two+weights.three+weights.four) return 2;
+    return 1;
+  }
+  function spawnMultiple(fn, count, spreadMs){
+    for(let i=0;i<count;i++){
+      setTimeout(()=> fn(), i*spreadMs);
+    }
+  }
 </script>
 </body>
 </html>
