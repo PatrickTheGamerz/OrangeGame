@@ -14,6 +14,7 @@
     --danger:#ff4d6d;
     --shadow:0 12px 30px rgba(122,162,247,.18);
   }
+  *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;height:100vh;overflow:hidden;}
 
   /* LEFT: STATS */
@@ -297,23 +298,27 @@
     100%{opacity:0; transform:translate(-50%,-50%) scale(2.4)}
   }
 
-  /* Upgrades overlay — much wider */
-  #upgradesOverlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);z-index:30;}
+  /* Upgrades overlay — 100% width (full viewport) */
+  #upgradesOverlay{
+    position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);z-index:30;
+  }
   #upgradesCard{
-    width:1600px;max-width:98vw;height:800px;max-height:96vh;padding:0;border-radius:14px;overflow:hidden;
-    background:linear-gradient(180deg,#121826,#0e1322);border:1px solid rgba(122,162,247,.28);box-shadow:var(--shadow);
-    display:grid;grid-template-columns:360px 1fr;
+    width:100vw;max-width:100vw;height:90vh;max-height:90vh;
+    padding:0;border-radius:14px;overflow:hidden;
+    background:linear-gradient(180deg,#121826,#0e1322);
+    border:1px solid rgba(122,162,247,.28);box-shadow:var(--shadow);
+    display:grid;grid-template-columns:420px 1fr;
   }
   #ownedList{
     border-right:1px solid rgba(122,162,247,.18);
-    padding:12px;overflow-y:auto;
+    padding:16px;overflow-y:auto;height:100%;
   }
-  #ownedList h3{margin:0 0 10px;font-size:14px;color:#9cdcfe;opacity:.85}
-  .ownedItem{display:block;width:100%;text-align:left;padding:10px;border-radius:10px;margin:6px 0;border:1px solid rgba(122,162,247,.22);background:#0d1118;color:var(--text);cursor:pointer;}
+  #ownedList h3{margin:0 0 12px;font-size:15px;color:#9cdcfe;opacity:.85}
+  .ownedItem{display:block;width:100%;text-align:left;padding:12px;border-radius:10px;margin:6px 0;border:1px solid rgba(122,162,247,.22);background:#0d1118;color:var(--text);cursor:pointer;}
   .ownedItem.active{border-color:#7aa2f7;background:#111423}
-  #upgradeTree{padding:16px;overflow:auto;}
-  #upgradeTree h3{margin:0 0 10px}
-  .treeGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;min-width:800px;}
+  #upgradeTree{padding:20px;overflow:auto;height:100%;}
+  #upgradeTree h3{margin:0 0 8px}
+  .treeGrid{display:grid;grid-template-columns:repeat(6,minmax(160px,1fr));gap:14px;min-width:1200px;}
   .node{
     background:#0c121c;border:1px solid rgba(122,162,247,.18);border-radius:10px;padding:12px;
   }
@@ -1116,9 +1121,8 @@
     };
   }
 
-  /* ===== Upgrades overlay behavior (wider + owned list clickable + outside click to close) ===== */
+  /* ===== Upgrades overlay behavior (100% width + owned list clickable + outside click to close) ===== */
   function openUpgrades(){
-    // Populate left list with all owned characters across AUs
     ownedList.innerHTML = '<h3>Owned characters</h3>';
     const owned = [];
     Object.values(roster).forEach(list=> list.forEach(c=>{ if(c.owned){ owned.push(c); } }));
@@ -1367,7 +1371,6 @@
   if(roster.Undertale.find(x=> x.type==='asgore' && x.owned)) startAsgoreWaveLoop();
 
   /* ===== utils ===== */
-  function randFloat(min,max){ return Math.random()*(max-min)+min; }
   function pickCount(weights){
     const r=Math.random();
     if(r<weights.four) return 4;
