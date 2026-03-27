@@ -3,321 +3,239 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Orange Games</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,700&family=Space+Grotesk:wght@400;700&family=Space+Mono&display=swap" rel="stylesheet">
+<title>Orange Games - Retro Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* Orange Games Official Brand Palette */
-    --bg: #00017A; /* Digital Navy */
-    --text: #F7F7FF; /* Ghost White */
-    --muted: #a7b0c0;
-    --panel: rgba(11, 19, 43, 0.4); /* Deep Space */
-    --border: rgba(255, 255, 255, 0.2);
-    --accent: #FF5B04; /* Blaze Orange */
-    --accent2: #FF8200; /* Vivid Orange */
-    --header-color: #FFB451; /* Bright Pastel Orange */
-    --shadow: 0 14px 42px rgba(0,0,0,.5);
+    --bg: #000000;
+    --text: #ffffff;
+    --orange: #FF8200;
+    --border-thick: 4px solid #ffffff;
+    --border-orange: 4px solid #FF8200;
   }
-  
-  * { box-sizing: border-box; }
-  html, body { height: 100%; margin: 0; }
   
   body {
+    margin: 0;
+    background-color: var(--bg);
     color: var(--text);
-    font-family: 'Roboto Flex', sans-serif;
-    background: var(--bg);
+    font-family: 'Pixelify Sans', monospace;
     overflow-x: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
   }
   
-  h1, h2, h3,.brand {
-    font-family: 'Space Grotesk', sans-serif;
+  /* Multi-page layout system */
+ .page {
+    display: none;
+    width: 100%;
+    max-width: 800px;
+    padding: 20px;
+    box-sizing: border-box;
   }
   
-  /* Advanced Mesh Gradient Animation */
- .ambient {
-    position: fixed; inset: -30vmax; z-index: -1; pointer-events: none;
-    filter: blur(80px) saturate(140%); opacity: 0.6;
-    animation: float 18s ease-in-out infinite;
-    background:
-      radial-gradient(closest-side at 40% 45%, var(--accent), transparent 60%),
-      radial-gradient(closest-side at 70% 60%, var(--bg), transparent 60%),
-      radial-gradient(closest-side at 30% 70%, var(--accent2), transparent 60%);
+ .page.active {
+    display: block;
+    animation: fadeIn 0.3s;
   }
   
-  @keyframes float {
-    0% { transform: translate3d(0,0,0) scale(1); }
-    50% { transform: translate3d(-2%,-1%,0) scale(1.05); }
-    100% { transform: translate3d(0,0,0) scale(1); }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
   
-  /* Topbar with Glassmorphism */
- .topbar {
-    display: flex; align-items: center; gap: 12px; padding: 14px 24px; position: sticky; top: 0; z-index: 10;
-    backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-    background: rgba(11, 19, 43, 0.5);
-    border-bottom: 1px solid var(--border);
-    box-shadow: var(--shadow);
+  /* Retro Dialog Boxes */
+ .box {
+    border: var(--border-thick);
+    padding: 24px;
+    background: #000;
+    margin-bottom: 20px;
   }
   
- .brand {
-    font-weight: 700; font-size: 24px; letter-spacing: -0.5px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text; background-clip: text; color: transparent; user-select: none;
+  h1, h2, h3 {
+    margin-top: 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
   }
   
- .spacer { flex: 1; }
+  h1 { 
+    color: var(--orange); 
+    font-size: 54px; 
+    text-align: center; 
+    text-shadow: 2px 2px 0px #fff;
+  }
   
-  /* High-Performance Neon Buttons */
+  p { font-size: 26px; line-height: 1.5; margin: 10px 0; }
+  
+  /* Retro Buttons */
  .btn {
-    border: 1px solid var(--accent);
-    background: linear-gradient(180deg, rgba(255,91,4,0.2), rgba(255,130,0,0.1));
-    color: #fff; font-family: 'Space Grotesk', sans-serif; font-weight: 700;
-    padding: 10px 20px; border-radius: 999px; cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 0 10px rgba(255,91,4,0.2);
-    text-transform: uppercase; letter-spacing: 1px;
+    background: #000;
+    color: var(--text);
+    border: var(--border-thick);
+    font-family: 'Pixelify Sans', monospace;
+    font-size: 24px;
+    padding: 12px 24px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: 0.1s;
+    margin-right: 15px;
+    margin-bottom: 15px;
   }
   
  .btn:hover {
-    background: linear-gradient(180deg, var(--accent), var(--accent2));
-    box-shadow: 0 0 15px var(--accent), 0 0 30px var(--accent2);
-    transform: translateY(-2px);
+    border: var(--border-orange);
+    color: var(--orange);
   }
   
-  h2.section { margin: 24px 24px 12px; font-size: 22px; color: var(--header-color); font-weight: 700; user-select: none; }
-  
- .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; padding: 24px; z-index: 1; }
-  
-  /* Glassmorphic Cards with Edge Refraction */
- .card {
-    position: relative; border-radius: 20px; padding: 24px 24px 64px;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+ .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
   }
   
- .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 18px 42px rgba(0,0,0,.6), 0 0 20px rgba(255, 91, 4, 0.4);
-    border-color: var(--accent);
+  /* Typewriter Cursor Animation */
+ .cursor {
+    display: inline-block;
+    width: 14px;
+    height: 26px;
+    background-color: var(--orange);
+    animation: blink 1s step-end infinite;
+    vertical-align: bottom;
+    margin-left: 4px;
   }
   
- .card h3 { margin: 0; font-size: 20px; color: #fff; }
- .card p { margin: 12px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
- .actions { display: flex; gap: 12px; margin-top: 20px; }
-  
- .player-count {
-    position: absolute; right: 16px; bottom: 16px; display: inline-flex; align-items: center; gap: 8px;
-    padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.1);
-    background: rgba(0,0,0,.4); color: var(--muted); font-size: 13px;
-    font-family: 'Space Mono', monospace; backdrop-filter: blur(8px);
+  @keyframes blink {
+    50% { opacity: 0; }
   }
   
- .player-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--accent); box-shadow: 0 0 10px var(--accent);
-  }
-
-  /* Create Account Modal - RODO Compliant */
- .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0, 1, 122, 0.6); backdrop-filter: blur(15px);
-    z-index: 1000; display: flex; align-items: center; justify-content: center;
-    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-  }
-  
- .modal-overlay.active { opacity: 1; pointer-events: auto; }
-  
- .modal {
-    background: rgba(11, 19, 43, 0.7); backdrop-filter: blur(25px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 24px 64px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.2);
-    border-radius: 24px; padding: 32px; width: 100%; max-width: 440px;
-    transform: translateY(20px); transition: transform 0.3s ease; position: relative;
+  /* Form Elements */
+ .form-group { margin-bottom: 24px; }
+ .form-group input {
+    width: 100%;
+    background: #000;
+    border: var(--border-thick);
+    color: var(--text);
+    font-family: 'Pixelify Sans', monospace;
+    font-size: 24px;
+    padding: 14px;
+    box-sizing: border-box;
+    margin-top: 10px;
   }
   
- .modal-overlay.active.modal { transform: translateY(0); }
- .modal h3 { margin-top: 0; font-size: 24px; text-align: center; color: var(--header-color); }
-  
- .form-group { margin-bottom: 20px; }
- .form-group input[type="email"] {
-    width: 100%; padding: 14px 20px; border-radius: 999px;
-    background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
-    color: #fff; font-family: 'Roboto Flex', sans-serif; font-size: 15px;
-    outline: none; transition: all 0.2s ease;
+ .form-group input:focus {
+    outline: none;
+    border: var(--border-orange);
   }
   
- .form-group input[type="email"]:focus {
-    border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 91, 4, 0.3);
-  }
-  
- .rodo-clause {
-    font-size: 10.5px; color: var(--muted); line-height: 1.5; margin-bottom: 24px;
-    display: flex; gap: 12px; align-items: flex-start;
-  }
-  
- .rodo-clause input[type="checkbox"] { 
-    margin-top: 2px; accent-color: var(--accent); cursor: pointer; width: 16px; height: 16px;
-  }
-  
- .modal-close {
-    position: absolute; top: 16px; right: 20px; background: none; border: none;
-    color: #fff; font-size: 28px; cursor: pointer; opacity: 0.5; transition: opacity 0.2s;
-  }
-  
- .modal-close:hover { opacity: 1; }
- .btn-full { width: 100%; justify-content: center; }
-
-  /* Refined Loader Screen */
- .loading {
-    position: fixed; inset: 0; display: grid; place-items: center;
-    background: rgba(0, 1, 122, 0.8); backdrop-filter: blur(15px);
-    z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-  }
-  
- .loading.active { opacity: 1; pointer-events: auto; }
-  
- .loader {
-    display: grid; gap: 16px; justify-items: center; padding: 32px 48px;
-    background: rgba(11, 19, 43, 0.6); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 24px; box-shadow: var(--shadow); backdrop-filter: blur(20px);
-  }
-  
- .progress { width: 240px; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.1); overflow: hidden; }
- .bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); width: 0%; transition: width 0.2s ease; box-shadow: 0 0 10px var(--accent); }
- .loader-label { font-size: 13px; color: var(--header-color); font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: 1px;}
-  
- .footer { padding: 24px; text-align: center; color: var(--muted); font-size: 13px; opacity: 0.7; }
+ .asterisk { color: var(--orange); margin-right: 10px; font-weight: bold; }
 </style>
 </head>
 <body>
-  <div class="ambient"></div>
-  <header class="topbar">
-    <div class="brand">Orange Games</div>
-    <div class="spacer"></div>
-    <button class="btn" id="btn-register">Create Account</button>
-  </header>
 
-  <h2 class="section">Featured Titles</h2>
-  <main class="grid">
-    <article class="card">
-      <h3>X and O (Tic‑Tac‑Toe)</h3>
-      <p>Classic 3×3 logic. Two players: X starts, O follows. First to align three wins the grid.</p>
-      <div class="actions">
-        <button class="btn" onclick="playGame('TicTacToe')">Play Now</button>
-      </div>
-      <div class="player-count" aria-label="Players online">
-        <span class="player-dot" aria-hidden="true"></span>
-        <span id="tttCount">Players: 0</span>
-      </div>
-    </article>
+  <div id="loadingPage" class="page active box">
+    <p><span class="asterisk">*</span> <span id="loadingText"></span><span class="cursor"></span></p>
+  </div>
 
-    <article class="card">
-      <h3>AU Clicker</h3>
-      <p>Incremental clicker mechanics. Click to gain AU, unlock powerful upgrades, and dominate.</p>
-      <div class="actions">
-        <button class="btn" onclick="playGame('AuClicker')">Play Now</button>
+  <div id="homePage" class="page">
+    <h1>Orange Games</h1>
+    <div class="box">
+      <p><span class="asterisk">*</span> Welcome to the underground hub of retro gaming.</p>
+      <p><span class="asterisk">*</span> What will you do?</p>
+      <div style="margin-top: 20px;">
+        <button class="btn" onclick="nav('gamesPage')">Play Games</button>
+        <button class="btn" onclick="nav('registerPage')">Save Soul (Register)</button>
       </div>
-      <div class="player-count" aria-label="Players online">
-        <span class="player-dot" aria-hidden="true"></span>
-        <span id="auCount">Players: 0</span>
-      </div>
-    </article>
-  </main>
-
-  <div class="footer">Tip: Dive right in. Orange Games guarantees low latency.</div>
-
-  <div id="regModal" class="modal-overlay">
-    <div class="modal">
-      <button class="modal-close" id="closeModal">&times;</button>
-      <h3>Create Account</h3>
-      <div class="form-group">
-        <input type="email" id="emailInput" placeholder="Enter your email address" required />
-      </div>
-      <label class="rodo-clause">
-        <input type="checkbox" id="rodoConsent" required />
-        <span>Zapoznałam/em się z informacjami dotyczącymi przetwarzania moich danych osobowych zgodnie z art. 13 i 14 rozporządzenia Parlamentu Europejskiego i Rady (UE) 2016/679 z dnia 27 kwietnia 2016 r. w sprawie ochrony osób fizycznych w związku z przetwarzaniem danych osobowych i w sprawie swobodnego przepływu takich danych oraz uchylenia dyrektywy 95/46/WE (RODO).</span>
-      </label>
-      <button class="btn btn-full" id="submitReg">Register</button>
     </div>
   </div>
 
-  <div id="loading" class="loading" aria-live="polite" aria-busy="true">
-    <div class="loader">
-      <div class="progress"><div class="bar" id="bar"></div></div>
-      <div class="loader-label" id="loaderLabel">Preparing assets…</div>
+  <div id="gamesPage" class="page">
+    <h1>Select Game</h1>
+    <div class="grid">
+      <div class="box">
+        <h2>Tic-Tac-Toe</h2>
+        <p>Classic 3x3 logic. Will you show mercy or dominate?</p>
+        <button class="btn" onclick="typeDialog('You selected Tic-Tac-Toe. Knowing your opponent fills you with DETERMINATION.')">FIGHT</button>
+      </div>
+      <div class="box">
+        <h2>AU Clicker</h2>
+        <p>Gain AU. Upgrade stats. Become unstoppable.</p>
+        <button class="btn" onclick="typeDialog('You selected AU Clicker. Your fingers twitch with anticipation.')">FIGHT</button>
+      </div>
+    </div>
+    
+    <div style="margin-top: 20px;">
+      <button class="btn" onclick="nav('homePage')">FLEE (Back)</button>
+    </div>
+    
+    <div id="dialogBox" class="box" style="display:none; margin-top:24px;">
+      <p><span class="asterisk">*</span> <span id="dialogText"></span><span class="cursor"></span></p>
+    </div>
+  </div>
+
+  <div id="registerPage" class="page">
+    <h1>Create Save File</h1>
+    <div class="box">
+      <div class="form-group">
+        <label><span class="asterisk">*</span> Enter your electronic mail address:</label>
+        <input type="email" id="emailInput" placeholder="player@orange.games">
+      </div>
+      <button class="btn" onclick="submitReg()">SAVE</button>
+      <button class="btn" onclick="nav('homePage')">CANCEL</button>
     </div>
   </div>
 
   <script>
-    // --- Create Account Modal Logic ---
-    const modal = document.getElementById('regModal');
-    
-    document.getElementById('btn-register').addEventListener('click', () => {
-        modal.classList.add('active');
-    });
-    
-    document.getElementById('closeModal').addEventListener('click', () => {
-        modal.classList.remove('active');
-    });
-    
-    document.getElementById('submitReg').addEventListener('click', () => {
-      const email = document.getElementById('emailInput').value;
-      const consent = document.getElementById('rodoConsent').checked;
+    // Page Navigation Logic
+    function nav(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+      document.getElementById('dialogBox').style.display = 'none'; // Reset dialog
+    }
+
+    // Classic RPG Typewriter Text Engine
+    function typeWriter(text, elementId, speed, callback) {
+      const el = document.getElementById(elementId);
+      el.innerHTML = '';
+      let i = 0;
       
-      if(email && consent) {
-        modal.classList.remove('active');
-        alert('Welcome to Orange Games! Account successfully created.');
-      } else {
-        alert('Please enter a valid email and actively accept the RODO consent to continue.');
+      function type() {
+        if (i < text.length) {
+          el.innerHTML += text.charAt(i);
+          i++;
+          setTimeout(type, speed);
+        } else if (callback) {
+          setTimeout(callback, 500);
+        }
       }
-    });
-
-    // --- Loading Screen Animations ---
-    const loading = document.getElementById('loading');
-    const bar = document.getElementById('bar');
-    const label = document.getElementById('loaderLabel');
-
-    function showLoader(flag) { 
-        loading.classList.toggle('active',!!flag); 
+      type();
     }
 
-    function animateProgress(ms=1200) {
-      bar.style.width = '0%';
-      label.textContent = 'WARMING UP SHADERS...';
-      let p = 0;
-      
-      const step = () => {
-        p = Math.min(100, p + Math.random()*20 + 5);
-        bar.style.width = p.toFixed(0)+'%';
-        
-        if(p < 40) label.textContent = 'LINKING MODULES...';
-        else if(p < 80) label.textContent = 'POLISHING UI...';
-        else label.textContent = 'READY TO PLAY';
-        
-        if(p < 100) requestAnimationFrame(step);
-      };
-      
-      requestAnimationFrame(step);
-      return new Promise(res => setTimeout(res, ms));
+    // Trigger Game Dialogues
+    function typeDialog(text) {
+      const dialog = document.getElementById('dialogBox');
+      dialog.style.display = 'block';
+      typeWriter(text, 'dialogText', 40);
     }
 
-    async function playGame(game) {
-      showLoader(true);
-      await animateProgress(1000);
-      showLoader(false);
-      // In a real environment, this would redirect
-      // window.location.href = game + '.html';
+    // Registration Form Submission
+    function submitReg() {
+      const email = document.getElementById('emailInput').value;
+      if(email) {
+        alert('* SAVE POINT CREATED.\nAccount registered: ' + email);
+        document.getElementById('emailInput').value = '';
+        nav('homePage');
+      } else {
+        alert('* You cannot save an empty soul. Please enter an email.');
+      }
     }
 
-    // --- Mock Real-Time Player Counts ---
-    function updateCounts(){
-      document.getElementById('tttCount').textContent = 'Players: ' + Math.floor(Math.random() * 200 + 50);
-      document.getElementById('auCount').textContent = 'Players: ' + Math.floor(Math.random() * 1200 + 400);
-    }
-    setInterval(updateCounts, 3000);
-    updateCounts();
+    // Initial Boot Sequence Animation
+    window.onload = () => {
+      typeWriter("Booting up Orange Games module...", "loadingText", 60, () => {
+        nav('homePage');
+      });
+    };
   </script>
 </body>
 </html>
