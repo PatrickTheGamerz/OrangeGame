@@ -3,237 +3,337 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Orange Games - Retro Edition</title>
-<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&display=swap" rel="stylesheet">
+<title>Orange Games</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&family=Pixelify+Sans:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #000000;
-    --text: #ffffff;
-    --orange: #FF8200;
-    --border-thick: 4px solid #ffffff;
-    --border-orange: 4px solid #FF8200;
+    --bg-dark: #05050A;
+    --navy: #0B132B;
+    --orange-glow: #FF5B04;
+    --orange-light: #FF8200;
+    --text-main: #F7F7FF;
+    --glass-bg: rgba(11, 19, 43, 0.45);
+    --glass-border: rgba(255, 91, 4, 0.3);
   }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   
   body {
-    margin: 0;
-    background-color: var(--bg);
-    color: var(--text);
-    font-family: 'Pixelify Sans', monospace;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Outfit', sans-serif;
     overflow-x: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
-  
-  /* Multi-page layout system */
+
+  /* Atmospheric Dust Background */
+  #canvas-bg {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: -2;
+    background: radial-gradient(circle at center, var(--navy) 0%, var(--bg-dark) 100%);
+  }
+
+  /* Modern Glass Topbar */
+ .topbar {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 30px;
+    background: rgba(5, 5, 10, 0.6);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+ .brand {
+    font-size: 28px; font-weight: 800;
+    background: linear-gradient(90deg, var(--orange-glow), #FFB451);
+    -webkit-background-clip: text; color: transparent;
+    cursor: pointer; letter-spacing: 1px;
+  }
+
+ .nav-links { display: flex; gap: 20px; }
+ .nav-btn {
+    background: none; border: none; color: var(--text-main);
+    font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 500;
+    cursor: pointer; transition: color 0.3s;
+  }
+ .nav-btn:hover { color: var(--orange-light); }
+
+  /* Premium Glowing Button */
+ .btn-primary {
+    background: transparent;
+    color: var(--orange-light);
+    border: 1px solid var(--orange-glow);
+    padding: 10px 24px; border-radius: 8px;
+    font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 16px;
+    cursor: pointer; text-transform: uppercase; letter-spacing: 2px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(255, 91, 4, 0.1);
+    position: relative; overflow: hidden;
+  }
+ .btn-primary:hover {
+    background: var(--orange-glow); color: #fff;
+    box-shadow: 0 0 25px rgba(255, 91, 4, 0.6);
+    transform: translateY(-2px);
+  }
+
+  /* SPA Page Transitions */
  .page {
-    display: none;
-    width: 100%;
-    max-width: 800px;
-    padding: 20px;
-    box-sizing: border-box;
+    display: none; opacity: 0;
+    flex: 1; padding: 40px 20px;
+    max-width: 1100px; margin: 0 auto; width: 100%;
+    animation: fadeUp 0.5s forwards;
   }
-  
- .page.active {
-    display: block;
-    animation: fadeIn 0.3s;
+ .page.active { display: block; opacity: 1; }
+
+  @keyframes fadeUp {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
   }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  /* Retro Dialog Boxes */
- .box {
-    border: var(--border-thick);
-    padding: 24px;
-    background: #000;
-    margin-bottom: 20px;
-  }
-  
-  h1, h2, h3 {
-    margin-top: 0;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-  }
-  
-  h1 { 
-    color: var(--orange); 
-    font-size: 54px; 
-    text-align: center; 
-    text-shadow: 2px 2px 0px #fff;
-  }
-  
-  p { font-size: 26px; line-height: 1.5; margin: 10px 0; }
-  
-  /* Retro Buttons */
- .btn {
-    background: #000;
-    color: var(--text);
-    border: var(--border-thick);
-    font-family: 'Pixelify Sans', monospace;
-    font-size: 24px;
-    padding: 12px 24px;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: 0.1s;
-    margin-right: 15px;
-    margin-bottom: 15px;
-  }
-  
- .btn:hover {
-    border: var(--border-orange);
-    color: var(--orange);
-  }
-  
+
+  /* Glassmorphism Game Cards */
  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px;
   }
-  
-  /* Typewriter Cursor Animation */
- .cursor {
-    display: inline-block;
-    width: 14px;
-    height: 26px;
-    background-color: var(--orange);
-    animation: blink 1s step-end infinite;
-    vertical-align: bottom;
-    margin-left: 4px;
+ .card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px; padding: 30px;
+    position: relative; overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
-  
-  @keyframes blink {
-    50% { opacity: 0; }
+ .card:hover {
+    transform: translateY(-10px);
+    border-color: var(--orange-light);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 91, 4, 0.2);
   }
-  
-  /* Form Elements */
- .form-group { margin-bottom: 24px; }
- .form-group input {
-    width: 100%;
-    background: #000;
-    border: var(--border-thick);
-    color: var(--text);
-    font-family: 'Pixelify Sans', monospace;
-    font-size: 24px;
-    padding: 14px;
-    box-sizing: border-box;
-    margin-top: 10px;
+ .card h3 { font-size: 26px; margin-bottom: 10px; font-weight: 800; }
+ .card p { color: #a7b0c0; line-height: 1.6; margin-bottom: 25px; }
+
+  /* Retro Undertale Notification Box */
+ .retro-box {
+    background: #000; border: 3px solid #fff;
+    padding: 20px; font-family: 'Pixelify Sans', monospace;
+    font-size: 22px; border-radius: 4px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    width: 90%; max-width: 700px; z-index: 1000;
+    display: none;
   }
-  
- .form-group input:focus {
-    outline: none;
-    border: var(--border-orange);
+ .asterisk { color: var(--orange-light); margin-right: 10px; }
+ .pixel-heart {
+    display: inline-block; width: 14px; height: 14px;
+    background: var(--orange-glow);
+    clip-path: polygon(50% 100%, 0 45%, 0 0, 45% 0, 50% 20%, 55% 0, 100% 0, 100% 45%);
+    animation: heartbeat 1.5s infinite;
+    margin-right: 8px;
   }
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+  }
+
+  /* RODO Compliant Registration Form */
+ .form-container {
+    background: var(--glass-bg); backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border); border-radius: 20px;
+    padding: 40px; max-width: 500px; margin: 0 auto;
+  }
+ .form-group { margin-bottom: 25px; }
+ .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #a7b0c0; }
+ .form-group input[type="email"] {
+    width: 100%; padding: 14px 18px; border-radius: 8px;
+    background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
+    color: #fff; font-family: 'Outfit', sans-serif; font-size: 16px;
+    outline: none; transition: border 0.3s;
+  }
+ .form-group input[type="email"]:focus { border-color: var(--orange-light); }
   
- .asterisk { color: var(--orange); margin-right: 10px; font-weight: bold; }
+ .rodo-clause {
+    font-size: 11px; color: #7a8496; line-height: 1.5;
+    display: flex; gap: 12px; align-items: flex-start; margin-bottom: 30px;
+  }
+ .rodo-clause input[type="checkbox"] { margin-top: 2px; accent-color: var(--orange-glow); width: 18px; height: 18px; cursor: pointer; }
+
+  /* Epic Loading Screen */
+  #loader-screen {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: #000; z-index: 9999;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    font-family: 'Pixelify Sans', monospace; transition: opacity 0.8s ease;
+  }
+  #loader-screen.hidden { opacity: 0; pointer-events: none; }
+ .loader-text { font-size: 32px; margin-top: 20px; color: #fff; }
 </style>
 </head>
 <body>
 
-  <div id="loadingPage" class="page active box">
-    <p><span class="asterisk">*</span> <span id="loadingText"></span><span class="cursor"></span></p>
+  <canvas id="canvas-bg"></canvas>
+
+  <div id="loader-screen">
+    <div class="pixel-heart" style="width: 40px; height: 40px;"></div>
+    <div class="loader-text"><span class="asterisk">*</span><span id="boot-text"></span></div>
   </div>
 
-  <div id="homePage" class="page">
-    <h1>Orange Games</h1>
-    <div class="box">
-      <p><span class="asterisk">*</span> Welcome to the underground hub of retro gaming.</p>
-      <p><span class="asterisk">*</span> What will you do?</p>
-      <div style="margin-top: 20px;">
-        <button class="btn" onclick="nav('gamesPage')">Play Games</button>
-        <button class="btn" onclick="nav('registerPage')">Save Soul (Register)</button>
-      </div>
+  <nav class="topbar">
+    <div class="brand" onclick="navigate('home')">ORANGE GAMES</div>
+    <div class="nav-links">
+      <button class="nav-btn" onclick="navigate('home')">Hub</button>
+      <button class="nav-btn" onclick="navigate('games')">Games</button>
     </div>
-  </div>
+    <button class="btn-primary" onclick="navigate('register')">Save Data</button>
+  </nav>
 
-  <div id="gamesPage" class="page">
-    <h1>Select Game</h1>
+  <main id="home" class="page active">
+    <div style="text-align: center; margin-top: 80px;">
+      <h1 style="font-size: 64px; font-weight: 800; margin-bottom: 20px; text-shadow: 0 0 20px rgba(255,91,4,0.4);">DETERMINE YOUR DESTINY.</h1>
+      <p style="font-size: 20px; color: #a7b0c0; max-width: 600px; margin: 0 auto 40px;">Experience the next generation of web gaming. Flawless UI, zero latency, and experiences that fill you with determination.</p>
+      <button class="btn-primary" style="padding: 16px 40px; font-size: 18px;" onclick="navigate('games')">Enter The Hub</button>
+    </div>
+  </main>
+
+  <main id="games" class="page">
+    <h2 style="font-size: 32px; margin-bottom: 30px; display: flex; align-items: center;"><span class="pixel-heart"></span> Select a Game</h2>
     <div class="grid">
-      <div class="box">
-        <h2>Tic-Tac-Toe</h2>
-        <p>Classic 3x3 logic. Will you show mercy or dominate?</p>
-        <button class="btn" onclick="typeDialog('You selected Tic-Tac-Toe. Knowing your opponent fills you with DETERMINATION.')">FIGHT</button>
-      </div>
-      <div class="box">
-        <h2>AU Clicker</h2>
-        <p>Gain AU. Upgrade stats. Become unstoppable.</p>
-        <button class="btn" onclick="typeDialog('You selected AU Clicker. Your fingers twitch with anticipation.')">FIGHT</button>
-      </div>
-    </div>
-    
-    <div style="margin-top: 20px;">
-      <button class="btn" onclick="nav('homePage')">FLEE (Back)</button>
-    </div>
-    
-    <div id="dialogBox" class="box" style="display:none; margin-top:24px;">
-      <p><span class="asterisk">*</span> <span id="dialogText"></span><span class="cursor"></span></p>
-    </div>
-  </div>
+      <article class="card">
+        <h3>Tic-Tac-Toe</h3>
+        <p>A classic battle of wits and X's. Will you show mercy, or will you dominate the grid?</p>
+        <button class="btn-primary" onclick="showRetroToast('You selected Tic-Tac-Toe. The grid awaits your first move.')">FIGHT</button>
+      </article>
 
-  <div id="registerPage" class="page">
-    <h1>Create Save File</h1>
-    <div class="box">
-      <div class="form-group">
-        <label><span class="asterisk">*</span> Enter your electronic mail address:</label>
-        <input type="email" id="emailInput" placeholder="player@orange.games">
-      </div>
-      <button class="btn" onclick="submitReg()">SAVE</button>
-      <button class="btn" onclick="nav('homePage')">CANCEL</button>
+      <article class="card">
+        <h3>AU Clicker</h3>
+        <p>Gain Astronomical Units. Upgrade your stats. Become an unstoppable force in the universe.</p>
+        <button class="btn-primary" onclick="showRetroToast('You selected AU Clicker. Your mouse finger twitches with anticipation.')">FIGHT</button>
+      </article>
     </div>
+  </main>
+
+  <main id="register" class="page">
+    <div class="form-container">
+      <h2 style="font-size: 28px; margin-bottom: 10px;">Create Save File</h2>
+      <p style="color: #a7b0c0; margin-bottom: 30px;">Register to save your progress across all devices.</p>
+      
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="email" placeholder="player@orange.games">
+      </div>
+
+      <label class="rodo-clause">
+        <input type="checkbox" id="rodo" />
+        <span>Zapoznałam/em się z informacjami dotyczącymi przetwarzania moich danych osobowych zgodnie z art. 13 i 14 RODO w sprawie ochrony osób fizycznych w związku z przetwarzaniem danych.</span>
+      </label>
+
+      <button class="btn-primary" style="width: 100%;" onclick="attemptSave()">SAVE PROGRESS</button>
+    </div>
+  </main>
+
+  <div id="toast" class="retro-box">
+    <span class="asterisk">*</span><span id="toast-text"></span>
   </div>
 
   <script>
-    // Page Navigation Logic
-    function nav(pageId) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.getElementById(pageId).classList.add('active');
-      document.getElementById('dialogBox').style.display = 'none'; // Reset dialog
+    /* --- Ambient Particle System (Undertale Dust Effect) --- */
+    const canvas = document.getElementById('canvas-bg');
+    const ctx = canvas.getContext('2d');
+    let particles =;
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 3 + 1;
+        this.speedY = Math.random() * -0.5 - 0.1;
+        this.opacity = Math.random() * 0.5 + 0.1;
+      }
+      update() {
+        this.y += this.speedY;
+        if (this.y < 0) {
+          this.y = canvas.height;
+          this.x = Math.random() * canvas.width;
+        }
+      }
+      draw() {
+        ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+        ctx.fillRect(this.x, this.y, this.size, this.size);
+      }
     }
 
-    // Classic RPG Typewriter Text Engine
+    for(let i=0; i<70; i++) particles.push(new Particle());
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    /* --- Typewriter Engine --- */
+    let typeInterval;
     function typeWriter(text, elementId, speed, callback) {
+      clearInterval(typeInterval);
       const el = document.getElementById(elementId);
       el.innerHTML = '';
       let i = 0;
-      
-      function type() {
+      typeInterval = setInterval(() => {
         if (i < text.length) {
           el.innerHTML += text.charAt(i);
           i++;
-          setTimeout(type, speed);
-        } else if (callback) {
-          setTimeout(callback, 500);
+        } else {
+          clearInterval(typeInterval);
+          if (callback) setTimeout(callback, 800);
         }
-      }
-      type();
+      }, speed);
     }
 
-    // Trigger Game Dialogues
-    function typeDialog(text) {
-      const dialog = document.getElementById('dialogBox');
-      dialog.style.display = 'block';
-      typeWriter(text, 'dialogText', 40);
+    /* --- SPA Navigation --- */
+    function navigate(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+      document.getElementById('toast').style.display = 'none';
+      window.scrollTo(0,0);
     }
 
-    // Registration Form Submission
-    function submitReg() {
-      const email = document.getElementById('emailInput').value;
-      if(email) {
-        alert('* SAVE POINT CREATED.\nAccount registered: ' + email);
-        document.getElementById('emailInput').value = '';
-        nav('homePage');
+    /* --- Retro Dialog Notification --- */
+    let toastTimeout;
+    function showRetroToast(message) {
+      const toast = document.getElementById('toast');
+      toast.style.display = 'block';
+      typeWriter(message, 'toast-text', 35, () => {
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => { toast.style.display = 'none'; }, 3000);
+      });
+    }
+
+    /* --- Save/Register Logic --- */
+    function attemptSave() {
+      const email = document.getElementById('email').value;
+      const rodo = document.getElementById('rodo').checked;
+      
+      if(email && rodo) {
+        showRetroToast('FILE SAVED. You are filled with DETERMINATION.');
+        document.getElementById('email').value = '';
+        document.getElementById('rodo').checked = false;
+        setTimeout(() => navigate('home'), 4000);
       } else {
-        alert('* You cannot save an empty soul. Please enter an email.');
+        showRetroToast('Cannot save. Please provide an email and accept the terms.');
       }
     }
 
-    // Initial Boot Sequence Animation
+    /* --- Initial Boot Sequence --- */
     window.onload = () => {
-      typeWriter("Booting up Orange Games module...", "loadingText", 60, () => {
-        nav('homePage');
+      typeWriter("Loading core assets...", "boot-text", 50, () => {
+        document.getElementById('loader-screen').classList.add('hidden');
       });
     };
   </script>
