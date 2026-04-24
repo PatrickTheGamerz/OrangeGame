@@ -48,6 +48,7 @@
     
     .btn-dark { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-family: 'Orbitron', sans-serif; font-weight: 700; padding: 10px 20px; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px; }
     .btn-dark:hover { border-color: #ff6a00; background: rgba(255,106,0,0.15); box-shadow: 0 0 15px rgba(255,106,0,0.2); }
+    .btn-dark.btn-danger:hover { border-color: #ef4444; background: rgba(239,68,68,0.15); box-shadow: 0 0 15px rgba(239,68,68,0.2); }
 
     .game-card { background: linear-gradient(145deg, #161925, #0d0f17); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; overflow: hidden; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; display: flex; flex-direction: column; position: relative; }
     .game-card::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.4s ease; pointer-events: none; z-index: 1; }
@@ -75,7 +76,7 @@
     .modal-content { transform: translateY(40px) scale(0.9); transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: #11141e; border: 1px solid rgba(255,106,0,0.4); border-radius: 28px; padding: 40px; width: 90%; max-width: 450px; box-shadow: 0 25px 60px rgba(255,106,0,0.35); }
     .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
 
-    .input-field { width: 100%; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; color: #fff; padding: 16px 20px; margin-top: 8px; outline: none; transition: all 0.3s ease; font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
+    .input-field { width: 100%; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; color: #fff; padding: 16px 20px; outline: none; transition: all 0.3s ease; font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
     .input-field:focus { border-color: #ff6a00; box-shadow: 0 0 25px rgba(255,106,0,0.4); background: rgba(0,0,0,0.8); }
     
     .lang-select { appearance: none; background: transparent; color: #fff; font-family: 'Orbitron', sans-serif; font-weight: 700; border: none; outline: none; cursor: pointer; padding-right: 20px; }
@@ -134,11 +135,10 @@
     <div class="lg:col-span-2 space-y-8">
       <div class="glass-panel p-10 rounded-[32px] relative overflow-hidden shadow-2xl border-white/5">
         <div class="absolute top-0 right-0 w-80 h-80 bg-brand rounded-full filter blur-[100px] opacity-20 -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
-        <h1 class="text-4xl md:text-6xl font-orbitron font-black text-white mb-6 leading-tight tracking-wide">
-          <span data-i18n="welcome">WELCOME TO THE</span> <br>
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand to-yellow-400 drop-shadow-[0_0_15px_rgba(255,106,0,0.5)]">ARENA</span>
+        <h1 class="text-4xl md:text-6xl font-orbitron font-black text-white mb-10 leading-tight tracking-wide">
+          <span data-i18n="orange">ORANGE</span> <br>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand to-yellow-400 drop-shadow-[0_0_15px_rgba(255,106,0,0.5)]" data-i18n="hub">HUB</span>
         </h1>
-        <p class="text-gray-300 text-lg mb-10 max-w-xl leading-relaxed" data-i18n="desc">Select a game below and dominate the leaderboards. Your global power score syncs automatically across all supported experiences.</p>
         
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
           <div class="game-card card-orange group" onclick="window.location.href='TicTacToe.html'">
@@ -197,9 +197,12 @@
     <div class="modal-content relative overflow-hidden">
       <div class="absolute -top-20 -right-20 w-40 h-40 bg-brand rounded-full filter blur-[60px] opacity-20 pointer-events-none"></div>
       <h3 class="font-orbitron text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand to-yellow-400 mb-4 tracking-widest text-center" data-i18n="identify">IDENTIFY</h3>
-      <p class="text-center text-sm text-gray-400 mb-8 leading-relaxed font-inter" data-i18n="auth_desc">Enter your agent designation to sync your global power score across all simulations.</p>
+      <p class="text-center text-sm text-gray-400 mb-6 leading-relaxed font-inter" data-i18n="auth_desc">Enter your agent designation and security key. Unrecognized keys will register a new agent automatically.</p>
       
-      <input type="text" id="username-input" class="input-field mb-8 text-center text-xl" placeholder="USERNAME" maxlength="12" autocomplete="off" data-i18n="identify">
+      <div class="space-y-4 mb-8">
+        <input type="text" id="username-input" class="input-field text-center text-xl" placeholder="USERNAME" maxlength="12" autocomplete="off" data-i18n="username">
+        <input type="password" id="password-input" class="input-field text-center text-xl" placeholder="PASSWORD" maxlength="20" autocomplete="off" data-i18n="password">
+      </div>
       
       <div class="flex gap-4">
         <button class="btn-dark flex-1 tracking-widest uppercase text-sm" id="btn-auth-cancel" data-i18n="cancel">Cancel</button>
@@ -208,36 +211,50 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="profile-modal">
+    <div class="modal-content relative overflow-hidden">
+      <div class="absolute -top-20 -left-20 w-40 h-40 bg-brand rounded-full filter blur-[60px] opacity-20 pointer-events-none"></div>
+      <h3 class="font-orbitron text-4xl font-black text-white mb-1 text-center truncate" id="profile-name">USER</h3>
+      <div class="text-brand text-center font-black text-2xl mb-8 tracking-widest drop-shadow-[0_0_10px_rgba(255,106,0,0.4)]" id="profile-score">0 PTS</div>
+      
+      <h4 class="text-gray-400 text-sm font-bold tracking-widest uppercase mb-4" data-i18n="achievements">Achievements</h4>
+      <div class="space-y-3 mb-10 max-h-48 overflow-y-auto custom-scrollbar-mini pr-2" id="achievements-list">
+      </div>
+      
+      <button class="btn-dark btn-danger w-full tracking-widest uppercase text-sm" id="btn-logout" data-i18n="logout">Logout</button>
+    </div>
+  </div>
+
   <script>
     const translations = {
-      "English": { "login": "Login", "welcome": "WELCOME TO THE", "desc": "Select a game below and dominate the leaderboards. Your global power score syncs automatically across all supported experiences.", "xno_title": "X & O ARENA", "xno_desc": "Tactical chaos deck multiplayer with wild modifiers and bots.", "td_title": "TOWER DEFENSE", "td_desc": "Defend the core against endless waves. Upgrade and survive.", "leaderboard": "GLOBAL POWER", "identify": "IDENTIFY", "auth_desc": "Enter your agent designation to sync your global power score across all simulations.", "cancel": "Cancel", "confirm": "Confirm" },
-      "Español": { "login": "Entrar", "welcome": "BIENVENIDO A LA", "desc": "Selecciona un juego y domina. Tu puntuación de poder se sincroniza automáticamente.", "xno_title": "ARENA X & O", "xno_desc": "Multijugador táctico con cartas, modificadores y bots.", "td_title": "DEFENSA DE TORRE", "td_desc": "Defiende el núcleo de oleadas infinitas. Mejora y sobrevive.", "leaderboard": "PODER GLOBAL", "identify": "IDENTIFICATE", "auth_desc": "Ingresa tu nombre para sincronizar tu poder.", "cancel": "Cancelar", "confirm": "Confirmar" },
-      "Français": { "login": "Connexion", "welcome": "BIENVENUE DANS", "desc": "Sélectionnez un jeu et dominez. Votre puissance se synchronise automatiquement.", "xno_title": "ARÈNE X & O", "xno_desc": "Multijoueur tactique avec cartes, modificateurs et bots.", "td_title": "TOWER DEFENSE", "td_desc": "Défendez le noyau contre des vagues infinies. Survivez.", "leaderboard": "PUISSANCE GLOBALE", "identify": "IDENTIFICATION", "auth_desc": "Entrez votre nom pour synchroniser votre score.", "cancel": "Annuler", "confirm": "Confirmer" },
-      "Deutsch": { "login": "Anmelden", "welcome": "WILLKOMMEN IN DER", "desc": "Wähle ein Spiel und dominiere. Deine Punkte werden automatisch synchronisiert.", "xno_title": "X & O ARENA", "xno_desc": "Taktischer Multiplayer mit Chaos-Karten und Bots.", "td_title": "TOWER DEFENSE", "td_desc": "Verteidige den Kern gegen endlose Wellen. Überlebe.", "leaderboard": "GLOBALE MACHT", "identify": "IDENTIFIZIEREN", "auth_desc": "Gib deinen Namen ein, um deine Punkte zu synchronisieren.", "cancel": "Abbrechen", "confirm": "Bestätigen" },
-      "Italiano": { "login": "Accedi", "welcome": "BENVENUTO NELL'", "desc": "Seleziona un gioco e domina. Il tuo punteggio si sincronizza automaticamente.", "xno_title": "ARENA X & O", "xno_desc": "Multiplayer tattico con carte, modificatori e bot.", "td_title": "TOWER DEFENSE", "td_desc": "Difendi il nucleo da ondate infinite. Sopravvivi.", "leaderboard": "POTERE GLOBALE", "identify": "IDENTIFICATI", "auth_desc": "Inserisci il tuo nome per sincronizzare il punteggio.", "cancel": "Annulla", "confirm": "Conferma" },
-      "Português": { "login": "Entrar", "welcome": "BEM-VINDO À", "desc": "Selecione um jogo e domine. Sua pontuação sincroniza automaticamente.", "xno_title": "ARENA X & O", "xno_desc": "Multiplayer tático com cartas do caos e bots.", "td_title": "DEFESA DE TORRE", "td_desc": "Defenda o núcleo contra ondas infinitas. Sobreviva.", "leaderboard": "PODER GLOBAL", "identify": "IDENTIFICAÇÃO", "auth_desc": "Digite seu nome para sincronizar sua pontuação.", "cancel": "Cancelar", "confirm": "Confirmar" },
-      "Polski": { "login": "Zaloguj", "welcome": "WITAJ NA", "desc": "Wybierz grę i dominuj. Twoje punkty synchronizują się automatycznie.", "xno_title": "ARENA X & O", "xno_desc": "Taktyczny multiplayer z kartami chaosu i botami.", "td_title": "TOWER DEFENSE", "td_desc": "Broń rdzenia przed falami wrogów. Przetrwaj.", "leaderboard": "GLOBALNA MOC", "identify": "IDENTYFIKACJA", "auth_desc": "Wpisz swój nick, aby zsynchronizować punkty.", "cancel": "Anuluj", "confirm": "Potwierdź" },
-      "Русский": { "login": "Войти", "welcome": "ДОБРО ПОЖАЛОВАТЬ В", "desc": "Выберите игру и доминируйте. Ваши очки синхронизируются.", "xno_title": "АРЕНА X & O", "xno_desc": "Тактический мультиплеер с картами хаоса и ботами.", "td_title": "ЗАЩИТА БАШНИ", "td_desc": "Защищайте ядро от бесконечных волн. Выживайте.", "leaderboard": "ГЛОБАЛЬНАЯ СИЛА", "identify": "ИДЕНТИФИКАЦИЯ", "auth_desc": "Введите имя для синхронизации очков.", "cancel": "Отмена", "confirm": "Подтвердить" },
-      "Українська": { "login": "Увійти", "welcome": "ЛАСКАВО ПРОСИМО ДО", "desc": "Оберіть гру та домінуйте. Ваші бали синхронізуються.", "xno_title": "АРЕНА X & O", "xno_desc": "Тактичний мультиплеєр з картами хаосу та ботами.", "td_title": "ЗАХИСТ ВЕЖІ", "td_desc": "Захищайте ядро від нескінченних хвиль. Виживайте.", "leaderboard": "ГЛОБАЛЬНА СИЛА", "identify": "ІДЕНТИФІКАЦІЯ", "auth_desc": "Введіть ім'я для синхронізації балів.", "cancel": "Скасувати", "confirm": "Підтвердити" },
-      "Türkçe": { "login": "Giriş", "welcome": "HOŞ GELDİNİZ", "desc": "Bir oyun seçin ve domine edin. Puanınız otomatik senkronize edilir.", "xno_title": "X & O ARENASI", "xno_desc": "Kaos kartları ve botlarla taktiksel çok oyunculu.", "td_title": "KULE SAVUNMASI", "td_desc": "Çekirdeği sonsuz dalgalara karşı koruyun. Hayatta kalın.", "leaderboard": "KÜRESEL GÜÇ", "identify": "KİMLİK", "auth_desc": "Puanınızı senkronize etmek için adınızı girin.", "cancel": "İptal", "confirm": "Onayla" },
-      "Nederlands": { "login": "Inloggen", "welcome": "WELKOM IN DE", "desc": "Kies een game en domineer. Je score synchroniseert automatisch.", "xno_title": "X & O ARENA", "xno_desc": "Tactische multiplayer met chaoskaarten en bots.", "td_title": "TOWER DEFENSE", "td_desc": "Verdedig de kern tegen eindeloze golven. Overleef.", "leaderboard": "GLOBALE MACHT", "identify": "IDENTIFICATIE", "auth_desc": "Voer je naam in om je score te synchroniseren.", "cancel": "Annuleren", "confirm": "Bevestigen" },
-      "Svenska": { "login": "Logga in", "welcome": "VÄLKOMMEN TILL", "desc": "Välj ett spel och dominera. Dina poäng synkroniseras automatiskt.", "xno_title": "X & O ARENA", "xno_desc": "Taktisk multiplayer med kaoskort och botar.", "td_title": "TOWER DEFENSE", "td_desc": "Försvara kärnan mot ändlösa vågor. Överlev.", "leaderboard": "GLOBAL MAKT", "identify": "IDENTIFIERA", "auth_desc": "Ange ditt namn för att synkronisera dina poäng.", "cancel": "Avbryt", "confirm": "Bekräfta" },
-      "中文": { "login": "登录", "welcome": "欢迎来到", "desc": "选择一款游戏并统治排行榜。您的全球战力会自动同步。", "xno_title": "X & O 竞技场", "xno_desc": "战术混沌卡牌多人游戏，包含疯狂的修改器和机器人。", "td_title": "塔防", "td_desc": "抵御无尽的浪潮，保护核心。升级并生存下去。", "leaderboard": "全球战力", "identify": "身份验证", "auth_desc": "输入您的代号以同步您的全球战力。", "cancel": "取消", "confirm": "确认" },
-      "日本語": { "login": "ログイン", "welcome": "アリーナへようこそ", "desc": "ゲームを選んでランキングを支配しよう。スコアは自動的に同期されます。", "xno_title": "X & O アリーナ", "xno_desc": "カオスカードとボットによる戦術的なマルチプレイヤー。", "td_title": "タワーディフェンス", "td_desc": "無限の波からコアを守り抜け。アップグレードして生き残れ。", "leaderboard": "グローバルパワー", "identify": "個人認証", "auth_desc": "スコアを同期するために名前を入力してください。", "cancel": "キャンセル", "confirm": "確認" },
-      "한국어": { "login": "로그인", "welcome": "아레나에 오신 것을 환영합니다", "desc": "게임을 선택하고 리더보드를 지배하세요. 점수가 자동으로 동기화됩니다.", "xno_title": "X & O 아레나", "xno_desc": "카오스 덱과 봇이 있는 전술적 멀티플레이어.", "td_title": "타워 디펜스", "td_desc": "끝없는 파도로부터 코어를 방어하세요. 생존하세요.", "leaderboard": "글로벌 파워", "identify": "신원 확인", "auth_desc": "점수를 동기화하려면 이름을 입력하세요.", "cancel": "취소", "confirm": "확인" },
-      "हिन्दी": { "login": "लॉग इन", "welcome": "अखाड़े में आपका स्वागत है", "desc": "एक गेम चुनें और हावी हों। आपका स्कोर स्वचालित रूप से सिंक होता है।", "xno_title": "X & O अखाड़ा", "xno_desc": "कैओस कार्ड और बॉट्स के साथ सामरिक मल्टीप्लेयर।", "td_title": "टॉवर डिफेंस", "td_desc": "अंतहीन लहरों के खिलाफ कोर की रक्षा करें। जीवित रहें।", "leaderboard": "वैश्विक शक्ति", "identify": "पहचान", "auth_desc": "अपने स्कोर को सिंक करने के लिए अपना नाम दर्ज करें।", "cancel": "रद्द करें", "confirm": "पुष्टि करें" },
-      "العربية": { "login": "دخول", "welcome": "مرحباً بك في", "desc": "اختر لعبة وسيطر على لوحة المتصدرين. تتم مزامنة نقاطك تلقائياً.", "xno_title": "ساحة X & O", "xno_desc": "لعب تكتيكي متعدد اللاعبين مع بطاقات فوضى وروبوتات.", "td_title": "الدفاع عن البرج", "td_desc": "دافع عن النواة ضد موجات لا نهاية لها. ابق على قيد الحياة.", "leaderboard": "القوة العالمية", "identify": "تحديد الهوية", "auth_desc": "أدخل اسمك لمزامنة نقاطك.", "cancel": "إلغاء", "confirm": "تأكيد" },
-      "Tiếng Việt": { "login": "Đăng nhập", "welcome": "CHÀO MỪNG ĐẾN", "desc": "Chọn game và thống trị. Điểm của bạn tự động đồng bộ.", "xno_title": "ĐẤU TRƯỜNG X & O", "xno_desc": "Chiến thuật nhiều người chơi với thẻ bài hỗn loạn.", "td_title": "THỦ THÀNH", "td_desc": "Bảo vệ lõi khỏi những đợt sóng vô tận. Sống sót.", "leaderboard": "SỨC MẠNH TOÀN CẦU", "identify": "XÁC NHẬN", "auth_desc": "Nhập tên để đồng bộ điểm của bạn.", "cancel": "Hủy", "confirm": "Xác nhận" },
-      "ภาษาไทย": { "login": "เข้าสู่ระบบ", "welcome": "ยินดีต้อนรับสู่", "desc": "เลือกเกมและครอบครองกระดานผู้นำ คะแนนของคุณจะซิงค์อัตโนมัติ", "xno_title": "X & O อารีน่า", "xno_desc": "ผู้เล่นหลายคนพร้อมการ์ดพลังและบอท", "td_title": "ทาวเวอร์ดีเฟนส์", "td_desc": "ปกป้องแกนหลักจากศัตรู เอาชีวิตรอด", "leaderboard": "พลังระดับโลก", "identify": "ยืนยันตัวตน", "auth_desc": "ใส่ชื่อเพื่อซิงค์คะแนน", "cancel": "ยกเลิก", "confirm": "ยืนยัน" },
-      "Bahasa Indonesia": { "login": "Masuk", "welcome": "SELAMAT DATANG DI", "desc": "Pilih game dan kuasai. Skor Anda disinkronkan secara otomatis.", "xno_title": "ARENA X & O", "xno_desc": "Multiplayer taktis dengan kartu chaos dan bot.", "td_title": "TOWER DEFENSE", "td_desc": "Pertahankan inti dari gelombang tak berujung. Bertahan.", "leaderboard": "KEKUATAN GLOBAL", "identify": "IDENTIFIKASI", "auth_desc": "Masukkan nama untuk menyinkronkan skor Anda.", "cancel": "Batal", "confirm": "Konfirmasi" }
+      "English": { "login": "Login", "orange": "ORANGE", "hub": "HUB", "xno_title": "X & O ARENA", "xno_desc": "Tactical chaos deck multiplayer with wild modifiers and bots.", "td_title": "TOWER DEFENSE", "td_desc": "Defend the core against endless waves. Upgrade and survive.", "leaderboard": "GLOBAL POWER", "identify": "IDENTIFY", "auth_desc": "Enter your agent designation and security key. Unrecognized keys will register a new agent automatically.", "username": "USERNAME", "password": "PASSWORD", "cancel": "Cancel", "confirm": "Confirm", "achievements": "Achievements", "logout": "Logout" },
+      "Español": { "login": "Entrar", "orange": "ORANGE", "hub": "HUB", "xno_title": "ARENA X & O", "xno_desc": "Multijugador táctico con cartas, modificadores y bots.", "td_title": "DEFENSA DE TORRE", "td_desc": "Defiende el núcleo de oleadas infinitas. Mejora y sobrevive.", "leaderboard": "PODER GLOBAL", "identify": "IDENTIFICATE", "auth_desc": "Ingresa tu nombre y clave. Las claves no reconocidas registrarán un nuevo agente.", "username": "USUARIO", "password": "CONTRASEÑA", "cancel": "Cancelar", "confirm": "Confirmar", "achievements": "Logros", "logout": "Cerrar sesión" },
+      "Français": { "login": "Connexion", "orange": "ORANGE", "hub": "HUB", "xno_title": "ARÈNE X & O", "xno_desc": "Multijoueur tactique avec cartes, modificateurs et bots.", "td_title": "TOWER DEFENSE", "td_desc": "Défendez le noyau contre des vagues infinies. Survivez.", "leaderboard": "PUISSANCE GLOBALE", "identify": "IDENTIFICATION", "auth_desc": "Entrez votre nom et mot de passe. Un nouveau compte sera créé si inconnu.", "username": "UTILISATEUR", "password": "MOT DE PASSE", "cancel": "Annuler", "confirm": "Confirmer", "achievements": "Succès", "logout": "Déconnexion" },
+      "Deutsch": { "login": "Anmelden", "orange": "ORANGE", "hub": "HUB", "xno_title": "X & O ARENA", "xno_desc": "Taktischer Multiplayer mit Chaos-Karten und Bots.", "td_title": "TOWER DEFENSE", "td_desc": "Verteidige den Kern gegen endlose Wellen. Überlebe.", "leaderboard": "GLOBALE MACHT", "identify": "IDENTIFIZIEREN", "auth_desc": "Gib Name und Passwort ein. Neue Daten registrieren einen neuen Agenten.", "username": "BENUTZER", "password": "PASSWORT", "cancel": "Abbrechen", "confirm": "Bestätigen", "achievements": "Erfolge", "logout": "Abmelden" },
+      "Italiano": { "login": "Accedi", "orange": "ORANGE", "hub": "HUB", "xno_title": "ARENA X & O", "xno_desc": "Multiplayer tattico con carte, modificatori e bot.", "td_title": "TOWER DEFENSE", "td_desc": "Difendi il nucleo da ondate infinite. Sopravvivi.", "leaderboard": "POTERE GLOBALE", "identify": "IDENTIFICATI", "auth_desc": "Inserisci nome e password. Dati nuovi creeranno un nuovo account.", "username": "UTENTE", "password": "PASSWORD", "cancel": "Annulla", "confirm": "Conferma", "achievements": "Obiettivi", "logout": "Esci" },
+      "Português": { "login": "Entrar", "orange": "ORANGE", "hub": "HUB", "xno_title": "ARENA X & O", "xno_desc": "Multiplayer tático com cartas do caos e bots.", "td_title": "DEFESA DE TORRE", "td_desc": "Defenda o núcleo contra ondas infinitas. Sobreviva.", "leaderboard": "PODER GLOBAL", "identify": "IDENTIFICAÇÃO", "auth_desc": "Insira nome e senha. Dados novos registrarão um novo agente.", "username": "USUÁRIO", "password": "SENHA", "cancel": "Cancelar", "confirm": "Confirmar", "achievements": "Conquistas", "logout": "Sair" },
+      "Polski": { "login": "Zaloguj", "orange": "ORANGE", "hub": "HUB", "xno_title": "ARENA X & O", "xno_desc": "Taktyczny multiplayer z kartami chaosu i botami.", "td_title": "TOWER DEFENSE", "td_desc": "Broń rdzenia przed falami wrogów. Przetrwaj.", "leaderboard": "GLOBALNA MOC", "identify": "IDENTYFIKACJA", "auth_desc": "Wpisz nazwę i hasło. Nieznane dane utworzą nowe konto.", "username": "NAZWA", "password": "HASŁO", "cancel": "Anuluj", "confirm": "Potwierdź", "achievements": "Osiągnięcia", "logout": "Wyloguj" },
+      "Русский": { "login": "Войти", "orange": "ORANGE", "hub": "HUB", "xno_title": "АРЕНА X & O", "xno_desc": "Тактический мультиплеер с картами хаоса и ботами.", "td_title": "ЗАЩИТА БАШНИ", "td_desc": "Защищайте ядро от бесконечных волн. Выживайте.", "leaderboard": "ГЛОБАЛЬНАЯ СИЛА", "identify": "ИДЕНТИФИКАЦИЯ", "auth_desc": "Введите имя и пароль. Неизвестные данные создадут новый аккаунт.", "username": "ИМЯ", "password": "ПАРОЛЬ", "cancel": "Отмена", "confirm": "Вход", "achievements": "Достижения", "logout": "Выйти" },
+      "Українська": { "login": "Увійти", "orange": "ORANGE", "hub": "HUB", "xno_title": "АРЕНА X & O", "xno_desc": "Тактичний мультиплеєр з картами хаосу та ботами.", "td_title": "ЗАХИСТ ВЕЖІ", "td_desc": "Захищайте ядро від нескінченних хвиль. Виживайте.", "leaderboard": "ГЛОБАЛЬНА СИЛА", "identify": "ІДЕНТИФІКАЦІЯ", "auth_desc": "Введіть ім'я та пароль. Невідомі дані створять новий акаунт.", "username": "ІМ'Я", "password": "ПАРОЛЬ", "cancel": "Скасувати", "confirm": "Вхід", "achievements": "Досягнення", "logout": "Вийти" },
+      "Türkçe": { "login": "Giriş", "orange": "ORANGE", "hub": "HUB", "xno_title": "X & O ARENASI", "xno_desc": "Kaos kartları ve botlarla taktiksel çok oyunculu.", "td_title": "KULE SAVUNMASI", "td_desc": "Çekirdeği sonsuz dalgalara karşı koruyun. Hayatta kalın.", "leaderboard": "KÜRESEL GÜÇ", "identify": "KİMLİK", "auth_desc": "Kullanıcı adı ve şifre girin. Yeni bilgiler yeni hesap açar.", "username": "KULLANICI", "password": "ŞİFRE", "cancel": "İptal", "confirm": "Onayla", "achievements": "Başarılar", "logout": "Çıkış" },
+      "Nederlands": { "login": "Inloggen", "orange": "ORANGE", "hub": "HUB", "xno_title": "X & O ARENA", "xno_desc": "Tactische multiplayer met chaoskaarten en bots.", "td_title": "TOWER DEFENSE", "td_desc": "Verdedig de kern tegen eindeloze golven. Overleef.", "leaderboard": "GLOBALE MACHT", "identify": "IDENTIFICATIE", "auth_desc": "Voer naam en wachtwoord in. Nieuwe gegevens maken een nieuw account.", "username": "GEBRUIKER", "password": "WACHTWOORD", "cancel": "Annuleren", "confirm": "Bevestigen", "achievements": "Prestaties", "logout": "Uitloggen" },
+      "Svenska": { "login": "Logga in", "orange": "ORANGE", "hub": "HUB", "xno_title": "X & O ARENA", "xno_desc": "Taktisk multiplayer med kaoskort och botar.", "td_title": "TOWER DEFENSE", "td_desc": "Försvara kärnan mot ändlösa vågor. Överlev.", "leaderboard": "GLOBAL MAKT", "identify": "IDENTIFIERA", "auth_desc": "Ange namn och lösenord. Nya uppgifter skapar ett nytt konto.", "username": "ANVÄNDARE", "password": "LÖSENORD", "cancel": "Avbryt", "confirm": "Bekräfta", "achievements": "Prestationer", "logout": "Logga ut" },
+      "中文": { "login": "登录", "orange": "ORANGE", "hub": "HUB", "xno_title": "X & O 竞技场", "xno_desc": "战术混沌卡牌多人游戏，包含修改器和机器人。", "td_title": "塔防", "td_desc": "抵御无尽的浪潮，保护核心。升级并生存。", "leaderboard": "全球战力", "identify": "身份验证", "auth_desc": "输入代号和密码。未知代号将自动注册。", "username": "用户名", "password": "密码", "cancel": "取消", "confirm": "确认", "achievements": "成就", "logout": "登出" },
+      "日本語": { "login": "ログイン", "orange": "ORANGE", "hub": "HUB", "xno_title": "X & O アリーナ", "xno_desc": "カオスカードとボットによる戦術的なマルチプレイヤー。", "td_title": "タワーディフェンス", "td_desc": "無限の波からコアを守り抜け。アップグレードして生き残れ。", "leaderboard": "グローバルパワー", "identify": "個人認証", "auth_desc": "名前とパスワードを入力。新規データは自動登録されます。", "username": "ユーザー名", "password": "パスワード", "cancel": "キャンセル", "confirm": "確認", "achievements": "実績", "logout": "ログアウト" },
+      "한국어": { "login": "로그인", "orange": "ORANGE", "hub": "HUB", "xno_title": "X & O 아레나", "xno_desc": "카오스 덱과 봇이 있는 전술적 멀티플레이어.", "td_title": "타워 디펜스", "td_desc": "끝없는 파도로부터 코어를 방어하세요. 생존하세요.", "leaderboard": "글로벌 파워", "identify": "신원 확인", "auth_desc": "이름과 비밀번호를 입력하세요. 새로운 정보는 자동 가입됩니다.", "username": "사용자 이름", "password": "비밀번호", "cancel": "취소", "confirm": "확인", "achievements": "업적", "logout": "로그아웃" },
+      "हिन्दी": { "login": "लॉग इन", "orange": "ORANGE", "hub": "HUB", "xno_title": "X & O अखाड़ा", "xno_desc": "कैओस कार्ड और बॉट्स के साथ सामरिक मल्टीप्लेयर।", "td_title": "टॉवर डिफेंस", "td_desc": "अंतहीन लहरों के खिलाफ कोर की रक्षा करें। जीवित रहें।", "leaderboard": "वैश्विक शक्ति", "identify": "पहचान", "auth_desc": "नाम और पासवर्ड दर्ज करें। नया डेटा स्वचालित रूप से पंजीकृत होगा।", "username": "उपयोगकर्ता", "password": "पासवर्ड", "cancel": "रद्द करें", "confirm": "पुष्टि करें", "achievements": "उपलब्धियां", "logout": "लॉग आउट" },
+      "العربية": { "login": "دخول", "orange": "ORANGE", "hub": "HUB", "xno_title": "ساحة X & O", "xno_desc": "لعب تكتيكي متعدد اللاعبين مع بطاقات فوضى وروبوتات.", "td_title": "الدفاع عن البرج", "td_desc": "دافع عن النواة ضد موجات لا نهاية لها. ابق على قيد الحياة.", "leaderboard": "القوة العالمية", "identify": "تحديد الهوية", "auth_desc": "أدخل اسمك وكلمة المرور. البيانات الجديدة ستنشئ حساباً جديداً.", "username": "المستخدم", "password": "كلمة المرور", "cancel": "إلغاء", "confirm": "تأكيد", "achievements": "الإنجازات", "logout": "خروج" },
+      "Tiếng Việt": { "login": "Đăng nhập", "orange": "ORANGE", "hub": "HUB", "xno_title": "ĐẤU TRƯỜNG X & O", "xno_desc": "Chiến thuật nhiều người chơi với thẻ bài hỗn loạn.", "td_title": "THỦ THÀNH", "td_desc": "Bảo vệ lõi khỏi những đợt sóng vô tận. Sống sót.", "leaderboard": "SỨC MẠNH TOÀN CẦU", "identify": "XÁC NHẬN", "auth_desc": "Nhập tên và mật khẩu. Dữ liệu mới sẽ tự động đăng ký.", "username": "TÀI KHOẢN", "password": "MẬT KHẨU", "cancel": "Hủy", "confirm": "Xác nhận", "achievements": "Thành tựu", "logout": "Đăng xuất" },
+      "ภาษาไทย": { "login": "เข้าสู่ระบบ", "orange": "ORANGE", "hub": "HUB", "xno_title": "X & O อารีน่า", "xno_desc": "ผู้เล่นหลายคนพร้อมการ์ดพลังและบอท", "td_title": "ทาวเวอร์ดีเฟนส์", "td_desc": "ปกป้องแกนหลักจากศัตรู เอาชีวิตรอด", "leaderboard": "พลังระดับโลก", "identify": "ยืนยันตัวตน", "auth_desc": "กรอกชื่อและรหัสผ่าน ข้อมูลใหม่จะถูกสมัครอัตโนมัติ", "username": "ชื่อผู้ใช้", "password": "รหัสผ่าน", "cancel": "ยกเลิก", "confirm": "ยืนยัน", "achievements": "ความสำเร็จ", "logout": "ออกจากระบบ" },
+      "Bahasa Indonesia": { "login": "Masuk", "orange": "ORANGE", "hub": "HUB", "xno_title": "ARENA X & O", "xno_desc": "Multiplayer taktis dengan kartu chaos dan bot.", "td_title": "TOWER DEFENSE", "td_desc": "Pertahankan inti dari gelombang tak berujung. Bertahan.", "leaderboard": "KEKUATAN GLOBAL", "identify": "IDENTIFIKASI", "auth_desc": "Masukkan nama dan sandi. Data baru akan didaftarkan otomatis.", "username": "PENGGUNA", "password": "SANDI", "cancel": "Batal", "confirm": "Konfirmasi", "achievements": "Pencapaian", "logout": "Keluar" }
     };
 
     const initialNetworkSeeds = {
-      "NEXUS_AI": 15420,
-      "CYBER_GHOST": 12850,
-      "NEON_STRIKER": 9600,
-      "VOID_WALKER": 6240,
-      "DATA_BREAKER": 3100
+      "NEXUS_AI": 150,
+      "CYBER_GHOST": 120,
+      "NEON_STRIKER": 90,
+      "VOID_WALKER": 60,
+      "DATA_BREAKER": 30
     };
 
     let currentLang = localStorage.getItem('orange_lang') || 'English';
@@ -247,9 +264,12 @@
     const authBtn = document.getElementById('auth-btn');
     const authText = document.getElementById('auth-text');
     const authModal = document.getElementById('auth-modal');
+    const profileModal = document.getElementById('profile-modal');
     const usernameInput = document.getElementById('username-input');
+    const passwordInput = document.getElementById('password-input');
     const btnCancel = document.getElementById('btn-auth-cancel');
     const btnConfirm = document.getElementById('btn-auth-confirm');
+    const btnLogout = document.getElementById('btn-logout');
     const leaderboardContainer = document.getElementById('leaderboard-container');
 
     function initNetworkSeeds() {
@@ -310,7 +330,7 @@
       
       leaderboardContainer.innerHTML = '';
       
-      players.slice(0, 15).forEach((p, idx) => {
+      players.slice(0, 6).forEach((p, idx) => {
         let rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : '';
         let meClass = p.isMe ? 'active-user' : '';
         let badge = `<div class="rank-badge ${rankClass}">${idx + 1}</div>`;
@@ -335,12 +355,19 @@
 
     authBtn.addEventListener('click', () => {
       if(currentUser) {
-        localStorage.removeItem('orange_currentUser');
-        currentUser = null;
-        applyTranslations();
-        updateLeaderboard();
+        document.getElementById('profile-name').textContent = currentUser;
+        document.getElementById('profile-score').textContent = (localStorage.getItem(`orange_au_score_${currentUser}`) || "0") + " PTS";
+        
+        let rawAchv = localStorage.getItem(`orange_au_achv_${currentUser}`);
+        let achvs = rawAchv ? JSON.parse(rawAchv) : ["Welcome to the Hub!"];
+        
+        let achList = document.getElementById('achievements-list');
+        achList.innerHTML = achvs.map(a => `<div class="bg-white/5 p-3 rounded-xl border border-white/10 text-sm text-gray-300 font-medium tracking-wide flex items-center shadow-inner"><i class="fas fa-star text-yellow-500 mr-3 text-lg drop-shadow-[0_0_8px_rgba(234,179,8,0.6)]"></i>${a}</div>`).join('');
+        
+        profileModal.classList.add('active');
       } else {
         usernameInput.value = '';
+        passwordInput.value = '';
         authModal.classList.add('active');
         usernameInput.focus();
       }
@@ -352,12 +379,29 @@
 
     btnConfirm.addEventListener('click', () => {
       let val = usernameInput.value.trim().toUpperCase();
-      if(val.length > 0) {
+      let pass = passwordInput.value.trim();
+      
+      if(val.length > 0 && pass.length > 0) {
+        let savedPass = localStorage.getItem(`orange_au_pass_${val}`);
+        
+        if(savedPass) {
+            if(savedPass !== pass) {
+                passwordInput.style.borderColor = '#ef4444';
+                passwordInput.style.boxShadow = '0 0 25px rgba(239,68,68,0.4)';
+                setTimeout(() => {
+                    passwordInput.style.borderColor = '';
+                    passwordInput.style.boxShadow = '';
+                }, 800);
+                return;
+            }
+        } else {
+            localStorage.setItem(`orange_au_pass_${val}`, pass);
+            localStorage.setItem(`orange_au_score_${val}`, "0");
+            localStorage.setItem(`orange_au_achv_${val}`, JSON.stringify(["Welcome to the Hub!", "Fresh Agent"]));
+        }
+        
         currentUser = val;
         localStorage.setItem('orange_currentUser', currentUser);
-        if(!localStorage.getItem(`orange_au_score_${currentUser}`)) {
-          localStorage.setItem(`orange_au_score_${currentUser}`, "1000");
-        }
         authModal.classList.remove('active');
         applyTranslations();
         updateLeaderboard();
@@ -365,7 +409,24 @@
     });
 
     usernameInput.addEventListener('keypress', (e) => {
+      if(e.key === 'Enter') passwordInput.focus();
+    });
+    passwordInput.addEventListener('keypress', (e) => {
       if(e.key === 'Enter') btnConfirm.click();
+    });
+
+    btnLogout.addEventListener('click', () => {
+      localStorage.removeItem('orange_currentUser');
+      currentUser = null;
+      profileModal.classList.remove('active');
+      applyTranslations();
+      updateLeaderboard();
+    });
+
+    profileModal.addEventListener('click', (e) => {
+      if(e.target === profileModal) {
+        profileModal.classList.remove('active');
+      }
     });
 
     initNetworkSeeds();
