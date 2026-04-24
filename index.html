@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Orange Games - Unleash Your Inner Gamer</title>
   
-  <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -61,12 +59,10 @@
       overflow-x: hidden;
     }
 
-    /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 10px; }
     ::-webkit-scrollbar-track { background: #080a0f; }
     ::-webkit-scrollbar-thumb { background: #ff6a00; border-radius: 5px; border: 2px solid #080a0f; }
 
-    /* Ambient Particle Background */
     .ambient-engine {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       z-index: -2; overflow: hidden;
@@ -80,7 +76,6 @@
       opacity: 0.5; filter: blur(4px);
     }
 
-    /* Glassmorphism Utilities */
     .glass-panel {
       background: rgba(21, 24, 34, 0.6);
       backdrop-filter: blur(16px);
@@ -89,7 +84,6 @@
       box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
     }
 
-    /* Advanced Game Card Hover Effects */
     .game-card {
       transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
@@ -104,7 +98,6 @@
     .game-card:hover::before { opacity: 1; filter: blur(10px); }
     @keyframes shiftGradient { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 
-    /* Forms & Inputs */
     .input-field {
       background: rgba(0,0,0,0.4);
       border: 1px solid rgba(255,255,255,0.1);
@@ -117,21 +110,18 @@
       outline: none;
     }
 
-    /* Modal Transitions */
     .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
     .modal-content { transform: translateY(20px) scale(0.95); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
 
-    /* Hide unselected forms */
     .show-register #login-form { display: none; }
     #register-form { display: none; }
     .show-register #register-form { display: block; }
   </style>
 </head>
-<body class="font-inter antialiased min-h-screen flex flex-col">
+<body class="font-inter antialiased min-h-screen flex flex-col select-none">
 
-  <!-- Ambient Background -->
   <div class="ambient-engine">
     <div class="particle animate-float-slow" style="left: 15%; width: 50px; height: 50px; animation-duration: 18s;"></div>
     <div class="particle animate-float-slow" style="left: 35%; width: 70px; height: 70px; animation-duration: 22s; animation-delay: -5s;"></div>
@@ -139,19 +129,16 @@
     <div class="particle animate-float-slow" style="left: 85%; width: 90px; height: 90px; animation-duration: 25s; animation-delay: -10s;"></div>
   </div>
 
-  <!-- Top Navigation -->
   <header class="glass-panel sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
     <div class="text-2xl font-orbitron font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-brand to-yellow-400 cursor-pointer hover:drop-shadow-[0_0_10px_rgba(255,106,0,0.8)] transition-all">
       ORANGE GAMES
     </div>
 
     <div class="relative">
-      <!-- Login Button -->
       <button id="nav-login-btn" class="border border-brand text-brand hover:bg-brand hover:text-white px-6 py-2 rounded-full font-semibold uppercase tracking-wide transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,106,0,0.6)]">
         Initiate Uplink
       </button>
       
-      <!-- Profile Area -->
       <div id="profile-area" class="hidden group relative">
         <button class="flex items-center gap-3 bg-white/5 border border-white/10 hover:border-brand px-5 py-2 rounded-full backdrop-blur-md transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,106,0,0.3)]">
           <i class="fas fa-user-astronaut text-brand text-xl"></i>
@@ -159,12 +146,11 @@
           <i class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-brand transition-colors"></i>
         </button>
 
-        <!-- Dropdown -->
         <div class="absolute right-0 mt-2 w-56 glass-panel rounded-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right group-hover:translate-y-0 translate-y-2">
-          <div class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors">
+          <div id="hub-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors">
             <i class="fas fa-gamepad w-5"></i> Game Hub
           </div>
-          <div class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors">
+          <div id="stats-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors">
             <i class="fas fa-trophy w-5"></i> My Stats
           </div>
           <div id="logout-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors border-t border-white/5 mt-1">
@@ -175,26 +161,18 @@
     </div>
   </header>
 
-  <!-- Main Content Layout -->
   <main class="flex-grow container mx-auto px-4 py-12 flex flex-col xl:flex-row gap-10">
     
-    <!-- Left Column: Hero & Games -->
     <div class="flex-1 space-y-12">
       <section class="text-center xl:text-left pt-10">
         <h1 class="text-5xl md:text-6xl font-orbitron font-black text-white mb-6 animate-flicker">
-          UNLEASH YOUR<br/>INNER GAMER
+          YOU'RE GONNA HAVE<br/>A GOOD TIME.
         </h1>
-        <p class="text-gray-400 text-lg max-w-2xl mx-auto xl:mx-0 leading-relaxed">
-          Access the mainframe. Engage in high-stakes strategy or build your economic empire. Select your target module below to proceed to the repository.
-        </p>
       </section>
 
-      <!-- Games Grid -->
       <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
         
-        <!-- Game Card: Tic Tac Toe -->
         <a href="TicTacToe.md" class="game-card relative block h-72 rounded-2xl p-8 flex flex-col justify-end overflow-hidden group cursor-pointer border border-white/10 bg-surface-solid">
-          <!-- Background Image Mock -->
           <div class="absolute inset-0 bg-gradient-to-t from-[#080a0f] via-[#080a0f]/80 to-transparent z-10"></div>
           <div class="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity bg-[url('https://images.unsplash.com/photo-1614680376593-902f74cf0d41?auto=format&fit=crop&q=80')] bg-cover bg-center"></div>
           
@@ -203,14 +181,12 @@
               <i class="fas fa-times text-brand text-2xl"></i>
             </div>
             <h3 class="font-orbitron text-2xl font-bold text-white mb-2 group-hover:text-brand transition-colors">X and O Arena</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">The classic 3x3 strategic battleground. Predict, align, and conquer. Repository external.</p>
             <div class="mt-4 flex items-center text-xs font-bold text-brand uppercase tracking-wider">
-              <span>Execute .md</span> <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
+              <span>CLICK TO PLAY HERE</span> <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
             </div>
           </div>
         </a>
 
-        <!-- Game Card: AU Clicker -->
         <a href="AuClicker.md" class="game-card relative block h-72 rounded-2xl p-8 flex flex-col justify-end overflow-hidden group cursor-pointer border border-white/10 bg-surface-solid">
           <div class="absolute inset-0 bg-gradient-to-t from-[#080a0f] via-[#080a0f]/80 to-transparent z-10"></div>
           <div class="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity bg-[url('https://images.unsplash.com/photo-1621504450181-5c3b123af6c6?auto=format&fit=crop&q=80')] bg-cover bg-center"></div>
@@ -220,9 +196,8 @@
               <i class="fas fa-coins text-yellow-500 text-2xl"></i>
             </div>
             <h3 class="font-orbitron text-2xl font-bold text-white mb-2 group-hover:text-yellow-500 transition-colors">AU Syndicate</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">An incremental economy simulator. Extract resources and dominate the market. Repository external.</p>
             <div class="mt-4 flex items-center text-xs font-bold text-yellow-500 uppercase tracking-wider">
-              <span>Execute .md</span> <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
+              <span>CLICK TO PLAY HERE</span> <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
             </div>
           </div>
         </a>
@@ -230,10 +205,8 @@
       </section>
     </div>
 
-    <!-- Right Column: Leaderboard Panel -->
     <div class="w-full xl:w-96 flex-shrink-0 pt-10 xl:pt-0">
       <div class="glass-panel rounded-2xl p-6 h-full border-t-4 border-t-brand relative overflow-hidden">
-        <!-- Decoration -->
         <div class="absolute -top-10 -right-10 w-32 h-32 bg-brand/20 blur-3xl rounded-full pointer-events-none"></div>
 
         <div class="flex items-center justify-between mb-6">
@@ -245,30 +218,22 @@
           <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-white/10 pb-2">Top Operatives</h3>
           
           <div id="leaderboard-container" class="space-y-3">
-            <!-- Dynamic Leaderboard Content Injected Here -->
             <div class="text-center py-8 text-gray-500 text-sm">Initializing radar...</div>
           </div>
-        </div>
-
-        <div class="mt-8 pt-4 border-t border-white/10 text-center">
-          <p class="text-xs text-gray-500">Scores sync automatically via local neural net (LocalStorage).</p>
         </div>
       </div>
     </div>
 
   </main>
 
-  <!-- Authentication Modal -->
   <div id="auth-modal-overlay" class="modal-overlay fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
     <div id="auth-modal-container" class="modal-content relative w-full max-w-md glass-panel rounded-3xl p-8 border border-brand/30 shadow-[0_0_50px_rgba(255,106,0,0.15)] overflow-hidden">
-      <!-- Glow effect inside modal -->
       <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-brand to-transparent"></div>
       
       <button id="close-modal" class="absolute top-5 right-6 text-gray-400 hover:text-brand text-2xl transition-transform hover:rotate-90">
         <i class="fas fa-times"></i>
       </button>
 
-      <!-- Login Form -->
       <div id="login-form">
         <h2 class="font-orbitron text-3xl font-bold text-white text-center mb-8">INITIATE UPLINK</h2>
         
@@ -294,7 +259,6 @@
         </div>
       </div>
 
-      <!-- Registration Form -->
       <div id="register-form">
         <h2 class="font-orbitron text-3xl font-bold text-white text-center mb-8">CONSTRUCT IDENTITY</h2>
         
@@ -322,10 +286,38 @@
     </div>
   </div>
 
-  <script>
-    /* =========================================
-       CORE STATE & AUTHENTICATION
-       ========================================= */
+  <div id="stats-modal-overlay" class="modal-overlay fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div class="modal-content relative w-full max-w-sm glass-panel rounded-3xl p-8 border border-brand/30 shadow-[0_0_50px_rgba(255,106,0,0.15)] overflow-hidden text-center">
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-brand to-transparent"></div>
+      
+      <button id="close-stats" class="absolute top-5 right-6 text-gray-400 hover:text-brand text-2xl transition-transform hover:rotate-90">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <h2 class="font-orbitron text-3xl font-bold text-white mb-4">MY STATS</h2>
+      <i class="fas fa-trophy text-6xl text-yellow-500 mb-6 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]"></i>
+      
+      <div class="bg-black/40 rounded-xl p-4 border border-white/5">
+        <div class="text-gray-400 text-sm font-bold uppercase mb-1">Total Global Power</div>
+        <div id="stats-score" class="font-orbitron text-4xl font-black text-brand">0</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+    let currentUser = null;
+    let localUsername = localStorage.getItem('orange_currentUser');
+
     const UI = {
       navLoginBtn: document.getElementById('nav-login-btn'),
       profileArea: document.getElementById('profile-area'),
@@ -340,86 +332,101 @@
       logoutBtn: document.getElementById('logout-btn'),
       loginMsg: document.getElementById('login-msg'),
       regMsg: document.getElementById('reg-msg'),
-      leaderboardContainer: document.getElementById('leaderboard-container')
+      leaderboardContainer: document.getElementById('leaderboard-container'),
+      hubBtn: document.getElementById('hub-btn'),
+      statsBtn: document.getElementById('stats-btn'),
+      statsModalOverlay: document.getElementById('stats-modal-overlay'),
+      closeStatsBtn: document.getElementById('close-stats'),
+      statsScore: document.getElementById('stats-score')
     };
 
-    // Safe parsing of users
-    function getUsers() { 
-      try {
-        return JSON.parse(localStorage.getItem('orange_users')) || []; 
-      } catch {
-        return [];
-      }
-    }
-    
-    function saveUsers(users) { 
-      localStorage.setItem('orange_users', JSON.stringify(users)); 
-    }
-
     function updateUIState() {
-      const activeUser = localStorage.getItem('orange_currentUser');
-      if (activeUser) {
+      if (localUsername) {
         UI.navLoginBtn.classList.add('hidden');
         UI.profileArea.classList.remove('hidden');
-        UI.userNameDisplay.textContent = activeUser;
-        closeModal();
+        UI.userNameDisplay.textContent = localUsername;
+        UI.modalOverlay.classList.remove('active');
       } else {
         UI.navLoginBtn.classList.remove('hidden');
         UI.profileArea.classList.add('hidden');
       }
-      renderLeaderboard();
     }
 
-    // Modal Controls
-    function openModal() { UI.modalOverlay.classList.add('active'); }
-    function closeModal() { UI.modalOverlay.classList.remove('active'); }
+    UI.navLoginBtn.onclick = () => UI.modalOverlay.classList.add('active');
+    UI.closeModalBtn.onclick = () => UI.modalOverlay.classList.remove('active');
+    UI.modalOverlay.onclick = (e) => { if(e.target === UI.modalOverlay) UI.modalOverlay.classList.remove('active'); };
 
-    UI.navLoginBtn.onclick = openModal;
-    UI.closeModalBtn.onclick = closeModal;
-    UI.modalOverlay.onclick = (e) => { if(e.target === UI.modalOverlay) closeModal(); };
+    UI.toRegister.onclick = () => { UI.modalContainer.classList.add('show-register'); UI.loginMsg.textContent = ''; };
+    UI.toLogin.onclick = () => { UI.modalContainer.classList.remove('show-register'); UI.regMsg.textContent = ''; };
 
-    // Form Toggles
-    UI.toRegister.onclick = () => { 
-      UI.modalContainer.classList.add('show-register'); 
-      UI.loginMsg.textContent = ''; 
+    UI.hubBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    UI.statsBtn.onclick = async () => {
+      if(!localUsername || !currentUser) return;
+      const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', localUsername.toLowerCase());
+      const snap = await getDoc(docRef);
+      if(snap.exists()) {
+        UI.statsScore.textContent = snap.data().score.toLocaleString();
+      }
+      UI.statsModalOverlay.classList.add('active');
     };
-    UI.toLogin.onclick = () => { 
-      UI.modalContainer.classList.remove('show-register'); 
-      UI.regMsg.textContent = ''; 
+    
+    UI.closeStatsBtn.onclick = () => UI.statsModalOverlay.classList.remove('active');
+    UI.statsModalOverlay.onclick = (e) => { if(e.target === UI.statsModalOverlay) UI.statsModalOverlay.classList.remove('active'); };
+
+    const initAuth = async () => {
+      if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+        await signInWithCustomToken(auth, __initial_auth_token);
+      } else {
+        await signInAnonymously(auth);
+      }
     };
 
-    // Registration Logic
-    UI.regBtn.onclick = () => {
-      const user = document.getElementById('reg-user').value.trim();
-      const pass = document.getElementById('reg-pass').value.trim();
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      if (user) {
+        setupLeaderboard();
+      }
+    });
+
+    UI.regBtn.onclick = async () => {
+      if (!currentUser) return;
+      const userStr = document.getElementById('reg-user').value.trim();
+      const passStr = document.getElementById('reg-pass').value.trim();
       
-      if(user.length < 3 || pass.length < 4) {
-        return UI.regMsg.textContent = "Callsign > 3 chars. Passkey > 4 chars.";
+      if(userStr.length < 3 || passStr.length < 4) {
+        UI.regMsg.textContent = "Callsign > 3 chars. Passkey > 4 chars.";
+        return;
       }
       
-      const users = getUsers();
-      if(users.some(u => u.username === user)) {
-        return UI.regMsg.textContent = "Callsign already registered.";
+      const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', userStr.toLowerCase());
+      const snap = await getDoc(docRef);
+      
+      if(snap.exists()) {
+        UI.regMsg.textContent = "Callsign already registered globally.";
+        return;
       }
 
-      users.push({ username: user, password: pass, joined: new Date().toISOString() });
-      saveUsers(users);
-      localStorage.setItem('orange_currentUser', user);
+      await setDoc(docRef, { username: userStr, passkey: passStr, score: 0, uid: currentUser.uid });
       
-      // Clear inputs
+      localStorage.setItem('orange_currentUser', userStr);
+      localUsername = userStr;
       document.getElementById('reg-user').value = '';
       document.getElementById('reg-pass').value = '';
       updateUIState();
     };
 
-    // Login Logic
-    UI.loginBtn.onclick = () => {
-      const user = document.getElementById('login-user').value.trim();
-      const pass = document.getElementById('login-pass').value.trim();
-      const validUser = getUsers().find(u => u.username === user && u.password === pass);
+    UI.loginBtn.onclick = async () => {
+      if (!currentUser) return;
+      const userStr = document.getElementById('login-user').value.trim();
+      const passStr = document.getElementById('login-pass').value.trim();
       
-      if(validUser) {
-        localStorage.setItem('orange_currentUser', user);
+      const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', userStr.toLowerCase());
+      const snap = await getDoc(docRef);
+      
+      if(snap.exists() && snap.data().passkey === passStr) {
+        localStorage.setItem('orange_currentUser', userStr);
+        localUsername = userStr;
         document.getElementById('login-user').value = '';
         document.getElementById('login-pass').value = '';
         updateUIState();
@@ -428,71 +435,62 @@
       }
     };
 
-    // Logout Logic
     UI.logoutBtn.onclick = () => {
       localStorage.removeItem('orange_currentUser');
+      localUsername = null;
       updateUIState();
     };
 
-    /* =========================================
-       LEADERBOARD LOGIC
-       ========================================= */
-    function renderLeaderboard() {
-      const users = getUsers();
-      
-      // Calculate scores dynamically based on local storage keys if available
-      const leaderboardData = users.map(u => {
-        // Look up Au clicker scores saved by the individual games
-        const auScore = parseInt(localStorage.getItem(`orange_au_score_${u.username}`)) || 0;
-        // Mock a generic score based on length for demonstration if 0
-        const totalScore = auScore > 0 ? auScore : Math.floor(Math.random() * 50) + 10; 
-        return { username: u.username, score: totalScore };
-      });
-
-      // Sort top scores
-      leaderboardData.sort((a, b) => b.score - a.score);
-
-      if (leaderboardData.length === 0) {
-        UI.leaderboardContainer.innerHTML = `<div class="text-center py-6 text-gray-500 text-sm italic">No operatives found in the network.</div>`;
-        return;
-      }
-
-      UI.leaderboardContainer.innerHTML = leaderboardData.slice(0, 5).map((player, index) => {
-        // Styling for top 3
-        const rankColors = ['text-yellow-400', 'text-gray-300', 'text-amber-600'];
-        const iconColor = rankColors[index] || 'text-brand/50';
-        const bgHover = index === 0 ? 'hover:bg-yellow-500/10 hover:border-yellow-500/30' : 'hover:bg-brand/10 hover:border-brand/30';
+    function setupLeaderboard() {
+      if (!currentUser) return;
+      const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'users');
+      onSnapshot(colRef, (snapshot) => {
+        let usersData = [];
+        snapshot.forEach(doc => usersData.push(doc.data()));
+        usersData.sort((a, b) => b.score - a.score);
         
-        return `
-          <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-transparent ${bgHover} transition-all group">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-black/50 flex items-center justify-center font-orbitron font-bold ${iconColor}">
-                #${index + 1}
+        if (usersData.length === 0) {
+          UI.leaderboardContainer.innerHTML = `<div class="text-center py-6 text-gray-500 text-sm italic">No operatives found in the network.</div>`;
+          return;
+        }
+
+        UI.leaderboardContainer.innerHTML = usersData.slice(0, 5).map((player, index) => {
+          const rankColors = ['text-yellow-400', 'text-gray-300', 'text-amber-600'];
+          const iconColor = rankColors[index] || 'text-brand/50';
+          const bgHover = index === 0 ? 'hover:bg-yellow-500/10 hover:border-yellow-500/30' : 'hover:bg-brand/10 hover:border-brand/30';
+          
+          return `
+            <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-transparent ${bgHover} transition-all group">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-black/50 flex items-center justify-center font-orbitron font-bold ${iconColor}">
+                  #${index + 1}
+                </div>
+                <span class="font-medium text-white group-hover:text-brand transition-colors">${player.username}</span>
               </div>
-              <span class="font-medium text-white group-hover:text-brand transition-colors">${player.username}</span>
+              <div class="text-right">
+                <div class="text-brand font-orbitron font-bold">${player.score.toLocaleString()}</div>
+                <div class="text-[10px] text-gray-500 uppercase">Power</div>
+              </div>
             </div>
-            <div class="text-right">
-              <div class="text-brand font-orbitron font-bold">${player.score.toLocaleString()}</div>
-              <div class="text-[10px] text-gray-500 uppercase">Power</div>
-            </div>
-          </div>
-        `;
-      }).join('');
+          `;
+        }).join('');
+      }, (error) => {
+        UI.leaderboardContainer.innerHTML = `<div class="text-red-500 text-sm">Failed to sync network.</div>`;
+      });
     }
 
-    // Initialize UI on load
-    updateUIState();
-
-    // Game Links protection (Optional: require login to click)
     document.querySelectorAll('.game-card').forEach(card => {
       card.addEventListener('click', (e) => {
-        if(!localStorage.getItem('orange_currentUser')) {
+        if(!localUsername) {
           e.preventDefault();
-          openModal();
-          UI.loginMsg.textContent = "Authentication required to access external repositories.";
+          UI.modalOverlay.classList.add('active');
+          UI.loginMsg.textContent = "Authentication required.";
         }
       });
     });
+
+    updateUIState();
+    initAuth();
   </script>
 </body>
 </html>
