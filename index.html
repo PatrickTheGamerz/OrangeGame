@@ -195,15 +195,12 @@
           <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">বাংলা (Bengali)</div>
           <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">العربية (Arabic)</div>
           <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">עברית (Hebrew)</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Kiswahili</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Yoruba</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Amharic</div>
         </div>
       </div>
 
       <!-- Auth Logic -->
-      <button id="nav-login-btn" class="border border-brand text-brand hover:bg-brand hover:text-white px-6 py-2 rounded-full font-semibold uppercase tracking-wide transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,106,0,0.6)] text-sm">
-        Initiate Uplink
+      <button id="nav-login-btn" data-i18n="signin_btn" class="border border-brand text-brand hover:bg-brand hover:text-white px-6 py-2 rounded-full font-semibold uppercase tracking-wide transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,106,0,0.6)] text-sm">
+        Sign In / Log In
       </button>
       
       <div id="profile-area" class="hidden group relative">
@@ -215,13 +212,13 @@
 
         <div class="absolute right-0 mt-2 w-56 glass-panel rounded-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right group-hover:translate-y-0 translate-y-2">
           <div id="hub-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">
-            <i class="fas fa-gamepad w-5"></i> Game Hub
+            <i class="fas fa-gamepad w-5"></i> <span data-i18n="game_hub">Game Hub</span>
           </div>
           <div id="stats-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">
-            <i class="fas fa-trophy w-5"></i> My Stats
+            <i class="fas fa-trophy w-5"></i> <span data-i18n="my_stats">My Stats</span>
           </div>
           <div id="logout-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors border-t border-white/5 mt-1 text-sm">
-            <i class="fas fa-power-off w-5"></i> Disconnect
+            <i class="fas fa-power-off w-5"></i> <span data-i18n="disconnect">Disconnect</span>
           </div>
         </div>
       </div>
@@ -232,7 +229,7 @@
     
     <div class="flex-1 space-y-12">
       <section class="text-center xl:text-left pt-10">
-        <h1 class="text-5xl md:text-6xl font-orbitron font-black text-white mb-6 animate-flicker">
+        <h1 class="text-5xl md:text-6xl font-orbitron font-black text-white mb-6 animate-flicker" data-i18n="hero_title">
           YOU'RE GONNA HAVE<br/>A GOOD TIME.
         </h1>
       </section>
@@ -249,7 +246,7 @@
             </div>
             <h3 class="font-orbitron text-2xl font-bold text-white mb-2 group-hover:text-brand transition-colors">X and O Arena</h3>
             <div class="mt-4 flex items-center text-xs font-bold text-brand uppercase tracking-wider">
-              <span>CLICK TO PLAY HERE</span> <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
+              <span data-i18n="play_here">CLICK TO PLAY HERE</span> <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
             </div>
           </div>
         </a>
@@ -264,7 +261,7 @@
             </div>
             <h3 class="font-orbitron text-2xl font-bold text-white mb-2 group-hover:text-yellow-500 transition-colors">AU Syndicate</h3>
             <div class="mt-4 flex items-center text-xs font-bold text-yellow-500 uppercase tracking-wider">
-              <span>CLICK TO PLAY HERE</span> <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
+              <span data-i18n="play_here">CLICK TO PLAY HERE</span> <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
             </div>
           </div>
         </a>
@@ -277,12 +274,12 @@
         <div class="absolute -top-10 -right-10 w-32 h-32 bg-brand/20 blur-3xl rounded-full pointer-events-none"></div>
 
         <div class="flex items-center justify-between mb-6">
-          <h2 class="font-orbitron text-xl font-bold text-white">Global Network</h2>
+          <h2 class="font-orbitron text-xl font-bold text-white" data-i18n="global_network">Global Network</h2>
           <i class="fas fa-globe text-brand animate-pulse"></i>
         </div>
 
         <div class="space-y-4">
-          <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-white/10 pb-2">Top Operatives</h3>
+          <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-white/10 pb-2" data-i18n="top_operatives">Top Operatives</h3>
           
           <div id="leaderboard-container" class="space-y-3">
             <div class="text-center py-8 text-gray-500 text-sm">Initializing radar...</div>
@@ -301,55 +298,55 @@
         <i class="fas fa-times"></i>
       </button>
 
+      <!-- SIGN IN FORM -->
       <div id="login-form">
-        <h2 class="font-orbitron text-3xl font-bold text-white text-center mb-1">INITIATE UPLINK</h2>
-        <p class="text-center text-gray-400 text-sm font-medium mb-8 uppercase tracking-widest">( Sign In )</p>
+        <h2 class="font-orbitron text-3xl font-bold text-white text-center mb-6" data-i18n="modal_signin">SIGN IN / LOG IN</h2>
         
         <div class="space-y-5">
           <div>
-            <input type="text" id="login-user" placeholder="Callsign (Username)" autocomplete="off" 
+            <input type="text" id="login-user" placeholder="Username" autocomplete="off" data-i18n="ph_username"
                    class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
           </div>
           <div>
-            <input type="password" id="login-pass" placeholder="Passkey" 
+            <input type="password" id="login-pass" placeholder="Password" data-i18n="ph_passkey"
                    class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
           </div>
           
-          <button id="do-login" class="w-full bg-gradient-to-r from-brand to-yellow-500 text-black font-orbitron font-black text-lg py-4 rounded-xl hover:shadow-[0_0_20px_rgba(255,106,0,0.5)] hover:-translate-y-1 transition-all">
-            AUTHENTICATE
+          <button id="do-login" class="w-full bg-gradient-to-r from-brand to-yellow-500 text-black font-orbitron font-black text-lg py-4 rounded-xl hover:shadow-[0_0_20px_rgba(255,106,0,0.5)] hover:-translate-y-1 transition-all" data-i18n="modal_signin">
+            SIGN IN / LOG IN
           </button>
           
           <div id="login-msg" class="text-red-400 text-center font-semibold text-sm h-5"></div>
         </div>
 
         <div class="text-center mt-6 text-gray-400 text-sm">
-          New Operative? <span id="to-register" class="text-brand font-bold cursor-pointer hover:underline">Register Here</span>
+          <span data-i18n="new_user">New Operative?</span> <span id="to-register" class="text-brand font-bold cursor-pointer hover:underline" data-i18n="register_here">Register Here</span>
         </div>
       </div>
 
+      <!-- REGISTER FORM -->
       <div id="register-form">
-        <h2 class="font-orbitron text-3xl font-bold text-white text-center mb-1">CONSTRUCT IDENTITY</h2>
-        <p class="text-center text-gray-400 text-sm font-medium mb-8 uppercase tracking-widest">( Register )</p>
+        <h2 class="font-orbitron text-3xl font-bold text-white text-center mb-6" data-i18n="modal_register">REGISTER</h2>
         
         <div class="space-y-5">
           <div>
-            <input type="text" id="reg-user" placeholder="Desired Callsign" autocomplete="off" 
+            <input type="text" id="reg-user" placeholder="Desired Username" autocomplete="off" data-i18n="ph_reg_user"
                    class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
           </div>
           <div>
-            <input type="password" id="reg-pass" placeholder="Secure Passkey" 
+            <input type="password" id="reg-pass" placeholder="Secure Password" data-i18n="ph_reg_pass"
                    class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
           </div>
           
-          <button id="do-register" class="w-full bg-gradient-to-r from-brand to-yellow-500 text-black font-orbitron font-black text-lg py-4 rounded-xl hover:shadow-[0_0_20px_rgba(255,106,0,0.5)] hover:-translate-y-1 transition-all">
-            ESTABLISH ACCOUNT
+          <button id="do-register" class="w-full bg-gradient-to-r from-brand to-yellow-500 text-black font-orbitron font-black text-lg py-4 rounded-xl hover:shadow-[0_0_20px_rgba(255,106,0,0.5)] hover:-translate-y-1 transition-all" data-i18n="modal_register">
+            REGISTER
           </button>
           
           <div id="reg-msg" class="text-red-400 text-center font-semibold text-sm h-5"></div>
         </div>
 
         <div class="text-center mt-6 text-gray-400 text-sm">
-          Existing Operative? <span id="to-login" class="text-brand font-bold cursor-pointer hover:underline">Authenticate Here</span>
+          <span data-i18n="exist_user">Existing Operative?</span> <span id="to-login" class="text-brand font-bold cursor-pointer hover:underline" data-i18n="login_here">Sign In Here</span>
         </div>
       </div>
     </div>
@@ -363,11 +360,11 @@
         <i class="fas fa-times"></i>
       </button>
 
-      <h2 class="font-orbitron text-3xl font-bold text-white mb-4">MY STATS</h2>
+      <h2 class="font-orbitron text-3xl font-bold text-white mb-4" data-i18n="my_stats">MY STATS</h2>
       <i class="fas fa-trophy text-6xl text-yellow-500 mb-6 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]"></i>
       
       <div class="bg-black/40 rounded-xl p-4 border border-white/5">
-        <div class="text-gray-400 text-sm font-bold uppercase mb-1">Total Global Power</div>
+        <div class="text-gray-400 text-sm font-bold uppercase mb-1" data-i18n="total_power">Total Global Power</div>
         <div id="stats-score" class="font-orbitron text-4xl font-black text-brand">0</div>
       </div>
     </div>
@@ -378,6 +375,136 @@
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+    /* =========================================
+       LANGUAGE DICTIONARY & TRANSLATION ENGINE
+       ========================================= */
+    const translations = {
+      "English": {
+        "signin_btn": "Sign In / Log In",
+        "game_hub": "Game Hub",
+        "my_stats": "My Stats",
+        "disconnect": "Disconnect",
+        "hero_title": "YOU'RE GONNA HAVE<br/>A GOOD TIME.",
+        "play_here": "CLICK TO PLAY HERE",
+        "global_network": "Global Network",
+        "top_operatives": "Top Operatives",
+        "modal_signin": "SIGN IN / LOG IN",
+        "ph_username": "Username",
+        "ph_passkey": "Password",
+        "new_user": "New Operative?",
+        "register_here": "Register Here",
+        "modal_register": "REGISTER",
+        "ph_reg_user": "Desired Username",
+        "ph_reg_pass": "Secure Password",
+        "exist_user": "Existing Operative?",
+        "login_here": "Sign In Here",
+        "total_power": "Total Global Power"
+      },
+      "Español": {
+        "signin_btn": "Iniciar Sesión",
+        "game_hub": "Centro de Juegos",
+        "my_stats": "Mis Estadísticas",
+        "disconnect": "Desconectar",
+        "hero_title": "VAS A PASARLO<br/>MUY BIEN.",
+        "play_here": "HAZ CLIC PARA JUGAR",
+        "global_network": "Red Global",
+        "top_operatives": "Mejores Agentes",
+        "modal_signin": "INICIAR SESIÓN",
+        "ph_username": "Nombre de usuario",
+        "ph_passkey": "Contraseña",
+        "new_user": "¿Nuevo Agente?",
+        "register_here": "Regístrate aquí",
+        "modal_register": "REGISTRARSE",
+        "ph_reg_user": "Usuario deseado",
+        "ph_reg_pass": "Contraseña segura",
+        "exist_user": "¿Agente existente?",
+        "login_here": "Inicia sesión aquí",
+        "total_power": "Poder Global Total"
+      },
+      "Français": {
+        "signin_btn": "Connexion / Inscription",
+        "game_hub": "Hub de Jeux",
+        "my_stats": "Mes Stats",
+        "disconnect": "Déconnexion",
+        "hero_title": "VOUS ALLEZ PASSER<br/>UN BON MOMENT.",
+        "play_here": "CLIQUEZ POUR JOUER",
+        "global_network": "Réseau Mondial",
+        "top_operatives": "Meilleurs Agents",
+        "modal_signin": "CONNEXION",
+        "ph_username": "Nom d'utilisateur",
+        "ph_passkey": "Mot de passe",
+        "new_user": "Nouvel agent ?",
+        "register_here": "S'inscrire ici",
+        "modal_register": "S'INSCRIRE",
+        "ph_reg_user": "Nom désiré",
+        "ph_reg_pass": "Mot de passe sécurisé",
+        "exist_user": "Agent existant ?",
+        "login_here": "Connectez-vous ici",
+        "total_power": "Puissance Globale Totale"
+      },
+      "Deutsch": {
+        "signin_btn": "Anmelden / Registrieren",
+        "game_hub": "Spiele-Hub",
+        "my_stats": "Meine Statistiken",
+        "disconnect": "Abmelden",
+        "hero_title": "DU WIRST EINE<br/>GUTE ZEIT HABEN.",
+        "play_here": "KLICKEN ZUM SPIELEN",
+        "global_network": "Globales Netzwerk",
+        "top_operatives": "Top Agenten",
+        "modal_signin": "ANMELDEN",
+        "ph_username": "Benutzername",
+        "ph_passkey": "Passwort",
+        "new_user": "Neuer Agent?",
+        "register_here": "Hier registrieren",
+        "modal_register": "REGISTRIEREN",
+        "ph_reg_user": "Gewünschter Name",
+        "ph_reg_pass": "Sicheres Passwort",
+        "exist_user": "Existierender Agent?",
+        "login_here": "Hier anmelden",
+        "total_power": "Gesamte Globale Macht"
+      },
+      "Polski": {
+        "signin_btn": "Zaloguj się",
+        "game_hub": "Centrum Gier",
+        "my_stats": "Moje Statystyki",
+        "disconnect": "Wyloguj",
+        "hero_title": "BĘDZIESZ SIĘ<br/>DOBRZE BAWIĆ.",
+        "play_here": "KLIKNIJ ABY ZAGRAĆ",
+        "global_network": "Sieć Globalna",
+        "top_operatives": "Najlepsi Gracze",
+        "modal_signin": "ZALOGUJ SIĘ",
+        "ph_username": "Nazwa użytkownika",
+        "ph_passkey": "Hasło",
+        "new_user": "Nowy agent?",
+        "register_here": "Zarejestruj się tutaj",
+        "modal_register": "ZAREJESTRUJ SIĘ",
+        "ph_reg_user": "Wybierz nazwę",
+        "ph_reg_pass": "Bezpieczne hasło",
+        "exist_user": "Masz już konto?",
+        "login_here": "Zaloguj się tutaj",
+        "total_power": "Całkowita Moc Globalna"
+      }
+    };
+
+    function applyLanguage(lang) {
+      // Fallback to English if translation map isn't fully set for the language yet
+      const dict = translations[lang] || translations["English"];
+      
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) {
+          if (el.tagName === 'INPUT') {
+            el.placeholder = dict[key];
+          } else {
+            el.innerHTML = dict[key];
+          }
+        }
+      });
+    }
+
+    /* =========================================
+       FIREBASE AUTH & LOGIC
+       ========================================= */
     const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -411,15 +538,17 @@
       currentLang: document.getElementById('current-lang')
     };
 
-    // Load saved language
+    // Load saved language and apply it instantly
     const savedLang = localStorage.getItem('orange_lang') || 'English';
     UI.currentLang.textContent = savedLang;
+    applyLanguage(savedLang);
 
     UI.langOptions.forEach(opt => {
       opt.addEventListener('click', (e) => {
         const selected = e.target.textContent;
         UI.currentLang.textContent = selected;
         localStorage.setItem('orange_lang', selected);
+        applyLanguage(selected);
       });
     });
 
@@ -490,7 +619,7 @@
       const passStr = document.getElementById('reg-pass').value.trim();
       
       if(userStr.length < 3 || passStr.length < 4) {
-        UI.regMsg.textContent = "Callsign > 3 chars. Passkey > 4 chars.";
+        UI.regMsg.textContent = "Username > 3 chars. Password > 4 chars.";
         return;
       }
       
@@ -499,7 +628,7 @@
         const snap = await getDoc(docRef);
         
         if(snap.exists()) {
-          UI.regMsg.textContent = "Callsign already registered globally.";
+          UI.regMsg.textContent = "Username already registered globally.";
           return;
         }
 
@@ -536,7 +665,7 @@
           document.getElementById('login-pass').value = '';
           updateUIState();
         } else {
-          UI.loginMsg.textContent = "Invalid Callsign or Passkey.";
+          UI.loginMsg.textContent = "Invalid Username or Password.";
         }
       } catch(err) {
         UI.loginMsg.textContent = "Network error. Try again.";
