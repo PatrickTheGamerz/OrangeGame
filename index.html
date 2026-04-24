@@ -1,1214 +1,498 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
-<meta charset="utf-8" />
-
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-
-<title>Orange Games - Unleash Your Inner Gamer</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
-<style>
-
-  :root {
-
-    --bg-base: #080a0f;
-
-    --bg-surface: rgba(21, 24, 34, 0.65);
-
-    --text-main: #f0f0f0;
-
-    --text-muted: #a7b0c0;
-
-    --accent-primary: #ff6a00;
-
-    --accent-secondary: #ff9966;
-
-    --glass-bg: rgba(255, 255, 255, 0.03);
-
-    --glass-border: rgba(255, 255, 255, 0.08);
-
-  }
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Orange Games - Unleash Your Inner Gamer</title>
   
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   
-
-  body {
-
-    background-color: var(--bg-base); 
-
-    color: var(--text-main);
-
-    font-family: 'Inter', sans-serif; 
-
-    overflow-x: hidden; 
-
-    min-height: 100vh;
-
-  }
-
-  
-
-  h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
-
-  
-
-  /* Customized Scrollbars */
-
-  ::-webkit-scrollbar { width: 12px; }
-
-  ::-webkit-scrollbar-track { background: #080a0f; }
-
-  ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 10px; border: 3px solid #080a0f; }
-
-  * { scrollbar-color: var(--accent-primary) #080a0f; scrollbar-width: thin; }
-
-
-
-  /* Ambient Particle Background Engine */
-
- .ambient-engine {
-
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-
-    z-index: -2; overflow: hidden;
-
-    background: radial-gradient(circle at 15% 50%, rgba(255,106,0,0.08), transparent 50%),
-
-                radial-gradient(circle at 85% 30%, rgba(255,153,102,0.05), transparent 50%);
-
-  }
-
- .particle {
-
-    position: absolute; border-radius: 50%;
-
-    background: radial-gradient(circle, var(--accent-secondary) 0%, transparent 70%);
-
-    opacity: 0.5; filter: blur(3px); animation: floatUp 15s infinite linear;
-
-  }
-
-  @keyframes floatUp {
-
-    0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
-
-    50% { opacity: 0.8; }
-
-    100% { transform: translateY(-20vh) scale(1.5); opacity: 0; }
-
-  }
-
- .p1 { left: 15%; width: 50px; height: 50px; animation-duration: 18s; }
-
- .p2 { left: 35%; width: 70px; height: 70px; animation-duration: 22s; animation-delay: -5s; }
-
- .p3 { left: 55%; width: 40px; height: 40px; animation-duration: 14s; animation-delay: -2s; }
-
- .p4 { left: 75%; width: 90px; height: 90px; animation-duration: 25s; animation-delay: -10s; }
-
-
-
-  /* Topbar & Navigation */
-
- .topbar {
-
-    display: flex; align-items: center; justify-content: space-between;
-
-    padding: 16px 40px; position: sticky; top: 0; z-index: 100;
-
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-
-    background: rgba(8, 10, 15, 0.7);
-
-    border-bottom: 1px solid var(--glass-border);
-
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-
-  }
-
- .brand {
-
-    font-size: 26px; font-weight: 800; letter-spacing: 2px;
-
-    background: linear-gradient(90deg, #ff6a00, #ffcc00);
-
-    -webkit-background-clip: text; color: transparent;
-
-    text-shadow: 0 0 20px rgba(255,106,0,0.4);
-
-    cursor: pointer;
-
-  }
-
-  
-
- .btn {
-
-    border: 1px solid var(--accent-primary); background: rgba(255, 106, 0, 0.1); color: #fff;
-
-    padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 600;
-
-    transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-    text-transform: uppercase; letter-spacing: 1px;
-
-  }
-
- .btn:hover { 
-
-    background: var(--accent-primary); 
-
-    box-shadow: 0 0 20px rgba(255,106,0,0.8); 
-
-    transform: translateY(-2px);
-
-  }
-
-
-
-  /* Profile Dropdown Architecture */
-
- .profile-dropdown { position: relative; display: none; }
-
- .profile-btn {
-
-    display: flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.05);
-
-    border: 1px solid var(--glass-border); padding: 8px 18px; border-radius: 20px;
-
-    cursor: pointer; backdrop-filter: blur(10px); color: #fff;
-
-    transition: 0.3s;
-
-  }
-
- .profile-btn:hover { border-color: var(--accent-primary); box-shadow: 0 0 15px rgba(255,106,0,0.3); }
-
- .dropdown-menu {
-
-    position: absolute; top: 60px; right: 0; width: 220px;
-
-    background: rgba(15, 18, 25, 0.85); backdrop-filter: blur(20px);
-
-    border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px;
-
-    display: none; flex-direction: column; gap: 5px;
-
-    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-
-  }
-
- .profile-dropdown:hover.dropdown-menu { display: flex; animation: slideDown 0.3s ease forwards; }
-
-  @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
- .dropdown-menu div {
-
-    padding: 12px 15px; border-radius: 8px; cursor: pointer; color: var(--text-muted); transition: 0.2s;
-
-    display: flex; align-items: center; gap: 10px;
-
-  }
-
- .dropdown-menu div:hover {
-
-    background: linear-gradient(135deg, rgba(255, 106, 0, 0.2), rgba(255, 153, 102, 0.2));
-
-    color: #fff; box-shadow: 0 0 15px rgba(255, 106, 0, 0.4);
-
-  }
-
- .dropdown-menu div:hover i { color: var(--accent-primary); text-shadow: 0 0 8px var(--accent-primary); }
-
-
-
-  /* Hero Section & Neon Typography */
-
- .hero { text-align: center; padding: 80px 20px; }
-
- .hero h1 { 
-
-    font-size: 52px; margin-bottom: 15px; 
-
-    color: #fff;
-
-    animation: flicker 2s infinite alternate;
-
-  }
-
-  @keyframes flicker {
-
-    0%, 18%, 22%, 25%, 53%, 57%, 100% {
-
-      text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #ff6a00, 0 0 40px #ff6a00, 0 0 80px #ff6a00;
-
-    }
-
-    20%, 24%, 55% { text-shadow: none; }
-
-  }
-
- .hero p { font-size: 18px; max-width: 600px; margin: 0 auto; line-height: 1.6; }
-
-
-
-  /* Advanced Hardware Accelerated Game Cards */
-
- .grid {
-
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-
-    gap: 40px; padding: 20px 40px 80px; max-width: 1200px; margin: 0 auto;
-
-  }
-
-  
-
-  @property --angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
-
-  
-
- .game-card {
-
-    position: relative; height: 260px; border-radius: 16px; padding: 30px;
-
-    display: flex; flex-direction: column; justify-content: flex-end;
-
-    background: linear-gradient(#0d111a, #0d111a) padding-box,
-
-                conic-gradient(from var(--angle), transparent 30%, var(--accent-primary) 80%, #fff 100%) border-box;
-
-    border: 2px solid transparent; cursor: pointer; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-    animation: rotateGlow 4s linear infinite; color: #fff; text-decoration: none;
-
-  }
-
- .game-card::before {
-
-    content: ""; position: absolute; inset: -2px; z-index: -1; border-radius: 16px;
-
-    background: conic-gradient(from var(--angle), transparent 30%, var(--accent-primary) 80%, #fff 100%);
-
-    filter: blur(15px); opacity: 0.5; animation: rotateGlow 4s linear infinite; transition: 0.4s;
-
-  }
-
- .game-card:hover { transform: translateY(-10px) scale(1.02); }
-
- .game-card:hover::before { opacity: 1; filter: blur(25px); }
-
-  @keyframes rotateGlow { to { --angle: 360deg; } }
-
- .game-card h3 { font-size: 26px; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-
- .game-card p { font-size: 15px; color: var(--text-muted); line-height: 1.5; }
-
-
-
-  /* Premium Glassmorphism Authentication Modals */
-
- .modal-overlay {
-
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-
-    background: rgba(0,0,0,0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-
-    display: none; justify-content: center; align-items: center; z-index: 1000;
-
-    opacity: 0; transition: opacity 0.3s ease;
-
-  }
-
- .modal-overlay.active { display: flex; opacity: 1; }
-
- .auth-modal {
-
-    width: 400px; padding: 40px; border-radius: 24px;
-
-    background: rgba(20,24,34,0.6); backdrop-filter: blur(25px);
-
-    border: 1px solid rgba(255,255,255,0.1); position: relative;
-
-    box-shadow: 0 24px 48px rgba(0,0,0,0.8), inset 0 0 20px rgba(255, 106, 0, 0.1);
-
-    transform: translateY(30px) scale(0.95); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-  }
-
- .modal-overlay.active.auth-modal { transform: translateY(0) scale(1); }
-
- .close-modal {
-
-    position: absolute; top: 15px; right: 20px; background: none; border: none;
-
-    color: var(--text-muted); font-size: 28px; cursor: pointer; transition: 0.2s;
-
-  }
-
- .close-modal:hover { color: var(--accent-primary); transform: rotate(90deg); }
-
- .auth-modal h2 { text-align: center; margin-bottom: 25px; font-size: 28px; }
-
-  
-
- .input-group input {
-
-    width: 100%; padding: 15px; margin-bottom: 18px; border-radius: 12px;
-
-    background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); color: #fff; 
-
-    outline: none; font-size: 15px; transition: 0.3s;
-
-  }
-
- .input-group input:focus { 
-
-    border-color: var(--accent-primary); 
-
-    box-shadow: 0 0 15px rgba(255, 106, 0, 0.3); 
-
-    background: rgba(0,0,0,0.7);
-
-  }
-
-  
-
- .auth-btn {
-
-    width: 100%; padding: 15px; border-radius: 12px; border: none;
-
-    background: linear-gradient(90deg, #ff6a00, #ffcc00); color: #000;
-
-    font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 16px; letter-spacing: 1px;
-
-    cursor: pointer; transition: 0.3s; margin-top: 5px;
-
-  }
-
- .auth-btn:hover { box-shadow: 0 10px 30px rgba(255,106,0,0.6); transform: translateY(-3px); color: #fff; }
-
-  
-
- .toggle-auth { text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted); }
-
- .toggle-auth span { color: var(--accent-primary); font-weight: 600; cursor: pointer; transition: 0.2s; }
-
- .toggle-auth span:hover { text-shadow: 0 0 8px var(--accent-primary); }
-
-  
-
-  #register-form { display: none; }
-
- .show-register #login-form { display: none; }
-
- .show-register #register-form { display: block; }
-
- .sys-msg { text-align: center; color: #ff4d4d; font-size: 14px; min-height: 20px; margin-top: 12px; font-weight: 600; }
-
-
-
-  /* =========================================
-
-     EMBEDDED GAME LOGIC STYLES
-
-     ========================================= */
-
- .game-container {
-
-    display: none; /* Hidden by default */
-
-    text-align: center;
-
-    padding: 40px 20px;
-
-    max-width: 800px;
-
-    margin: 0 auto;
-
-    background: var(--bg-surface);
-
-    border-radius: 20px;
-
-    border: 1px solid var(--glass-border);
-
-    backdrop-filter: blur(15px);
-
-    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-
-  }
-
-
-
-  /* Tic Tac Toe Styles */
-
- .ttt-board {
-
-    display: grid;
-
-    grid-template-columns: repeat(3, 100px);
-
-    gap: 10px;
-
-    justify-content: center;
-
-    margin: 30px auto;
-
-  }
-
- .ttt-cell {
-
-    width: 100px;
-
-    height: 100px;
-
-    background: rgba(0, 0, 0, 0.5);
-
-    border: 2px solid var(--accent-primary);
-
-    border-radius: 12px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    font-size: 48px;
-
-    font-family: 'Orbitron', sans-serif;
-
-    color: #fff;
-
-    cursor: pointer;
-
-    transition: all 0.3s ease;
-
-  }
-
- .ttt-cell:hover {
-
-    background: rgba(255, 106, 0, 0.2);
-
-    box-shadow: 0 0 15px var(--accent-glow);
-
-  }
-
-  #ttt-status {
-
-    font-size: 20px;
-
-    margin-bottom: 20px;
-
-    color: var(--text-muted);
-
-  }
-
-
-
-  /* Clicker Game Styles */
-
- .clicker-btn {
-
-    width: 200px;
-
-    height: 200px;
-
-    border-radius: 50%;
-
-    background: radial-gradient(circle at 30% 30%, #ffcc00, #ff6a00);
-
-    border: 4px solid #fff;
-
-    box-shadow: 0 0 40px var(--accent-glow), inset 0 0 20px rgba(255,255,255,0.5);
-
-    font-size: 32px;
-
-    font-weight: bold;
-
-    color: #fff;
-
-    font-family: 'Orbitron', sans-serif;
-
-    cursor: pointer;
-
-    margin: 30px auto;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-    user-select: none;
-
-  }
-
- .clicker-btn:active {
-
-    transform: scale(0.92);
-
-    box-shadow: 0 0 20px var(--accent-glow);
-
-  }
-
- .score-display {
-
-    font-size: 36px;
-
-    font-family: 'Orbitron', sans-serif;
-
-    color: var(--accent-primary);
-
-    text-shadow: 0 0 10px var(--accent-glow);
-
-    margin-bottom: 20px;
-
-  }
-
-</style>
-
-</head>
-
-<body>
-
-
-
-  <div class="ambient-engine">
-
-    <div class="particle p1"></div><div class="particle p2"></div>
-
-    <div class="particle p3"></div><div class="particle p4"></div>
-
-  </div>
-
-
-
-  <header class="topbar">
-
-    <div class="brand" onclick="showHub()">ORANGE GAMES</div>
-
-    <div class="user-controls">
-
-      <button class="btn" id="nav-login-btn">Login / Sign Up</button>
-
-      
-
-      <div class="profile-dropdown" id="profile-area">
-
-        <div class="profile-btn">
-
-          <i class="fas fa-user-circle"></i> <span id="user-display-name">Player</span>
-
-        </div>
-
-        <div class="dropdown-menu">
-
-          <div onclick="showHub()"><i class="fas fa-tachometer-alt" style="width:20px;"></i> Game Hub</div>
-
-          <div><i class="fas fa-trophy" style="width:20px;"></i> Achievements</div>
-
-          <div id="logout-btn" style="color: #ff4d4d;"><i class="fas fa-sign-out-alt" style="width:20px;"></i> Disconnect</div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </header>
-
-
-
-  <div id="hub-view">
-
-    <section class="hero">
-
-      <h1>UNLEASH YOUR INNER GAMER</h1>
-
-      <p style="color: var(--text-muted)">Experience the next generation of browser-based competitive gaming. Highly optimized, beautifully crafted, and uniquely yours.</p>
-
-    </section>
-
-
-
-    <main class="grid">
-
-      <article class="game-card" onclick="launchGame('ttt')">
-
-        <h3>X and O Arena</h3>
-
-        <p>The classic 3x3 strategic battleground. Predict, align, and conquer your opponent with neon precision.</p>
-
-      </article>
-
-      <article class="game-card" onclick="launchGame('clicker')">
-
-        <h3>AU Syndicate</h3>
-
-        <p>An incremental economy simulator. Extract resources, optimize your passive income, and dominate the market.</p>
-
-      </article>
-
-    </main>
-
-  </div>
-
-
-
-  <div id="ttt-view" class="game-container">
-
-    <h2>X and O Arena</h2>
-
-    <div id="ttt-status">Player X's Turn</div>
-
-    <div class="ttt-board" id="ttt-board">
-
-      <div class="ttt-cell" data-index="0"></div>
-
-      <div class="ttt-cell" data-index="1"></div>
-
-      <div class="ttt-cell" data-index="2"></div>
-
-      <div class="ttt-cell" data-index="3"></div>
-
-      <div class="ttt-cell" data-index="4"></div>
-
-      <div class="ttt-cell" data-index="5"></div>
-
-      <div class="ttt-cell" data-index="6"></div>
-
-      <div class="ttt-cell" data-index="7"></div>
-
-      <div class="ttt-cell" data-index="8"></div>
-
-    </div>
-
-    <button class="btn" onclick="resetTTT()">Restart Game</button>
-
-    <button class="btn" onclick="showHub()" style="margin-left: 10px;">Back to Hub</button>
-
-  </div>
-
-
-
-  <div id="clicker-view" class="game-container">
-
-    <h2>AU Syndicate</h2>
-
-    <p style="color: var(--text-muted); margin-bottom: 20px;">Extract Gold (AU) to build your empire.</p>
-
-    <div class="score-display">AU: <span id="au-score">0</span></div>
-
-    <div class="clicker-btn" id="clicker-btn">MINE AU</div>
-
-    <button class="btn" onclick="resetClicker()">Reset Progress</button>
-
-    <button class="btn" onclick="showHub()" style="margin-left: 10px;">Back to Hub</button>
-
-  </div>
-
-
-
-  <div class="modal-overlay" id="auth-modal-overlay">
-
-    <div class="auth-modal" id="auth-modal-container">
-
-      <button class="close-modal" id="close-modal">&times;</button>
-
-      
-
-      <div id="login-form">
-
-        <h2>Initiate Uplink</h2>
-
-        <div class="input-group"><input type="text" id="login-user" placeholder="Callsign (Username)" autocomplete="off"></div>
-
-        <div class="input-group"><input type="password" id="login-pass" placeholder="Passkey"></div>
-
-        <button class="auth-btn" id="do-login">Authenticate</button>
-
-        <div class="sys-msg" id="login-msg"></div>
-
-        <div class="toggle-auth" id="to-register">New Operative? <span>Register Here</span></div>
-
-      </div>
-
-
-
-      <div id="register-form">
-
-        <h2>Construct Identity</h2>
-
-        <div class="input-group"><input type="text" id="reg-user" placeholder="Desired Callsign" autocomplete="off"></div>
-
-        <div class="input-group"><input type="password" id="reg-pass" placeholder="Secure Passkey"></div>
-
-        <button class="auth-btn" id="do-register">Establish Account</button>
-
-        <div class="sys-msg" id="reg-msg"></div>
-
-        <div class="toggle-auth" id="to-login">Existing Operative? <span>Authenticate Here</span></div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
-
-    /* =========================================
-
-       CORE STATE & AUTHENTICATION
-
-       ========================================= */
-
-    const UI = {
-
-      navLoginBtn: document.getElementById('nav-login-btn'),
-
-      profileArea: document.getElementById('profile-area'),
-
-      userNameDisplay: document.getElementById('user-display-name'),
-
-      modalOverlay: document.getElementById('auth-modal-overlay'),
-
-      modalContainer: document.getElementById('auth-modal-container'),
-
-      closeModalBtn: document.getElementById('close-modal'),
-
-      toRegister: document.getElementById('to-register'),
-
-      toLogin: document.getElementById('to-login'),
-
-      loginBtn: document.getElementById('do-login'),
-
-      regBtn: document.getElementById('do-register'),
-
-      logoutBtn: document.getElementById('logout-btn'),
-
-      loginMsg: document.getElementById('login-msg'),
-
-      regMsg: document.getElementById('reg-msg'),
-
-      hubView: document.getElementById('hub-view'),
-
-      tttView: document.getElementById('ttt-view'),
-
-      clickerView: document.getElementById('clicker-view')
-
-    };
-
-
-
-    function updateUIState() {
-
-      const activeUser = localStorage.getItem('orange_currentUser');
-
-      if (activeUser) {
-
-        UI.navLoginBtn.style.display = 'none';
-
-        UI.profileArea.style.display = 'block';
-
-        UI.userNameDisplay.textContent = activeUser;
-
-        UI.modalOverlay.classList.remove('active');
-
-      } else {
-
-        UI.navLoginBtn.style.display = 'block';
-
-        UI.profileArea.style.display = 'none';
-
-        showHub(); // Force return to hub if logged out
-
-      }
-
-    }
-
-
-
-    function getUsers() { return JSON.parse(localStorage.getItem('orange_users')) ||; }
-
-    function saveUsers(users) { localStorage.setItem('orange_users', JSON.stringify(users)); }
-
-
-
-    UI.navLoginBtn.onclick = () => { UI.modalOverlay.style.display = 'flex'; setTimeout(() => UI.modalOverlay.classList.add('active'), 10); };
-
-    UI.closeModalBtn.onclick = () => { UI.modalOverlay.classList.remove('active'); setTimeout(() => UI.modalOverlay.style.display = 'none', 300); };
-
-    UI.modalOverlay.onclick = (e) => { 
-
-      if(e.target === UI.modalOverlay) {
-
-        UI.modalOverlay.classList.remove('active'); 
-
-        setTimeout(() => UI.modalOverlay.style.display = 'none', 300);
-
-      }
-
-    };
-
-
-
-    UI.toRegister.onclick = () => { UI.modalContainer.classList.add('show-register'); UI.loginMsg.textContent = ''; };
-
-    UI.toLogin.onclick = () => { UI.modalContainer.classList.remove('show-register'); UI.regMsg.textContent = ''; };
-
-
-
-    UI.regBtn.onclick = () => {
-
-      const user = document.getElementById('reg-user').value.trim();
-
-      const pass = document.getElementById('reg-pass').value.trim();
-
-      if(user.length < 3 |
-
-
-
-| pass.length < 4) return UI.regMsg.textContent = "Callsign > 3 chars. Passkey > 4 chars.";
-
-      
-
-      const users = getUsers();
-
-      if(users.some(u => u.username === user)) return UI.regMsg.textContent = "Callsign already registered.";
-
-
-
-      users.push({ username: user, password: pass });
-
-      saveUsers(users);
-
-      localStorage.setItem('orange_currentUser', user);
-
-      document.getElementById('reg-user').value = '';
-
-      document.getElementById('reg-pass').value = '';
-
-      updateUIState();
-
-    };
-
-
-
-    UI.loginBtn.onclick = () => {
-
-      const user = document.getElementById('login-user').value.trim();
-
-      const pass = document.getElementById('login-pass').value.trim();
-
-      const validUser = getUsers().find(u => u.username === user && u.password === pass);
-
-      
-
-      if(validUser) {
-
-        localStorage.setItem('orange_currentUser', user);
-
-        document.getElementById('login-user').value = '';
-
-        document.getElementById('login-pass').value = '';
-
-        updateUIState();
-
-      } else {
-
-        UI.loginMsg.textContent = "Invalid Callsign or Passkey.";
-
-      }
-
-    };
-
-
-
-    UI.logoutBtn.onclick = () => {
-
-      localStorage.removeItem('orange_currentUser');
-
-      updateUIState();
-
-    };
-
-
-
-    /* =========================================
-
-       GAME NAVIGATION & ROUTING
-
-       ========================================= */
-
-    function showHub() {
-
-      UI.hubView.style.display = 'block';
-
-      UI.tttView.style.display = 'none';
-
-      UI.clickerView.style.display = 'none';
-
-    }
-
-
-
-    function launchGame(gameId) {
-
-      if(!localStorage.getItem('orange_currentUser')) {
-
-        UI.navLoginBtn.click();
-
-        UI.loginMsg.textContent = "Authentication required to launch games.";
-
-        return;
-
-      }
-
-      
-
-      UI.hubView.style.display = 'none';
-
-      if(gameId === 'ttt') {
-
-        UI.tttView.style.display = 'block';
-
-        resetTTT();
-
-      } else if (gameId === 'clicker') {
-
-        UI.clickerView.style.display = 'block';
-
-        initClicker();
-
-      }
-
-    }
-
-
-
-    /* =========================================
-
-       TIC TAC TOE LOGIC
-
-       ========================================= */
-
-    let tttBoard = ['', '', '', '', '', '', '', '', ''];
-
-    let tttCurrentPlayer = 'X';
-
-    let tttGameActive = true;
-
-    const tttStatus = document.getElementById('ttt-status');
-
-    const tttCells = document.querySelectorAll('.ttt-cell');
-
-    const winningConditions = , [1, 2, 3], [4, 5, 6], // Rows
-
-      , [7, 2, 5], [8, 3, 6], // Columns
-
-      , [8, 2, 4]             // Diagonals
-
-    ];
-
-
-
-    function handleCellClick(e) {
-
-      const clickedCell = e.target;
-
-      const cellIndex = parseInt(clickedCell.getAttribute('data-index'));
-
-
-
-      if (tttBoard[cellIndex]!== '' ||!tttGameActive) return;
-
-
-
-      tttBoard[cellIndex] = tttCurrentPlayer;
-
-      clickedCell.innerText = tttCurrentPlayer;
-
-      
-
-      // Styling X and O colors
-
-      clickedCell.style.color = tttCurrentPlayer === 'X'? '#fff' : 'var(--accent-primary)';
-
-
-
-      checkWinCondition();
-
-    }
-
-
-
-    function checkWinCondition() {
-
-      let roundWon = false;
-
-      for (let i = 0; i < winningConditions.length; i++) {
-
-        const [a, b, c] = winningConditions[i];
-
-        if (tttBoard[a] && tttBoard[a] === tttBoard[b] && tttBoard[a] === tttBoard[c]) {
-
-          roundWon = true;
-
-          break;
-
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: '#ff6a00',
+              light: '#ff9966',
+              dark: '#cc5500',
+              glow: 'rgba(255, 106, 0, 0.4)'
+            },
+            surface: {
+              DEFAULT: 'rgba(21, 24, 34, 0.7)',
+              solid: '#151822'
+            }
+          },
+          fontFamily: {
+            orbitron: ['Orbitron', 'sans-serif'],
+            inter: ['Inter', 'sans-serif']
+          },
+          animation: {
+            'float-slow': 'float 15s infinite linear',
+            'flicker': 'flicker 3s infinite alternate',
+            'spin-slow': 'spin 8s linear infinite',
+          },
+          keyframes: {
+            float: {
+              '0%': { transform: 'translateY(100vh) scale(0.5)', opacity: '0' },
+              '50%': { opacity: '0.6' },
+              '100%': { transform: 'translateY(-20vh) scale(1.5)', opacity: '0' }
+            },
+            flicker: {
+              '0%, 18%, 22%, 25%, 53%, 57%, 100%': {
+                textShadow: '0 0 5px #fff, 0 0 20px #ff6a00, 0 0 40px #ff6a00'
+              },
+              '20%, 24%, 55%': { textShadow: 'none' }
+            }
+          }
         }
-
       }
-
-
-
-      if (roundWon) {
-
-        tttStatus.innerText = `Player ${tttCurrentPlayer} Wins!`;
-
-        tttGameActive = false;
-
-        return;
-
-      }
-
-
-
-      if (!tttBoard.includes('')) {
-
-        tttStatus.innerText = 'Game Ended in a Draw!';
-
-        tttGameActive = false;
-
-        return;
-
-      }
-
-
-
-      tttCurrentPlayer = tttCurrentPlayer === 'X'? 'O' : 'X';
-
-      tttStatus.innerText = `Player ${tttCurrentPlayer}'s Turn`;
-
     }
-
-
-
-    function resetTTT() {
-
-      tttBoard = ['', '', '', '', '', '', '', '', ''];
-
-      tttCurrentPlayer = 'X';
-
-      tttGameActive = true;
-
-      tttStatus.innerText = `Player X's Turn`;
-
-      tttCells.forEach(cell => {
-
-        cell.innerText = '';
-
-        cell.style.color = '#fff';
-
-      });
-
-    }
-
-
-
-    tttCells.forEach(cell => cell.addEventListener('click', handleCellClick));
-
-
-
-    /* =========================================
-
-       AU CLICKER LOGIC
-
-       ========================================= */
-
-    let auScore = 0;
-
-    const auScoreDisplay = document.getElementById('au-score');
-
-    const clickerBtn = document.getElementById('clicker-btn');
-
-
-
-    function initClicker() {
-
-      // Load user-specific score from local storage
-
-      const activeUser = localStorage.getItem('orange_currentUser');
-
-      auScore = parseInt(localStorage.getItem(`orange_au_score_${activeUser}`)) |
-
-
-
-| 0;
-
-      auScoreDisplay.innerText = auScore;
-
-    }
-
-
-
-    clickerBtn.addEventListener('click', () => {
-
-      const activeUser = localStorage.getItem('orange_currentUser');
-
-      if(!activeUser) return; // Failsafe
-
-      
-
-      auScore++;
-
-      auScoreDisplay.innerText = auScore;
-
-      localStorage.setItem(`orange_au_score_${activeUser}`, auScore);
-
-    });
-
-
-
-    function resetClicker() {
-
-      const activeUser = localStorage.getItem('orange_currentUser');
-
-      if(!activeUser) return;
-
-      auScore = 0;
-
-      auScoreDisplay.innerText = auScore;
-
-      localStorage.setItem(`orange_au_score_${activeUser}`, 0);
-
-    }
-
-
-
-    // Initialize UI on load
-
-    updateUIState();
-
   </script>
 
+  <style>
+    body {
+      background-color: #080a0f;
+      color: #f0f0f0;
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: #080a0f; }
+    ::-webkit-scrollbar-thumb { background: #ff6a00; border-radius: 5px; border: 2px solid #080a0f; }
+
+    /* Ambient Particle Background */
+    .ambient-engine {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: -2; overflow: hidden;
+      background: radial-gradient(circle at 15% 50%, rgba(255,106,0,0.05), transparent 50%),
+                  radial-gradient(circle at 85% 30%, rgba(255,153,102,0.03), transparent 50%);
+    }
+    
+    .particle {
+      position: absolute; border-radius: 50%;
+      background: radial-gradient(circle, #ff9966 0%, transparent 70%);
+      opacity: 0.5; filter: blur(4px);
+    }
+
+    /* Glassmorphism Utilities */
+    .glass-panel {
+      background: rgba(21, 24, 34, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Advanced Game Card Hover Effects */
+    .game-card {
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .game-card::before {
+      content: ""; position: absolute; inset: -2px; z-index: -1; border-radius: 1.5rem;
+      background: linear-gradient(45deg, transparent 30%, #ff6a00 50%, transparent 70%);
+      background-size: 200% 200%;
+      opacity: 0; transition: opacity 0.4s ease;
+      animation: shiftGradient 3s linear infinite;
+    }
+    .game-card:hover { transform: translateY(-10px) scale(1.02); }
+    .game-card:hover::before { opacity: 1; filter: blur(10px); }
+    @keyframes shiftGradient { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+
+    /* Forms & Inputs */
+    .input-field {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.3s ease;
+    }
+    .input-field:focus {
+      border-color: #ff6a00;
+      box-shadow: 0 0 15px rgba(255, 106, 0, 0.3);
+      background: rgba(0,0,0,0.6);
+      outline: none;
+    }
+
+    /* Modal Transitions */
+    .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-content { transform: translateY(20px) scale(0.95); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
+
+    /* Hide unselected forms */
+    .show-register #login-form { display: none; }
+    #register-form { display: none; }
+    .show-register #register-form { display: block; }
+  </style>
+</head>
+<body class="font-inter antialiased min-h-screen flex flex-col">
+
+  <!-- Ambient Background -->
+  <div class="ambient-engine">
+    <div class="particle animate-float-slow" style="left: 15%; width: 50px; height: 50px; animation-duration: 18s;"></div>
+    <div class="particle animate-float-slow" style="left: 35%; width: 70px; height: 70px; animation-duration: 22s; animation-delay: -5s;"></div>
+    <div class="particle animate-float-slow" style="left: 65%; width: 40px; height: 40px; animation-duration: 14s; animation-delay: -2s;"></div>
+    <div class="particle animate-float-slow" style="left: 85%; width: 90px; height: 90px; animation-duration: 25s; animation-delay: -10s;"></div>
+  </div>
+
+  <!-- Top Navigation -->
+  <header class="glass-panel sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
+    <div class="text-2xl font-orbitron font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-brand to-yellow-400 cursor-pointer hover:drop-shadow-[0_0_10px_rgba(255,106,0,0.8)] transition-all">
+      ORANGE GAMES
+    </div>
+
+    <div class="relative">
+      <!-- Login Button -->
+      <button id="nav-login-btn" class="border border-brand text-brand hover:bg-brand hover:text-white px-6 py-2 rounded-full font-semibold uppercase tracking-wide transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,106,0,0.6)]">
+        Initiate Uplink
+      </button>
+      
+      <!-- Profile Area -->
+      <div id="profile-area" class="hidden group relative">
+        <button class="flex items-center gap-3 bg-white/5 border border-white/10 hover:border-brand px-5 py-2 rounded-full backdrop-blur-md transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,106,0,0.3)]">
+          <i class="fas fa-user-astronaut text-brand text-xl"></i>
+          <span id="user-display-name" class="font-medium text-white">Player</span>
+          <i class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-brand transition-colors"></i>
+        </button>
+
+        <!-- Dropdown -->
+        <div class="absolute right-0 mt-2 w-56 glass-panel rounded-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right group-hover:translate-y-0 translate-y-2">
+          <div class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors">
+            <i class="fas fa-gamepad w-5"></i> Game Hub
+          </div>
+          <div class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors">
+            <i class="fas fa-trophy w-5"></i> My Stats
+          </div>
+          <div id="logout-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors border-t border-white/5 mt-1">
+            <i class="fas fa-power-off w-5"></i> Disconnect
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="flex-grow container mx-auto px-4 py-12 flex flex-col xl:flex-row gap-10">
+    
+    <!-- Left Column: Hero & Games -->
+    <div class="flex-1 space-y-12">
+      <section class="text-center xl:text-left pt-10">
+        <h1 class="text-5xl md:text-6xl font-orbitron font-black text-white mb-6 animate-flicker">
+          UNLEASH YOUR<br/>INNER GAMER
+        </h1>
+        <p class="text-gray-400 text-lg max-w-2xl mx-auto xl:mx-0 leading-relaxed">
+          Access the mainframe. Engage in high-stakes strategy or build your economic empire. Select your target module below to proceed to the repository.
+        </p>
+      </section>
+
+      <!-- Games Grid -->
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <!-- Game Card: Tic Tac Toe -->
+        <a href="TicTacToe.md" class="game-card relative block h-72 rounded-2xl p-8 flex flex-col justify-end overflow-hidden group cursor-pointer border border-white/10 bg-surface-solid">
+          <!-- Background Image Mock -->
+          <div class="absolute inset-0 bg-gradient-to-t from-[#080a0f] via-[#080a0f]/80 to-transparent z-10"></div>
+          <div class="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity bg-[url('https://images.unsplash.com/photo-1614680376593-902f74cf0d41?auto=format&fit=crop&q=80')] bg-cover bg-center"></div>
+          
+          <div class="relative z-20">
+            <div class="w-12 h-12 bg-brand/20 border border-brand rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <i class="fas fa-times text-brand text-2xl"></i>
+            </div>
+            <h3 class="font-orbitron text-2xl font-bold text-white mb-2 group-hover:text-brand transition-colors">X and O Arena</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">The classic 3x3 strategic battleground. Predict, align, and conquer. Repository external.</p>
+            <div class="mt-4 flex items-center text-xs font-bold text-brand uppercase tracking-wider">
+              <span>Execute .md</span> <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
+            </div>
+          </div>
+        </a>
+
+        <!-- Game Card: AU Clicker -->
+        <a href="AuClicker.md" class="game-card relative block h-72 rounded-2xl p-8 flex flex-col justify-end overflow-hidden group cursor-pointer border border-white/10 bg-surface-solid">
+          <div class="absolute inset-0 bg-gradient-to-t from-[#080a0f] via-[#080a0f]/80 to-transparent z-10"></div>
+          <div class="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity bg-[url('https://images.unsplash.com/photo-1621504450181-5c3b123af6c6?auto=format&fit=crop&q=80')] bg-cover bg-center"></div>
+          
+          <div class="relative z-20">
+            <div class="w-12 h-12 bg-yellow-500/20 border border-yellow-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <i class="fas fa-coins text-yellow-500 text-2xl"></i>
+            </div>
+            <h3 class="font-orbitron text-2xl font-bold text-white mb-2 group-hover:text-yellow-500 transition-colors">AU Syndicate</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">An incremental economy simulator. Extract resources and dominate the market. Repository external.</p>
+            <div class="mt-4 flex items-center text-xs font-bold text-yellow-500 uppercase tracking-wider">
+              <span>Execute .md</span> <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
+            </div>
+          </div>
+        </a>
+
+      </section>
+    </div>
+
+    <!-- Right Column: Leaderboard Panel -->
+    <div class="w-full xl:w-96 flex-shrink-0 pt-10 xl:pt-0">
+      <div class="glass-panel rounded-2xl p-6 h-full border-t-4 border-t-brand relative overflow-hidden">
+        <!-- Decoration -->
+        <div class="absolute -top-10 -right-10 w-32 h-32 bg-brand/20 blur-3xl rounded-full pointer-events-none"></div>
+
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-orbitron text-xl font-bold text-white">Global Network</h2>
+          <i class="fas fa-globe text-brand animate-pulse"></i>
+        </div>
+
+        <div class="space-y-4">
+          <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-white/10 pb-2">Top Operatives</h3>
+          
+          <div id="leaderboard-container" class="space-y-3">
+            <!-- Dynamic Leaderboard Content Injected Here -->
+            <div class="text-center py-8 text-gray-500 text-sm">Initializing radar...</div>
+          </div>
+        </div>
+
+        <div class="mt-8 pt-4 border-t border-white/10 text-center">
+          <p class="text-xs text-gray-500">Scores sync automatically via local neural net (LocalStorage).</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Authentication Modal -->
+  <div id="auth-modal-overlay" class="modal-overlay fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div id="auth-modal-container" class="modal-content relative w-full max-w-md glass-panel rounded-3xl p-8 border border-brand/30 shadow-[0_0_50px_rgba(255,106,0,0.15)] overflow-hidden">
+      <!-- Glow effect inside modal -->
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-brand to-transparent"></div>
+      
+      <button id="close-modal" class="absolute top-5 right-6 text-gray-400 hover:text-brand text-2xl transition-transform hover:rotate-90">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <!-- Login Form -->
+      <div id="login-form">
+        <h2 class="font-orbitron text-3xl font-bold text-white text-center mb-8">INITIATE UPLINK</h2>
+        
+        <div class="space-y-5">
+          <div>
+            <input type="text" id="login-user" placeholder="Callsign (Username)" autocomplete="off" 
+                   class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
+          </div>
+          <div>
+            <input type="password" id="login-pass" placeholder="Passkey" 
+                   class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
+          </div>
+          
+          <button id="do-login" class="w-full bg-gradient-to-r from-brand to-yellow-500 text-black font-orbitron font-black text-lg py-4 rounded-xl hover:shadow-[0_0_20px_rgba(255,106,0,0.5)] hover:-translate-y-1 transition-all">
+            AUTHENTICATE
+          </button>
+          
+          <div id="login-msg" class="text-red-400 text-center font-semibold text-sm h-5"></div>
+        </div>
+
+        <div class="text-center mt-6 text-gray-400 text-sm">
+          New Operative? <span id="to-register" class="text-brand font-bold cursor-pointer hover:underline">Register Here</span>
+        </div>
+      </div>
+
+      <!-- Registration Form -->
+      <div id="register-form">
+        <h2 class="font-orbitron text-3xl font-bold text-white text-center mb-8">CONSTRUCT IDENTITY</h2>
+        
+        <div class="space-y-5">
+          <div>
+            <input type="text" id="reg-user" placeholder="Desired Callsign" autocomplete="off" 
+                   class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
+          </div>
+          <div>
+            <input type="password" id="reg-pass" placeholder="Secure Passkey" 
+                   class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
+          </div>
+          
+          <button id="do-register" class="w-full bg-gradient-to-r from-brand to-yellow-500 text-black font-orbitron font-black text-lg py-4 rounded-xl hover:shadow-[0_0_20px_rgba(255,106,0,0.5)] hover:-translate-y-1 transition-all">
+            ESTABLISH ACCOUNT
+          </button>
+          
+          <div id="reg-msg" class="text-red-400 text-center font-semibold text-sm h-5"></div>
+        </div>
+
+        <div class="text-center mt-6 text-gray-400 text-sm">
+          Existing Operative? <span id="to-login" class="text-brand font-bold cursor-pointer hover:underline">Authenticate Here</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================
+       CORE STATE & AUTHENTICATION
+       ========================================= */
+    const UI = {
+      navLoginBtn: document.getElementById('nav-login-btn'),
+      profileArea: document.getElementById('profile-area'),
+      userNameDisplay: document.getElementById('user-display-name'),
+      modalOverlay: document.getElementById('auth-modal-overlay'),
+      modalContainer: document.getElementById('auth-modal-container'),
+      closeModalBtn: document.getElementById('close-modal'),
+      toRegister: document.getElementById('to-register'),
+      toLogin: document.getElementById('to-login'),
+      loginBtn: document.getElementById('do-login'),
+      regBtn: document.getElementById('do-register'),
+      logoutBtn: document.getElementById('logout-btn'),
+      loginMsg: document.getElementById('login-msg'),
+      regMsg: document.getElementById('reg-msg'),
+      leaderboardContainer: document.getElementById('leaderboard-container')
+    };
+
+    // Safe parsing of users
+    function getUsers() { 
+      try {
+        return JSON.parse(localStorage.getItem('orange_users')) || []; 
+      } catch {
+        return [];
+      }
+    }
+    
+    function saveUsers(users) { 
+      localStorage.setItem('orange_users', JSON.stringify(users)); 
+    }
+
+    function updateUIState() {
+      const activeUser = localStorage.getItem('orange_currentUser');
+      if (activeUser) {
+        UI.navLoginBtn.classList.add('hidden');
+        UI.profileArea.classList.remove('hidden');
+        UI.userNameDisplay.textContent = activeUser;
+        closeModal();
+      } else {
+        UI.navLoginBtn.classList.remove('hidden');
+        UI.profileArea.classList.add('hidden');
+      }
+      renderLeaderboard();
+    }
+
+    // Modal Controls
+    function openModal() { UI.modalOverlay.classList.add('active'); }
+    function closeModal() { UI.modalOverlay.classList.remove('active'); }
+
+    UI.navLoginBtn.onclick = openModal;
+    UI.closeModalBtn.onclick = closeModal;
+    UI.modalOverlay.onclick = (e) => { if(e.target === UI.modalOverlay) closeModal(); };
+
+    // Form Toggles
+    UI.toRegister.onclick = () => { 
+      UI.modalContainer.classList.add('show-register'); 
+      UI.loginMsg.textContent = ''; 
+    };
+    UI.toLogin.onclick = () => { 
+      UI.modalContainer.classList.remove('show-register'); 
+      UI.regMsg.textContent = ''; 
+    };
+
+    // Registration Logic
+    UI.regBtn.onclick = () => {
+      const user = document.getElementById('reg-user').value.trim();
+      const pass = document.getElementById('reg-pass').value.trim();
+      
+      if(user.length < 3 || pass.length < 4) {
+        return UI.regMsg.textContent = "Callsign > 3 chars. Passkey > 4 chars.";
+      }
+      
+      const users = getUsers();
+      if(users.some(u => u.username === user)) {
+        return UI.regMsg.textContent = "Callsign already registered.";
+      }
+
+      users.push({ username: user, password: pass, joined: new Date().toISOString() });
+      saveUsers(users);
+      localStorage.setItem('orange_currentUser', user);
+      
+      // Clear inputs
+      document.getElementById('reg-user').value = '';
+      document.getElementById('reg-pass').value = '';
+      updateUIState();
+    };
+
+    // Login Logic
+    UI.loginBtn.onclick = () => {
+      const user = document.getElementById('login-user').value.trim();
+      const pass = document.getElementById('login-pass').value.trim();
+      const validUser = getUsers().find(u => u.username === user && u.password === pass);
+      
+      if(validUser) {
+        localStorage.setItem('orange_currentUser', user);
+        document.getElementById('login-user').value = '';
+        document.getElementById('login-pass').value = '';
+        updateUIState();
+      } else {
+        UI.loginMsg.textContent = "Invalid Callsign or Passkey.";
+      }
+    };
+
+    // Logout Logic
+    UI.logoutBtn.onclick = () => {
+      localStorage.removeItem('orange_currentUser');
+      updateUIState();
+    };
+
+    /* =========================================
+       LEADERBOARD LOGIC
+       ========================================= */
+    function renderLeaderboard() {
+      const users = getUsers();
+      
+      // Calculate scores dynamically based on local storage keys if available
+      const leaderboardData = users.map(u => {
+        // Look up Au clicker scores saved by the individual games
+        const auScore = parseInt(localStorage.getItem(`orange_au_score_${u.username}`)) || 0;
+        // Mock a generic score based on length for demonstration if 0
+        const totalScore = auScore > 0 ? auScore : Math.floor(Math.random() * 50) + 10; 
+        return { username: u.username, score: totalScore };
+      });
+
+      // Sort top scores
+      leaderboardData.sort((a, b) => b.score - a.score);
+
+      if (leaderboardData.length === 0) {
+        UI.leaderboardContainer.innerHTML = `<div class="text-center py-6 text-gray-500 text-sm italic">No operatives found in the network.</div>`;
+        return;
+      }
+
+      UI.leaderboardContainer.innerHTML = leaderboardData.slice(0, 5).map((player, index) => {
+        // Styling for top 3
+        const rankColors = ['text-yellow-400', 'text-gray-300', 'text-amber-600'];
+        const iconColor = rankColors[index] || 'text-brand/50';
+        const bgHover = index === 0 ? 'hover:bg-yellow-500/10 hover:border-yellow-500/30' : 'hover:bg-brand/10 hover:border-brand/30';
+        
+        return `
+          <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-transparent ${bgHover} transition-all group">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-black/50 flex items-center justify-center font-orbitron font-bold ${iconColor}">
+                #${index + 1}
+              </div>
+              <span class="font-medium text-white group-hover:text-brand transition-colors">${player.username}</span>
+            </div>
+            <div class="text-right">
+              <div class="text-brand font-orbitron font-bold">${player.score.toLocaleString()}</div>
+              <div class="text-[10px] text-gray-500 uppercase">Power</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Initialize UI on load
+    updateUIState();
+
+    // Game Links protection (Optional: require login to click)
+    document.querySelectorAll('.game-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if(!localStorage.getItem('orange_currentUser')) {
+          e.preventDefault();
+          openModal();
+          UI.loginMsg.textContent = "Authentication required to access external repositories.";
+        }
+      });
+    });
+  </script>
 </body>
-
 </html>
-
