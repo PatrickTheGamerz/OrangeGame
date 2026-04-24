@@ -153,8 +153,6 @@
     </div>
 
     <div class="flex items-center gap-4 relative">
-      
-      <!-- Language Selector Dropdown -->
       <div class="hidden sm:block relative group">
         <button class="flex items-center gap-2 bg-white/5 border border-white/10 hover:border-brand px-4 py-2 rounded-full backdrop-blur-md transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,106,0,0.3)]">
           <i class="fas fa-globe text-brand text-sm"></i>
@@ -163,42 +161,30 @@
         </button>
 
         <div class="absolute right-0 mt-2 w-48 glass-panel rounded-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right group-hover:translate-y-0 translate-y-2 max-h-64 overflow-y-auto custom-scrollbar-mini">
-          <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 px-3 pt-1">Select Language</div>
+          <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 px-3 pt-1" data-i18n="select_language">Select Language</div>
           <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">English</div>
           <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Español</div>
           <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Français</div>
           <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Deutsch</div>
           <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Italiano</div>
           <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Português</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Nederlands</div>
           <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Polski</div>
           <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Русский</div>
           <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Українська</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Čeština</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Magyar</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Română</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Ελληνικά</div>
           <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Türkçe</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Nederlands</div>
           <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Svenska</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Norsk</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Dansk</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Suomi</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">中文 (Mandarin)</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">日本語 (Japanese)</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">한국어 (Korean)</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">中文</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">日本語</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">한국어</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">हिन्दी</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">العربية</div>
           <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Tiếng Việt</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">ไทย (Thai)</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">ภาษาไทย</div>
           <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Bahasa Indonesia</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Bahasa Melayu</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Tagalog</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">हिन्दी (Hindi)</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">বাংলা (Bengali)</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">العربية (Arabic)</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">עברית (Hebrew)</div>
         </div>
       </div>
 
-      <!-- Auth Button -->
       <button id="nav-login-btn" data-i18n="signin_btn" class="border border-brand text-brand hover:bg-brand hover:text-white px-6 py-2 rounded-full font-semibold uppercase tracking-wide transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,106,0,0.6)] text-sm">
         Sign In / Log In
       </button>
@@ -282,7 +268,6 @@
           <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-white/10 pb-2" data-i18n="top_operatives">Top Operatives</h3>
           
           <div id="leaderboard-container" class="space-y-3">
-            <!-- Injected via Javascript -->
           </div>
         </div>
       </div>
@@ -290,7 +275,6 @@
 
   </main>
 
-  <!-- AUTH MODAL -->
   <div id="auth-modal-overlay" class="modal-overlay fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
     <div id="auth-modal-container" class="modal-content relative w-full max-w-md glass-panel rounded-3xl p-8 border border-brand/30 shadow-[0_0_50px_rgba(255,106,0,0.15)] overflow-hidden">
       <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-brand to-transparent"></div>
@@ -299,17 +283,16 @@
         <i class="fas fa-times"></i>
       </button>
 
-      <!-- SIGN IN FORM -->
       <div id="login-form">
         <h2 class="font-orbitron text-3xl font-bold text-white text-center mb-6" data-i18n="modal_signin">SIGN IN / LOG IN</h2>
         
         <div class="space-y-5">
           <div>
-            <input type="text" id="login-user" placeholder="Username" autocomplete="off" data-i18n="ph_username"
+            <input type="text" id="login-user" autocomplete="off" data-i18n="ph_username" placeholder="Username"
                    class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
           </div>
           <div>
-            <input type="password" id="login-pass" placeholder="Password" data-i18n="ph_passkey"
+            <input type="password" id="login-pass" data-i18n="ph_passkey" placeholder="Password"
                    class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
           </div>
           
@@ -325,17 +308,16 @@
         </div>
       </div>
 
-      <!-- REGISTER FORM -->
       <div id="register-form">
         <h2 class="font-orbitron text-3xl font-bold text-white text-center mb-6" data-i18n="modal_register">REGISTER</h2>
         
         <div class="space-y-5">
           <div>
-            <input type="text" id="reg-user" placeholder="Desired Username" autocomplete="off" data-i18n="ph_reg_user"
+            <input type="text" id="reg-user" autocomplete="off" data-i18n="ph_reg_user" placeholder="Desired Username"
                    class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
           </div>
           <div>
-            <input type="password" id="reg-pass" placeholder="Secure Password" data-i18n="ph_reg_pass"
+            <input type="password" id="reg-pass" data-i18n="ph_reg_pass" placeholder="Secure Password"
                    class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
           </div>
           
@@ -371,11 +353,7 @@
     </div>
   </div>
 
-  <!-- Standard Javascript (Removed Modules to guarantee 100% functionality everywhere) -->
   <script>
-    /* =========================================
-       LANGUAGE DICTIONARY & TRANSLATION ENGINE
-       ========================================= */
     const translations = {
       "English": {
         "signin_btn": "Sign In / Log In",
@@ -396,7 +374,9 @@
         "ph_reg_pass": "Secure Password",
         "exist_user": "Existing Operative?",
         "login_here": "Sign In Here",
-        "total_power": "Total Global Power"
+        "total_power": "Total Global Power",
+        "select_language": "Select Language",
+        "power_label": "Power"
       },
       "Español": {
         "signin_btn": "Iniciar Sesión",
@@ -408,19 +388,21 @@
         "global_network": "Red Global",
         "top_operatives": "Mejores Agentes",
         "modal_signin": "INICIAR SESIÓN",
-        "ph_username": "Nombre de usuario",
+        "ph_username": "Usuario",
         "ph_passkey": "Contraseña",
         "new_user": "¿Nuevo Agente?",
-        "register_here": "Regístrate aquí",
+        "register_here": "Regístrate Aquí",
         "modal_register": "REGISTRARSE",
-        "ph_reg_user": "Usuario deseado",
-        "ph_reg_pass": "Contraseña segura",
-        "exist_user": "¿Agente existente?",
-        "login_here": "Inicia sesión aquí",
-        "total_power": "Poder Global Total"
+        "ph_reg_user": "Usuario Deseado",
+        "ph_reg_pass": "Contraseña Segura",
+        "exist_user": "¿Agente Existente?",
+        "login_here": "Inicia Sesión Aquí",
+        "total_power": "Poder Global Total",
+        "select_language": "Elige Idioma",
+        "power_label": "Poder"
       },
       "Français": {
-        "signin_btn": "Connexion / Inscription",
+        "signin_btn": "Connexion",
         "game_hub": "Hub de Jeux",
         "my_stats": "Mes Stats",
         "disconnect": "Déconnexion",
@@ -438,10 +420,12 @@
         "ph_reg_pass": "Mot de passe sécurisé",
         "exist_user": "Agent existant ?",
         "login_here": "Connectez-vous ici",
-        "total_power": "Puissance Globale Totale"
+        "total_power": "Puissance Globale Totale",
+        "select_language": "Choisir Langue",
+        "power_label": "Puissance"
       },
       "Deutsch": {
-        "signin_btn": "Anmelden / Registrieren",
+        "signin_btn": "Anmelden",
         "game_hub": "Spiele-Hub",
         "my_stats": "Meine Statistiken",
         "disconnect": "Abmelden",
@@ -459,7 +443,55 @@
         "ph_reg_pass": "Sicheres Passwort",
         "exist_user": "Existierender Agent?",
         "login_here": "Hier anmelden",
-        "total_power": "Gesamte Globale Macht"
+        "total_power": "Gesamte Globale Macht",
+        "select_language": "Sprache Wählen",
+        "power_label": "Macht"
+      },
+      "Italiano": {
+        "signin_btn": "Accedi",
+        "game_hub": "Hub Giochi",
+        "my_stats": "Mie Statistiche",
+        "disconnect": "Disconnetti",
+        "hero_title": "PASSERAI UN<br/>BEL MOMENTO.",
+        "play_here": "CLICCA PER GIOCARE",
+        "global_network": "Rete Globale",
+        "top_operatives": "Migliori Agenti",
+        "modal_signin": "ACCEDI",
+        "ph_username": "Nome utente",
+        "ph_passkey": "Password",
+        "new_user": "Nuovo Agente?",
+        "register_here": "Registrati Qui",
+        "modal_register": "REGISTRATI",
+        "ph_reg_user": "Nome Desiderato",
+        "ph_reg_pass": "Password Sicura",
+        "exist_user": "Agente Esistente?",
+        "login_here": "Accedi Qui",
+        "total_power": "Potere Globale Totale",
+        "select_language": "Seleziona Lingua",
+        "power_label": "Potere"
+      },
+      "Português": {
+        "signin_btn": "Entrar",
+        "game_hub": "Hub de Jogos",
+        "my_stats": "Minhas Estatísticas",
+        "disconnect": "Desconectar",
+        "hero_title": "VOCÊ VAI TER UM<br/>ÓTIMO MOMENTO.",
+        "play_here": "CLIQUE PARA JOGAR",
+        "global_network": "Rede Global",
+        "top_operatives": "Melhores Agentes",
+        "modal_signin": "ENTRAR",
+        "ph_username": "Usuário",
+        "ph_passkey": "Senha",
+        "new_user": "Novo Agente?",
+        "register_here": "Registre-se Aqui",
+        "modal_register": "REGISTRAR",
+        "ph_reg_user": "Usuário Desejado",
+        "ph_reg_pass": "Senha Segura",
+        "exist_user": "Agente Existente?",
+        "login_here": "Entre Aqui",
+        "total_power": "Poder Global Total",
+        "select_language": "Escolher Idioma",
+        "power_label": "Poder"
       },
       "Polski": {
         "signin_btn": "Zaloguj się",
@@ -480,7 +512,308 @@
         "ph_reg_pass": "Bezpieczne hasło",
         "exist_user": "Masz już konto?",
         "login_here": "Zaloguj się tutaj",
-        "total_power": "Całkowita Moc Globalna"
+        "total_power": "Całkowita Moc Globalna",
+        "select_language": "Wybierz Język",
+        "power_label": "Moc"
+      },
+      "Русский": {
+        "signin_btn": "Войти",
+        "game_hub": "Игровой Центр",
+        "my_stats": "Моя Статистика",
+        "disconnect": "Выйти",
+        "hero_title": "ТЫ ХОРОШО<br/>ПРОВЕДЕШЬ ВРЕМЯ.",
+        "play_here": "НАЖМИ ЧТОБЫ ИГРАТЬ",
+        "global_network": "Глобальная Сеть",
+        "top_operatives": "Лучшие Агенты",
+        "modal_signin": "ВОЙТИ",
+        "ph_username": "Имя пользователя",
+        "ph_passkey": "Пароль",
+        "new_user": "Новый агент?",
+        "register_here": "Зарегистрироваться",
+        "modal_register": "РЕГИСТРАЦИЯ",
+        "ph_reg_user": "Желаемое Имя",
+        "ph_reg_pass": "Надежный Пароль",
+        "exist_user": "Уже есть аккаунт?",
+        "login_here": "Войти здесь",
+        "total_power": "Общая Глобальная Мощь",
+        "select_language": "Выберите Язык",
+        "power_label": "Мощь"
+      },
+      "Українська": {
+        "signin_btn": "Увійти",
+        "game_hub": "Ігровий Центр",
+        "my_stats": "Моя Статистика",
+        "disconnect": "Вийти",
+        "hero_title": "ТИ ДОБРЕ<br/>ПРОВЕДЕШ ЧАС.",
+        "play_here": "НАТИСНИ ЩОБ ГРАТИ",
+        "global_network": "Глобальна Мережа",
+        "top_operatives": "Кращі Агенти",
+        "modal_signin": "УВІЙТИ",
+        "ph_username": "Ім'я користувача",
+        "ph_passkey": "Пароль",
+        "new_user": "Новий агент?",
+        "register_here": "Зареєструватися",
+        "modal_register": "РЕЄСТРАЦІЯ",
+        "ph_reg_user": "Бажане Ім'я",
+        "ph_reg_pass": "Надійний Пароль",
+        "exist_user": "Вже є акаунт?",
+        "login_here": "Увійти тут",
+        "total_power": "Загальна Глобальна Міць",
+        "select_language": "Оберіть Мову",
+        "power_label": "Міць"
+      },
+      "Türkçe": {
+        "signin_btn": "Giriş Yap",
+        "game_hub": "Oyun Merkezi",
+        "my_stats": "İstatistiklerim",
+        "disconnect": "Çıkış Yap",
+        "hero_title": "HARİKA ZAMAN<br/>GEÇİRECEKSİN.",
+        "play_here": "OYNAMAK İÇİN TIKLA",
+        "global_network": "Küresel Ağ",
+        "top_operatives": "En İyi Ajanlar",
+        "modal_signin": "GİRİŞ YAP",
+        "ph_username": "Kullanıcı Adı",
+        "ph_passkey": "Şifre",
+        "new_user": "Yeni Ajan?",
+        "register_here": "Buradan Kayıt Ol",
+        "modal_register": "KAYIT OL",
+        "ph_reg_user": "İstenen Kullanıcı Adı",
+        "ph_reg_pass": "Güvenli Şifre",
+        "exist_user": "Mevcut Ajan?",
+        "login_here": "Buradan Giriş Yap",
+        "total_power": "Toplam Küresel Güç",
+        "select_language": "Dil Seçin",
+        "power_label": "Güç"
+      },
+      "Nederlands": {
+        "signin_btn": "Inloggen",
+        "game_hub": "Game Hub",
+        "my_stats": "Mijn Stats",
+        "disconnect": "Uitloggen",
+        "hero_title": "JE GAAT EEN<br/>LEUKE TIJD HEBBEN.",
+        "play_here": "KLIK OM TE SPELEN",
+        "global_network": "Wereldwijd Netwerk",
+        "top_operatives": "Top Agenten",
+        "modal_signin": "INLOGGEN",
+        "ph_username": "Gebruikersnaam",
+        "ph_passkey": "Wachtwoord",
+        "new_user": "Nieuwe Agent?",
+        "register_here": "Registreer Hier",
+        "modal_register": "REGISTREREN",
+        "ph_reg_user": "Gewenste Naam",
+        "ph_reg_pass": "Veilig Wachtwoord",
+        "exist_user": "Bestaande Agent?",
+        "login_here": "Log Hier In",
+        "total_power": "Totale Globale Macht",
+        "select_language": "Selecteer Taal",
+        "power_label": "Macht"
+      },
+      "Svenska": {
+        "signin_btn": "Logga in",
+        "game_hub": "Spelhubb",
+        "my_stats": "Min Statistik",
+        "disconnect": "Logga ut",
+        "hero_title": "DU KOMMER ATT HA<br/>EN BRA TID.",
+        "play_here": "KLICKA FÖR ATT SPELA",
+        "global_network": "Globalt Nätverk",
+        "top_operatives": "Toppagenter",
+        "modal_signin": "LOGGA IN",
+        "ph_username": "Användarnamn",
+        "ph_passkey": "Lösenord",
+        "new_user": "Ny Agent?",
+        "register_here": "Registrera Här",
+        "modal_register": "REGISTRERA",
+        "ph_reg_user": "Önskat Namn",
+        "ph_reg_pass": "Säkert Lösenord",
+        "exist_user": "Befintlig Agent?",
+        "login_here": "Logga In Här",
+        "total_power": "Total Global Makt",
+        "select_language": "Välj Språk",
+        "power_label": "Makt"
+      },
+      "中文": {
+        "signin_btn": "登录",
+        "game_hub": "游戏中心",
+        "my_stats": "我的统计",
+        "disconnect": "断开连接",
+        "hero_title": "你会度过<br/>美好的时光。",
+        "play_here": "点击这里开始游戏",
+        "global_network": "全球网络",
+        "top_operatives": "顶级特工",
+        "modal_signin": "登录",
+        "ph_username": "用户名",
+        "ph_passkey": "密码",
+        "new_user": "新特工？",
+        "register_here": "在这里注册",
+        "modal_register": "注册",
+        "ph_reg_user": "期望的用户名",
+        "ph_reg_pass": "安全密码",
+        "exist_user": "已有账号？",
+        "login_here": "在这里登录",
+        "total_power": "全球总战力",
+        "select_language": "选择语言",
+        "power_label": "战力"
+      },
+      "日本語": {
+        "signin_btn": "ログイン",
+        "game_hub": "ゲームハブ",
+        "my_stats": "マイステータス",
+        "disconnect": "切断",
+        "hero_title": "素晴らしい時間を<br/>過ごせるだろう。",
+        "play_here": "クリックしてプレイ",
+        "global_network": "グローバルネットワーク",
+        "top_operatives": "トップエージェント",
+        "modal_signin": "ログイン",
+        "ph_username": "ユーザー名",
+        "ph_passkey": "パスワード",
+        "new_user": "新規エージェント？",
+        "register_here": "ここで登録",
+        "modal_register": "登録",
+        "ph_reg_user": "希望するユーザー名",
+        "ph_reg_pass": "安全なパスワード",
+        "exist_user": "既存のエージェント？",
+        "login_here": "ここでログイン",
+        "total_power": "総グローバルパワー",
+        "select_language": "言語を選択",
+        "power_label": "パワー"
+      },
+      "한국어": {
+        "signin_btn": "로그인",
+        "game_hub": "게임 허브",
+        "my_stats": "내 통계",
+        "disconnect": "연결 끊기",
+        "hero_title": "즐거운 시간을<br/>보낼 것입니다.",
+        "play_here": "플레이하려면 클릭",
+        "global_network": "글로벌 네트워크",
+        "top_operatives": "최고 요원",
+        "modal_signin": "로그인",
+        "ph_username": "사용자 이름",
+        "ph_passkey": "비밀번호",
+        "new_user": "새 요원인가요?",
+        "register_here": "여기서 등록하세요",
+        "modal_register": "등록",
+        "ph_reg_user": "원하는 사용자 이름",
+        "ph_reg_pass": "안전한 비밀번호",
+        "exist_user": "기존 요원인가요?",
+        "login_here": "여기서 로그인하세요",
+        "total_power": "총 글로벌 파워",
+        "select_language": "언어 선택",
+        "power_label": "파워"
+      },
+      "हिन्दी": {
+        "signin_btn": "साइन इन",
+        "game_hub": "गेम हब",
+        "my_stats": "मेरे आँकड़े",
+        "disconnect": "डिस्कनेक्ट",
+        "hero_title": "आपका समय<br/>अच्छा बीतेगा।",
+        "play_here": "खेलने के लिए यहाँ क्लिक करें",
+        "global_network": "ग्लोबल नेटवर्क",
+        "top_operatives": "शीर्ष एजेंट",
+        "modal_signin": "साइन इन",
+        "ph_username": "उपयोगकर्ता नाम",
+        "ph_passkey": "पासवर्ड",
+        "new_user": "नए एजेंट?",
+        "register_here": "यहाँ रजिस्टर करें",
+        "modal_register": "रजिस्टर",
+        "ph_reg_user": "वांछित नाम",
+        "ph_reg_pass": "सुरक्षित पासवर्ड",
+        "exist_user": "मौजूदा एजेंट?",
+        "login_here": "यहाँ साइन इन करें",
+        "total_power": "कुल ग्लोबल पावर",
+        "select_language": "भाषा चुनें",
+        "power_label": "पावर"
+      },
+      "العربية": {
+        "signin_btn": "تسجيل الدخول",
+        "game_hub": "مركز الألعاب",
+        "my_stats": "إحصائياتي",
+        "disconnect": "قطع الاتصال",
+        "hero_title": "ستقضي<br/>وقتا ممتعا.",
+        "play_here": "انقر هنا للعب",
+        "global_network": "الشبكة العالمية",
+        "top_operatives": "أفضل العملاء",
+        "modal_signin": "تسجيل الدخول",
+        "ph_username": "اسم المستخدم",
+        "ph_passkey": "كلمة المرور",
+        "new_user": "عميل جديد؟",
+        "register_here": "سجل هنا",
+        "modal_register": "تسجيل",
+        "ph_reg_user": "الاسم المطلوب",
+        "ph_reg_pass": "كلمة مرور آمنة",
+        "exist_user": "عميل حالي؟",
+        "login_here": "سجل دخولك هنا",
+        "total_power": "إجمالي القوة العالمية",
+        "select_language": "اختر اللغة",
+        "power_label": "قوة"
+      },
+      "Tiếng Việt": {
+        "signin_btn": "Đăng Nhập",
+        "game_hub": "Trung Tâm Trò Chơi",
+        "my_stats": "Thống Kê",
+        "disconnect": "Ngắt Kết Nối",
+        "hero_title": "BẠN SẼ CÓ<br/>MỘT THỜI GIAN TUYỆT VỜI.",
+        "play_here": "NHẤP ĐỂ CHƠI",
+        "global_network": "Mạng Toàn Cầu",
+        "top_operatives": "Đặc Vụ Hàng Đầu",
+        "modal_signin": "ĐĂNG NHẬP",
+        "ph_username": "Tên người dùng",
+        "ph_passkey": "Mật khẩu",
+        "new_user": "Đặc Vụ Mới?",
+        "register_here": "Đăng Ký Tại Đây",
+        "modal_register": "ĐĂNG KÝ",
+        "ph_reg_user": "Tên Mong Muốn",
+        "ph_reg_pass": "Mật Khẩu An Toàn",
+        "exist_user": "Đã Có Tài Khoản?",
+        "login_here": "Đăng Nhập Tại Đây",
+        "total_power": "Tổng Sức Mạnh",
+        "select_language": "Chọn Ngôn Ngữ",
+        "power_label": "Sức Mạnh"
+      },
+      "ภาษาไทย": {
+        "signin_btn": "เข้าสู่ระบบ",
+        "game_hub": "ศูนย์รวมเกม",
+        "my_stats": "สถิติของฉัน",
+        "disconnect": "ตัดการเชื่อมต่อ",
+        "hero_title": "คุณกำลังจะ<br/>มีช่วงเวลาที่ดี",
+        "play_here": "คลิกเพื่อเล่น",
+        "global_network": "เครือข่ายระดับโลก",
+        "top_operatives": "ตัวแทนยอดเยี่ยม",
+        "modal_signin": "เข้าสู่ระบบ",
+        "ph_username": "ชื่อผู้ใช้",
+        "ph_passkey": "รหัสผ่าน",
+        "new_user": "ตัวแทนใหม่?",
+        "register_here": "ลงทะเบียนที่นี่",
+        "modal_register": "ลงทะเบียน",
+        "ph_reg_user": "ชื่อผู้ใช้ที่ต้องการ",
+        "ph_reg_pass": "รหัสผ่านที่ปลอดภัย",
+        "exist_user": "เป็นตัวแทนอยู่แล้ว?",
+        "login_here": "เข้าสู่ระบบที่นี่",
+        "total_power": "พลังระดับโลกทั้งหมด",
+        "select_language": "เลือกภาษา",
+        "power_label": "พลัง"
+      },
+      "Bahasa Indonesia": {
+        "signin_btn": "Masuk",
+        "game_hub": "Pusat Game",
+        "my_stats": "Statistik Saya",
+        "disconnect": "Keluar",
+        "hero_title": "ANDA AKAN MEMILIKI<br/>WAKTU YANG MENYENANGKAN.",
+        "play_here": "KLIK UNTUK BERMAIN",
+        "global_network": "Jaringan Global",
+        "top_operatives": "Agen Teratas",
+        "modal_signin": "MASUK",
+        "ph_username": "Nama Pengguna",
+        "ph_passkey": "Kata Sandi",
+        "new_user": "Agen Baru?",
+        "register_here": "Daftar di Sini",
+        "modal_register": "DAFTAR",
+        "ph_reg_user": "Nama Pengguna",
+        "ph_reg_pass": "Kata Sandi Aman",
+        "exist_user": "Agen yang Ada?",
+        "login_here": "Masuk di Sini",
+        "total_power": "Total Kekuatan Global",
+        "select_language": "Pilih Bahasa",
+        "power_label": "Kekuatan"
       }
     };
 
@@ -498,9 +831,6 @@
       });
     }
 
-    /* =========================================
-       CORE LOGIC & MOCKED GLOBAL NETWORK
-       ========================================= */
     const UI = {
       navLoginBtn: document.getElementById('nav-login-btn'),
       profileArea: document.getElementById('profile-area'),
@@ -525,7 +855,14 @@
       currentLang: document.getElementById('current-lang')
     };
 
-    // Database Functions (Using localStorage for 100% Reliability on Github Pages)
+    let globalPlayers = [
+      { username: 'Neo_Matrix', score: 84200 },
+      { username: 'GhostInShell', score: 75100 },
+      { username: 'Cipher', score: 62050 },
+      { username: 'BladeRunner', score: 45000 },
+      { username: 'ZeroCool', score: 32000 }
+    ];
+
     function getUsers() {
       try {
         return JSON.parse(localStorage.getItem('orange_users_db')) || [];
@@ -538,7 +875,6 @@
       localStorage.setItem('orange_users_db', JSON.stringify(users));
     }
 
-    // Initialize Language
     const savedLang = localStorage.getItem('orange_lang') || 'English';
     UI.currentLang.textContent = savedLang;
     applyLanguage(savedLang);
@@ -552,7 +888,6 @@
       });
     });
 
-    // UI Updates
     function updateUIState() {
       const activeUser = localStorage.getItem('orange_currentUser');
       if (activeUser) {
@@ -564,10 +899,9 @@
         UI.navLoginBtn.classList.remove('hidden');
         UI.profileArea.classList.add('hidden');
       }
-      setupLeaderboard();
+      initLeaderboard();
     }
 
-    // Modal Events
     UI.navLoginBtn.onclick = () => {
       UI.loginMsg.textContent = '';
       UI.regMsg.textContent = '';
@@ -580,7 +914,6 @@
     UI.toRegister.onclick = () => { UI.modalContainer.classList.add('show-register'); UI.loginMsg.textContent = ''; };
     UI.toLogin.onclick = () => { UI.modalContainer.classList.remove('show-register'); UI.regMsg.textContent = ''; };
 
-    // Navigation & Stats
     UI.hubBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
     
     UI.statsBtn.onclick = () => {
@@ -595,7 +928,6 @@
     UI.closeStatsBtn.onclick = () => UI.statsModalOverlay.classList.remove('active');
     UI.statsModalOverlay.onclick = (e) => { if(e.target === UI.statsModalOverlay) UI.statsModalOverlay.classList.remove('active'); };
 
-    // Login System
     UI.regBtn.onclick = () => {
       const userStr = document.getElementById('reg-user').value.trim();
       const passStr = document.getElementById('reg-pass').value.trim();
@@ -642,30 +974,20 @@
       updateUIState();
     };
 
-    // Hybrid Global Leaderboard (Blends local users with static global data to simulate network)
-    function setupLeaderboard() {
+    function renderLeaderboardData() {
       const localUsers = getUsers();
       const activeUser = localStorage.getItem('orange_currentUser');
       
-      let allPlayers = [
-        { username: 'Neo_Matrix', score: 84200 },
-        { username: 'GhostInShell', score: 75100 },
-        { username: 'Cipher', score: 62050 },
-        { username: 'BladeRunner', score: 45000 },
-        { username: 'ZeroCool', score: 32000 }
-      ];
+      let allPlayers = [...globalPlayers];
 
-      // Inject actual local accounts based on their Clicker score
       localUsers.forEach(u => {
         const auScore = parseInt(localStorage.getItem(`orange_au_score_${u.username}`)) || 0;
-        const mappedScore = auScore > 0 ? auScore : 100; // Base score for new users
+        const mappedScore = auScore > 0 ? auScore : 100; 
         
-        // Remove duplicates if they exist in mock data
         allPlayers = allPlayers.filter(p => p.username.toLowerCase() !== u.username.toLowerCase());
         allPlayers.push({ username: u.username, score: mappedScore });
       });
 
-      // Sort & Select Top 5
       allPlayers.sort((a, b) => b.score - a.score);
       const top5 = allPlayers.slice(0, 5);
 
@@ -685,14 +1007,27 @@
             </div>
             <div class="text-right">
               <div class="text-brand font-orbitron font-bold">${player.score.toLocaleString()}</div>
-              <div class="text-[10px] text-gray-500 uppercase">Power</div>
+              <div class="text-[10px] text-gray-500 uppercase" data-i18n="power_label">Power</div>
             </div>
           </div>
         `;
       }).join('');
+
+      applyLanguage(UI.currentLang.textContent);
     }
 
-    // Game Access Protection
+    function initLeaderboard() {
+      renderLeaderboardData();
+      if(window.leaderboardInterval) clearInterval(window.leaderboardInterval);
+      
+      window.leaderboardInterval = setInterval(() => {
+        globalPlayers.forEach(p => {
+          if(Math.random() > 0.5) p.score += Math.floor(Math.random() * 50);
+        });
+        renderLeaderboardData();
+      }, 3500);
+    }
+
     document.querySelectorAll('.game-card').forEach(card => {
       card.addEventListener('click', (e) => {
         if(!localStorage.getItem('orange_currentUser')) {
@@ -704,7 +1039,6 @@
       });
     });
 
-    // Boot Up
     updateUIState();
   </script>
 </body>
