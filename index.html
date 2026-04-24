@@ -77,6 +77,10 @@
     ::-webkit-scrollbar-track { background: #080a0f; }
     ::-webkit-scrollbar-thumb { background: #ff6a00; border-radius: 5px; border: 2px solid #080a0f; }
 
+    .custom-scrollbar-mini::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar-mini::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 3px; }
+    .custom-scrollbar-mini::-webkit-scrollbar-thumb { background: #ff6a00; border-radius: 3px; }
+
     .ambient-engine {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       z-index: -2; overflow: hidden;
@@ -148,26 +152,75 @@
       ORANGE GAMES
     </div>
 
-    <div class="relative">
-      <button id="nav-login-btn" class="border border-brand text-brand hover:bg-brand hover:text-white px-6 py-2 rounded-full font-semibold uppercase tracking-wide transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,106,0,0.6)]">
+    <div class="flex items-center gap-4 relative">
+      
+      <!-- Language Selector Dropdown -->
+      <div class="hidden sm:block relative group">
+        <button class="flex items-center gap-2 bg-white/5 border border-white/10 hover:border-brand px-4 py-2 rounded-full backdrop-blur-md transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,106,0,0.3)]">
+          <i class="fas fa-globe text-brand text-sm"></i>
+          <span id="current-lang" class="font-medium text-white text-sm">English</span>
+          <i class="fas fa-chevron-down text-[10px] text-gray-400 group-hover:text-brand transition-colors"></i>
+        </button>
+
+        <div class="absolute right-0 mt-2 w-48 glass-panel rounded-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right group-hover:translate-y-0 translate-y-2 max-h-64 overflow-y-auto custom-scrollbar-mini">
+          <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 px-3 pt-1">Select Language</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">English</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Español</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Français</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Deutsch</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Italiano</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Português</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Nederlands</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Polski</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Русский</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Українська</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Čeština</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Magyar</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Română</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Ελληνικά</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Türkçe</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Svenska</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Norsk</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Dansk</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Suomi</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">中文 (Mandarin)</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">日本語 (Japanese)</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">한국어 (Korean)</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Tiếng Việt</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">ไทย (Thai)</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Bahasa Indonesia</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Bahasa Melayu</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Tagalog</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">हिन्दी (Hindi)</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">বাংলা (Bengali)</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">العربية (Arabic)</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">עברית (Hebrew)</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Kiswahili</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Yoruba</div>
+          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Amharic</div>
+        </div>
+      </div>
+
+      <!-- Auth Logic -->
+      <button id="nav-login-btn" class="border border-brand text-brand hover:bg-brand hover:text-white px-6 py-2 rounded-full font-semibold uppercase tracking-wide transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,106,0,0.6)] text-sm">
         Initiate Uplink
       </button>
       
       <div id="profile-area" class="hidden group relative">
         <button class="flex items-center gap-3 bg-white/5 border border-white/10 hover:border-brand px-5 py-2 rounded-full backdrop-blur-md transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,106,0,0.3)]">
           <i class="fas fa-user-astronaut text-brand text-xl"></i>
-          <span id="user-display-name" class="font-medium text-white">Player</span>
+          <span id="user-display-name" class="font-medium text-white text-sm">Player</span>
           <i class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-brand transition-colors"></i>
         </button>
 
         <div class="absolute right-0 mt-2 w-56 glass-panel rounded-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right group-hover:translate-y-0 translate-y-2">
-          <div id="hub-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors">
+          <div id="hub-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">
             <i class="fas fa-gamepad w-5"></i> Game Hub
           </div>
-          <div id="stats-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors">
+          <div id="stats-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">
             <i class="fas fa-trophy w-5"></i> My Stats
           </div>
-          <div id="logout-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors border-t border-white/5 mt-1">
+          <div id="logout-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors border-t border-white/5 mt-1 text-sm">
             <i class="fas fa-power-off w-5"></i> Disconnect
           </div>
         </div>
@@ -249,7 +302,8 @@
       </button>
 
       <div id="login-form">
-        <h2 class="font-orbitron text-3xl font-bold text-white text-center mb-8">INITIATE UPLINK</h2>
+        <h2 class="font-orbitron text-3xl font-bold text-white text-center mb-1">INITIATE UPLINK</h2>
+        <p class="text-center text-gray-400 text-sm font-medium mb-8 uppercase tracking-widest">( Sign In )</p>
         
         <div class="space-y-5">
           <div>
@@ -274,7 +328,8 @@
       </div>
 
       <div id="register-form">
-        <h2 class="font-orbitron text-3xl font-bold text-white text-center mb-8">CONSTRUCT IDENTITY</h2>
+        <h2 class="font-orbitron text-3xl font-bold text-white text-center mb-1">CONSTRUCT IDENTITY</h2>
+        <p class="text-center text-gray-400 text-sm font-medium mb-8 uppercase tracking-widest">( Register )</p>
         
         <div class="space-y-5">
           <div>
@@ -351,8 +406,22 @@
       statsBtn: document.getElementById('stats-btn'),
       statsModalOverlay: document.getElementById('stats-modal-overlay'),
       closeStatsBtn: document.getElementById('close-stats'),
-      statsScore: document.getElementById('stats-score')
+      statsScore: document.getElementById('stats-score'),
+      langOptions: document.querySelectorAll('.lang-option'),
+      currentLang: document.getElementById('current-lang')
     };
+
+    // Load saved language
+    const savedLang = localStorage.getItem('orange_lang') || 'English';
+    UI.currentLang.textContent = savedLang;
+
+    UI.langOptions.forEach(opt => {
+      opt.addEventListener('click', (e) => {
+        const selected = e.target.textContent;
+        UI.currentLang.textContent = selected;
+        localStorage.setItem('orange_lang', selected);
+      });
+    });
 
     function updateUIState() {
       if (localUsername) {
