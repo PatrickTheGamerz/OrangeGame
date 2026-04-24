@@ -54,49 +54,49 @@
     .input-field { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; padding: 14px; margin-top: 8px; outline: none; transition: all 0.3s ease; appearance: none; }
     .input-field:focus { border-color: #ff6a00; box-shadow: 0 0 20px rgba(255,106,0,0.3); }
 
-    .board-wrap { width: 100%; max-width: 550px; margin: 0 auto; position: relative; display: grid; gap: 8px; padding: 12px; border-radius: 24px; border: 1px solid rgba(255,106,0,0.25); background: rgba(16, 18, 27, 0.85); backdrop-filter: blur(12px); box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
+    .board-wrap { width: 100%; max-width: 550px; margin: 0 auto; position: relative; display: grid; gap: 10px; padding: 14px; border-radius: 24px; border: 1px solid rgba(255,106,0,0.25); background: rgba(16, 18, 27, 0.85); backdrop-filter: blur(12px); box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
     .cell { aspect-ratio: 1; position: relative; background: linear-gradient(135deg, #1a1e2d, #111420); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-weight: 900; cursor: pointer; transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow: hidden; }
-    .cell:hover { border-color: #ff6a00; background: linear-gradient(135deg, #22273b, #151825); transform: scale(0.96); box-shadow: inset 0 0 20px rgba(255,106,0,0.1); }
+    .cell:hover { border-color: #ff6a00; background: linear-gradient(135deg, #22273b, #151825); transform: scale(0.95); box-shadow: inset 0 0 20px rgba(255,106,0,0.15); }
     .cell.played { animation: cellPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none; }
-    @keyframes cellPop { 0% { transform: scale(0.8); opacity: 0; } 50% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes cellPop { 0% { transform: scale(0.7); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
 
-    .glyph { font-size: min(12vw, 3.5rem); line-height: 1; animation: glyphIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
-    @keyframes glyphIn { 0% { transform: scale(0) rotate(-15deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+    .glyph { font-size: min(10vw, 3.8rem); line-height: 1; animation: glyphIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+    @keyframes glyphIn { 0% { transform: scale(0) rotate(-20deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
     
-    .x-mark { color: #ff6a00; text-shadow: 0 0 20px rgba(255,106,0,0.6); }
-    .o-mark { color: #eab308; text-shadow: 0 0 20px rgba(234,179,8,0.6); }
-    .p3-mark { color: #f43f5e; text-shadow: 0 0 20px rgba(244,63,94,0.6); }
-    .p4-mark { color: #10b981; text-shadow: 0 0 20px rgba(16,185,129,0.6); }
+    .x-mark { color: #ff6a00; text-shadow: 0 0 25px rgba(255,106,0,0.7); }
+    .o-mark { color: #eab308; text-shadow: 0 0 25px rgba(234,179,8,0.7); }
+    .p3-mark { color: #f43f5e; text-shadow: 0 0 25px rgba(244,63,94,0.7); }
+    .p4-mark { color: #10b981; text-shadow: 0 0 25px rgba(16,185,129,0.7); }
 
-    .win-pulse { outline: 2px solid #32cd32; box-shadow: inset 0 0 25px rgba(50,205,50,0.5); animation: winP 0.8s infinite alternate; z-index: 2; }
-    @keyframes winP { from { filter: brightness(1); transform: scale(1); } to { filter: brightness(1.4); transform: scale(1.02); } }
+    .win-pulse { outline: 3px solid #32cd32; box-shadow: inset 0 0 30px rgba(50,205,50,0.6); animation: winP 0.8s infinite alternate; z-index: 2; }
+    @keyframes winP { from { filter: brightness(1); transform: scale(1); } to { filter: brightness(1.3); transform: scale(1.03); } }
 
-    .beam { position: absolute; height: 8px; background: linear-gradient(90deg, transparent, #32cd32, #32cd32, transparent); box-shadow: 0 0 20px #32cd32, 0 0 40px #32cd32; transform-origin: left center; z-index: 10; border-radius: 10px; pointer-events: none; animation: beamDraw 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; mix-blend-mode: screen; }
-    @keyframes beamDraw { from { width: 0; opacity: 0; filter: hue-rotate(90deg); } to { width: 100%; opacity: 1; filter: hue-rotate(0deg); } }
+    .beam { position: absolute; height: 10px; background: linear-gradient(90deg, transparent, #32cd32 15%, #32cd32 85%, transparent); box-shadow: 0 0 25px #32cd32, 0 0 50px #32cd32; transform-origin: left center; z-index: 10; border-radius: 10px; pointer-events: none; animation: beamDraw 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; mix-blend-mode: screen; }
+    @keyframes beamDraw { from { width: 0; opacity: 0; filter: hue-rotate(90deg) brightness(2); } to { width: 100%; opacity: 1; filter: hue-rotate(0deg) brightness(1); } }
 
-    .cards-tray { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: none; gap: 12px; padding: 16px; background: rgba(10,12,18,0.95); border: 1px solid rgba(255,106,0,0.3); border-radius: 20px; backdrop-filter: blur(16px); max-width: 95vw; overflow-x: auto; z-index: 50; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
-    .card-item { min-width: 100px; height: 140px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.15); background: linear-gradient(135deg, #1b2033, #121626); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; padding: 10px; text-align: center; overflow: hidden; }
-    .card-item::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.1), transparent 60%); pointer-events: none; }
-    .card-item:hover { transform: translateY(-12px) scale(1.05); border-color: #ff6a00; box-shadow: 0 15px 30px rgba(255,106,0,0.3); }
-    .card-name { font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900; margin-bottom: 6px; z-index: 1; }
-    .card-desc { font-size: 10px; color: #cbd5e1; line-height: 1.3; z-index: 1; }
+    .cards-tray { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: none; gap: 14px; padding: 18px; background: rgba(10,12,18,0.95); border: 1px solid rgba(255,106,0,0.35); border-radius: 20px; backdrop-filter: blur(20px); max-width: 95vw; overflow-x: auto; z-index: 50; box-shadow: 0 15px 50px rgba(0,0,0,0.8); }
+    .card-item { min-width: 105px; height: 150px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.15); background: linear-gradient(135deg, #1b2033, #121626); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; padding: 10px; text-align: center; overflow: hidden; }
+    .card-item::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.15), transparent 65%); pointer-events: none; }
+    .card-item:hover { transform: translateY(-12px) scale(1.06); border-color: #ff6a00; box-shadow: 0 15px 35px rgba(255,106,0,0.4); }
+    .card-name { font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 900; margin-bottom: 6px; z-index: 1; text-transform: uppercase; letter-spacing: 0.5px; }
+    .card-desc { font-size: 10px; color: #cbd5e1; line-height: 1.4; z-index: 1; }
     .rar-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 6px; }
-    .rar-common { background: linear-gradient(90deg, #9aa0aa, #cbd5e1); }
-    .rar-rare { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .rar-common { background: linear-gradient(90deg, #9ca3af, #cbd5e1); }
+    .rar-rare { background: linear-gradient(90deg, #3b82f6, #93c5fd); }
     .rar-epic { background: linear-gradient(90deg, #a855f7, #d8b4fe); }
     .rar-legend { background: linear-gradient(90deg, #eab308, #fef08a); }
     .rar-myth { background: linear-gradient(90deg, #ef4444, #fca5a5); }
 
-    .hud-stat { display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 16px; font-family: 'Orbitron', sans-serif; font-size: 15px; backdrop-filter: blur(8px); }
+    .hud-stat { display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(0,0,0,0.65); border: 1px solid rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 16px; font-family: 'Orbitron', sans-serif; font-size: 15px; backdrop-filter: blur(8px); }
     
-    .overlay-message { position: fixed; inset: 0; display: none; place-items: center; background: radial-gradient(circle, rgba(0,0,0,0.8), rgba(0,0,0,0.95)); z-index: 200; pointer-events: none; }
+    .overlay-message { position: fixed; inset: 0; display: none; place-items: center; background: radial-gradient(circle, rgba(0,0,0,0.85), rgba(0,0,0,0.98)); z-index: 200; pointer-events: none; }
     .overlay-message.active { display: grid; }
-    .msg-box { background: #11141e; border: 2px solid #ff6a00; padding: 24px 48px; border-radius: 24px; text-align: center; box-shadow: 0 0 60px rgba(255,106,0,0.4); animation: popMsg 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    @keyframes popMsg { 0% { transform: scale(0.4) rotate(-5deg); opacity: 0; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+    .msg-box { background: #11141e; border: 2px solid #ff6a00; padding: 28px 56px; border-radius: 28px; text-align: center; box-shadow: 0 0 70px rgba(255,106,0,0.45); animation: popMsg 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    @keyframes popMsg { 0% { transform: scale(0.4) rotate(-3deg); opacity: 0; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
 
-    .fog-layer { position: absolute; inset: -5px; background: rgba(10,12,18,0.92); backdrop-filter: blur(12px); z-index: 5; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; border-radius: 24px; }
+    .fog-layer { position: absolute; inset: -8px; background: rgba(10,12,18,0.95); backdrop-filter: blur(16px); z-index: 5; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; border-radius: 26px; }
     .fog-layer.active { opacity: 1; }
-    .shielded { outline: 2px dashed #a855f7; box-shadow: inset 0 0 15px rgba(168,85,247,0.3); }
+    .shielded { outline: 2px dashed #a855f7; box-shadow: inset 0 0 20px rgba(168,85,247,0.4); }
     .explosion { animation: explode 0.5s ease-out forwards; }
     @keyframes explode { 0% { filter: brightness(2) hue-rotate(-50deg); transform: scale(1.2); } 100% { filter: brightness(0.2); transform: scale(0.9); opacity: 0.5; background: #ef4444; } }
   </style>
@@ -146,7 +146,7 @@
   <div class="overlay-message" id="overlay-msg">
     <div class="msg-box">
       <h2 class="font-orbitron text-3xl font-black text-white mb-3 tracking-wider" id="msg-title">Title</h2>
-      <p class="text-brand text-md font-semibold tracking-wide" id="msg-desc">Description</p>
+      <p class="text-brand text-md font-semibold tracking-wide uppercase" id="msg-desc">Description</p>
     </div>
   </div>
 
@@ -313,7 +313,7 @@
       initGame();
     };
 
-    function showMsg(title, desc, duration = 1800) {
+    function showMsg(title, desc, duration = 2000) {
       UI.msgTitle.textContent = title;
       UI.msgDesc.textContent = desc;
       UI.overlayMsg.classList.add('active');
@@ -357,11 +357,14 @@
       if(config.mode === 'blitz') startTimer();
       else { clearInterval(timer); UI.timerBox.style.display = 'none'; }
 
-      if(isBotTurn()) setTimeout(botPlay, 600);
+      if(isBotTurn()) setTimeout(botPlay, 800);
     }
 
     function renderBoard() {
-      Array.from(UI.board.children).forEach(c => { if(c.id !== 'fog-layer') c.remove(); });
+      Array.from(UI.board.children).forEach(c => { if(c.id !== 'fog-layer' && !c.classList.contains('beam')) c.remove(); });
+      let existingBeam = UI.board.querySelector('.beam');
+      if(existingBeam) existingBeam.remove();
+
       UI.board.style.gridTemplateColumns = `repeat(${state.size}, 1fr)`;
       
       for(let i=0; i<state.size*state.size; i++) {
@@ -384,7 +387,7 @@
     function updateStatus() {
       if(state.winner) return;
       let p = state.order[state.turnIndex];
-      if(isBotTurn()) UI.status.textContent = t('bot_think');
+      if(isBotTurn()) UI.status.innerHTML = `<i class="fas fa-robot mr-2 text-gray-400"></i><span class="${symbolClass(p)} font-bold mr-2">${p}</span> <span class="text-gray-300">${t('bot_think')}</span>`;
       else UI.status.innerHTML = `<span class="${symbolClass(p)} text-xl">${p}</span> <span class="text-white ml-2">${t('turn')}</span>`;
     }
 
@@ -412,6 +415,33 @@
       UI.status.innerHTML = `<span class="text-rose-500 font-bold">BOOM!</span> <span class="${symbolClass(state.winner)} ml-2">${state.winner}</span> <span class="text-white ml-1">${t('win')}</span>`;
       if(scores[state.winner] !== undefined) scores[state.winner]++;
       renderScores();
+    }
+
+    function executeCardTurn(cardPlayer, cardIdx) {
+      let h = state.hands.get(cardPlayer);
+      let c = h.splice(cardIdx, 1)[0];
+      
+      let isBot = (config.opponent === 'bot' && cardPlayer !== state.order[0]);
+      let prefix = isBot ? "BOT DEPLOYED: " : "DEPLOYED: ";
+      showMsg(prefix + c.name, c.desc);
+      
+      c.act();
+      
+      if(state.extraTurns > 0) {
+        state.extraTurns--;
+        updateCardsTray();
+        if(isBot) setTimeout(botPlay, 1000);
+      } else {
+        state.turnIndex = (state.turnIndex + 1) % state.order.length;
+        if(config.mode === 'randomizer' && state.deck.length > 0) {
+          let nextHand = state.hands.get(state.order[state.turnIndex]);
+          if(nextHand.length < 5) nextHand.push(state.deck.pop());
+        }
+        updateStatus();
+        updateCardsTray();
+        if(config.mode === 'blitz') startTimer();
+        if(isBotTurn()) setTimeout(botPlay, 1000);
+      }
     }
 
     function makeMove(i) {
@@ -450,7 +480,7 @@
       updateCardsTray();
       if(config.mode === 'blitz') startTimer();
       
-      if(isBotTurn()) setTimeout(botPlay, Math.random() * 600 + 400);
+      if(isBotTurn()) setTimeout(botPlay, Math.random() * 600 + 500);
     }
 
     function checkWin(g, size, winLen) {
@@ -490,17 +520,26 @@
       line.forEach(i => cells[i].classList.add('win-pulse'));
 
       if(line.length > 0) {
-        let first = cells[line[0]].getBoundingClientRect();
-        let last = cells[line[line.length-1]].getBoundingClientRect();
-        let wrap = UI.board.getBoundingClientRect();
+        let boardRect = UI.board.getBoundingClientRect();
+        let firstRect = cells[line[0]].getBoundingClientRect();
+        let lastRect = cells[line[line.length-1]].getBoundingClientRect();
+
+        let cx1 = firstRect.left + firstRect.width/2 - boardRect.left;
+        let cy1 = firstRect.top + firstRect.height/2 - boardRect.top;
+        let cx2 = lastRect.left + lastRect.width/2 - boardRect.left;
+        let cy2 = lastRect.top + lastRect.height/2 - boardRect.top;
+
+        let dx = cx2 - cx1;
+        let dy = cy2 - cy1;
+        let length = Math.sqrt(dx*dx + dy*dy);
+        let angle = Math.atan2(dy, dx);
+
         let beam = document.createElement('div');
         beam.className = 'beam';
-        let dy = (last.top+last.bottom)/2 - (first.top+first.bottom)/2;
-        let dx = (last.left+last.right)/2 - (first.left+first.right)/2;
-        beam.style.width = Math.sqrt(dx*dx + dy*dy) + 'px';
-        beam.style.left = ((first.left+first.right)/2 - wrap.left) + 'px';
-        beam.style.top = ((first.top+first.bottom)/2 - wrap.top) + 'px';
-        beam.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+        beam.style.width = length + 'px';
+        beam.style.left = cx1 + 'px';
+        beam.style.top = cy1 + 'px';
+        beam.style.transform = `translateY(-50%) rotate(${angle}rad)`;
         UI.board.appendChild(beam);
       }
 
@@ -533,11 +572,21 @@
 
     function botPlay() {
       if(state.winner) return;
+      let p = state.order[state.turnIndex];
+
+      if(config.mode === 'randomizer' && state.hands.has(p)) {
+        let h = state.hands.get(p);
+        if(h.length > 0 && Math.random() > 0.45) {
+          let cardIdx = Math.floor(Math.random() * h.length);
+          executeCardTurn(p, cardIdx);
+          return; 
+        }
+      }
+
       let empties = [];
       for(let i=0; i<state.grid.length; i++) if(!state.grid[i] && !state.blocked.has(i)) empties.push(i);
       if(!empties.length) return;
       
-      let p = state.order[state.turnIndex];
       let winLen = state.size >= 4 ? 4 : 3;
 
       for(let i of empties) { state.grid[i] = p; if(checkWin(state.grid, state.size, winLen)) { state.grid[i] = null; makeMove(i); return; } state.grid[i] = null; }
@@ -596,36 +645,49 @@
 
     function buildDeck() {
       state.deck = [
-        { name: 'Block', desc: 'Seal a random cell', rarity: 'common', act: () => { let e = empty(); if(e.length){ let i = e[Math.floor(Math.random()*e.length)]; state.blocked.add(i); Array.from(UI.board.querySelectorAll('.cell'))[i].style.filter='brightness(0.3) grayscale(1)'; } } },
-        { name: 'Clear', desc: 'Erase an enemy mark', rarity: 'rare', act: () => { let e = filledOpp(); if(e.length){ let i = e[Math.floor(Math.random()*e.length)]; state.grid[i]=null; Array.from(UI.board.querySelectorAll('.cell'))[i].innerHTML=''; Array.from(UI.board.querySelectorAll('.cell'))[i].classList.remove('played'); } } },
-        { name: 'Shield', desc: 'Protect a random ally', rarity: 'epic', act: () => { let e = filledAlly(); if(e.length){ let i = e[Math.floor(Math.random()*e.length)]; state.shields.add(i); Array.from(UI.board.querySelectorAll('.cell'))[i].classList.add('shielded'); } } },
+        { name: 'Block', desc: 'Seals a random empty cell', rarity: 'common', act: () => { let e = empty(); if(e.length){ let i = e[Math.floor(Math.random()*e.length)]; state.blocked.add(i); Array.from(UI.board.querySelectorAll('.cell'))[i].style.filter='brightness(0.2) grayscale(1)'; } } },
+        { name: 'Unblock', desc: 'Unseals a blocked cell', rarity: 'common', act: () => { let b = Array.from(state.blocked); if(b.length){ let i = b[Math.floor(Math.random()*b.length)]; state.blocked.delete(i); Array.from(UI.board.querySelectorAll('.cell'))[i].style.filter=''; } } },
+        { name: 'Clear', desc: 'Erases an enemy mark', rarity: 'rare', act: () => { let e = filledOpp(); if(e.length){ let i = e[Math.floor(Math.random()*e.length)]; state.grid[i]=null; let c = Array.from(UI.board.querySelectorAll('.cell'))[i]; c.innerHTML=''; c.classList.remove('played', 'shielded'); state.shields.delete(i); } } },
+        { name: 'Scatter', desc: 'Shuffles all marks randomly', rarity: 'rare', act: () => { let all = filledAll(); let marks = all.map(i => state.grid[i]); all.forEach(i => { state.grid[i] = null; let c = Array.from(UI.board.querySelectorAll('.cell'))[i]; c.innerHTML=''; c.classList.remove('played', 'shielded'); }); state.shields.clear(); let e = empty(); marks.forEach(m => { if(e.length) { let target = e.splice(Math.floor(Math.random()*e.length), 1)[0]; state.grid[target] = m; let c = Array.from(UI.board.querySelectorAll('.cell'))[target]; c.innerHTML = `<div class="glyph ${symbolClass(m)}">${m}</div>`; c.classList.add('played'); } }); } },
+        { name: 'Shield', desc: 'Protects a random ally mark', rarity: 'epic', act: () => { let e = filledAlly(); if(e.length){ let i = e[Math.floor(Math.random()*e.length)]; state.shields.add(i); Array.from(UI.board.querySelectorAll('.cell'))[i].classList.add('shielded'); } } },
+        { name: 'Fog', desc: 'Hides board briefly', rarity: 'epic', act: () => { UI.fogLayer.classList.add('active'); setTimeout(()=>UI.fogLayer.classList.remove('active'), 2500); } },
+        { name: 'Swap', desc: 'Swaps an ally and enemy mark', rarity: 'legend', act: () => { let a = filledAlly(); let o = filledOpp(); if(a.length && o.length){ let iA = a[Math.floor(Math.random()*a.length)]; let iO = o[Math.floor(Math.random()*o.length)]; let temp = state.grid[iA]; state.grid[iA] = state.grid[iO]; state.grid[iO] = temp; let cA = Array.from(UI.board.querySelectorAll('.cell'))[iA]; let cO = Array.from(UI.board.querySelectorAll('.cell'))[iO]; cA.innerHTML = `<div class="glyph ${symbolClass(state.grid[iA])}">${state.grid[iA]}</div>`; cO.innerHTML = `<div class="glyph ${symbolClass(state.grid[iO])}">${state.grid[iO]}</div>`; } } },
         { name: 'Double', desc: 'Play again instantly', rarity: 'legend', act: () => state.extraTurns++ },
-        { name: 'EMP', desc: 'Wipe 3 enemy marks', rarity: 'myth', act: () => { let e = filledOpp(); for(let k=0;k<3;k++){ if(e.length){ let idx=Math.floor(Math.random()*e.length); let i=e.splice(idx,1)[0]; state.grid[i]=null; Array.from(UI.board.querySelectorAll('.cell'))[i].innerHTML=''; Array.from(UI.board.querySelectorAll('.cell'))[i].classList.remove('played'); } } } }
+        { name: 'EMP', desc: 'Wipes 3 random enemy marks', rarity: 'myth', act: () => { let e = filledOpp(); for(let k=0;k<3;k++){ if(e.length){ let idx=Math.floor(Math.random()*e.length); let i=e.splice(idx,1)[0]; state.grid[i]=null; let c = Array.from(UI.board.querySelectorAll('.cell'))[i]; c.innerHTML=''; c.classList.remove('played', 'shielded'); state.shields.delete(i); } } } },
+        { name: 'Nuke', desc: 'Wipes the ENTIRE board', rarity: 'myth', act: () => { let all = filledAll(); all.forEach(i => { state.grid[i] = null; let c = Array.from(UI.board.querySelectorAll('.cell'))[i]; c.innerHTML=''; c.classList.remove('played', 'shielded'); }); state.shields.clear(); } }
       ];
-      for(let i=0;i<25;i++) state.deck.push(state.deck[Math.floor(Math.random()*4)]);
-      state.deck.sort(() => Math.random() - 0.5);
+      
+      let fullDeck = [];
+      for(let i=0; i<15; i++) fullDeck.push({...state.deck[0]}); 
+      for(let i=0; i<15; i++) fullDeck.push({...state.deck[1]}); 
+      for(let i=0; i<10; i++) fullDeck.push({...state.deck[2]}); 
+      for(let i=0; i<10; i++) fullDeck.push({...state.deck[3]}); 
+      for(let i=0; i<8; i++) fullDeck.push({...state.deck[4]});  
+      for(let i=0; i<8; i++) fullDeck.push({...state.deck[5]});  
+      for(let i=0; i<5; i++) fullDeck.push({...state.deck[6]});  
+      for(let i=0; i<5; i++) fullDeck.push({...state.deck[7]});  
+      for(let i=0; i<3; i++) fullDeck.push({...state.deck[8]});  
+      for(let i=0; i<1; i++) fullDeck.push({...state.deck[9]});  
+      
+      state.deck = fullDeck.sort(() => Math.random() - 0.5);
     }
 
     function empty() { let a=[]; for(let i=0;i<state.grid.length;i++) if(!state.grid[i] && !state.blocked.has(i)) a.push(i); return a; }
     function filledOpp() { let a=[]; let me=state.order[state.turnIndex]; for(let i=0;i<state.grid.length;i++) if(state.grid[i] && state.grid[i]!==me && !state.shields.has(i)) a.push(i); return a; }
     function filledAlly() { let a=[]; let me=state.order[state.turnIndex]; for(let i=0;i<state.grid.length;i++) if(state.grid[i]===me && !state.shields.has(i)) a.push(i); return a; }
+    function filledAll() { let a=[]; for(let i=0;i<state.grid.length;i++) if(state.grid[i] && !state.shields.has(i)) a.push(i); return a; }
 
     function updateCardsTray() {
       if(config.mode !== 'randomizer' || state.winner || isBotTurn()) { UI.cardsTray.style.display = 'none'; return; }
       UI.cardsTray.style.display = 'flex';
       UI.cardsTray.innerHTML = '';
-      let hand = state.hands.get(state.order[state.turnIndex]) || [];
+      let p = state.order[state.turnIndex];
+      let hand = state.hands.get(p) || [];
       hand.forEach((c, idx) => {
         let el = document.createElement('div');
         el.className = 'card-item';
         el.innerHTML = `<div class="card-name">${c.name}</div><div class="card-desc">${c.desc}</div><div class="rar-bar rar-${c.rarity}"></div>`;
-        el.onclick = () => {
-          showMsg("DEPLOYED: " + c.name, c.desc);
-          c.act();
-          hand.splice(idx, 1);
-          if(!state.extraTurns) { state.turnIndex = (state.turnIndex + 1) % state.order.length; updateStatus(); if(isBotTurn()) setTimeout(botPlay, 800); }
-          updateCardsTray();
-        };
+        el.onclick = () => executeCardTurn(p, idx);
         UI.cardsTray.appendChild(el);
       });
     }
