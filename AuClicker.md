@@ -1,1388 +1,496 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>AU Clicker</title>
-<style>
-  :root{
-    --bg:#000;
-    --panel:#0f1420;
-    --panel-2:#161b22;
-    --text:#e6e6e6;
-    --accent:#7aa2f7;
-    --danger:#ff4d6d;
-    --shadow:0 12px 30px rgba(122,162,247,.18);
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;height:100vh;overflow:hidden;}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Orange Games - Unleash Your Inner Gamer</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: '#ff6a00',
+              light: '#ff9966',
+              dark: '#cc5500',
+              glow: 'rgba(255, 106, 0, 0.4)'
+            },
+            surface: {
+              DEFAULT: 'rgba(21, 24, 34, 0.7)',
+              solid: '#151822'
+            }
+          },
+          fontFamily: {
+            orbitron: ['Orbitron', 'sans-serif'],
+            inter: ['Inter', 'sans-serif']
+          },
+          animation: {
+            'float-slow': 'float 15s infinite linear',
+            'flicker': 'flicker 3s infinite alternate',
+            'spin-slow': 'spin 8s linear infinite',
+          },
+          keyframes: {
+            float: {
+              '0%': { transform: 'translateY(100vh) scale(0.5)', opacity: '0' },
+              '50%': { opacity: '0.6' },
+              '100%': { transform: 'translateY(-20vh) scale(1.5)', opacity: '0' }
+            },
+            flicker: {
+              '0%, 18%, 22%, 25%, 53%, 57%, 100%': {
+                textShadow: '0 0 5px #fff, 0 0 20px #ff6a00, 0 0 40px #ff6a00'
+              },
+              '20%, 24%, 55%': { textShadow: 'none' }
+            }
+          }
+        }
+      }
+    }
+  </script>
 
-  /* LEFT: STATS */
-  #statsPanel{
-    position:absolute;top:50%;left:5%;transform:translateY(-50%);
-    width:280px;display:flex;flex-direction:column;gap:12px;padding:16px;
-    background:linear-gradient(180deg,var(--panel),var(--panel-2));
-    border:1px solid rgba(122,162,247,.28);border-radius:12px;
-  }
-  .statRow{
-    display:flex;justify-content:space-between;align-items:center;
-    padding:10px 12px;border-radius:10px;background:#0c121c;border:1px solid rgba(122,162,247,.18);
-  }
-  .statLabel{opacity:.85}
-  .statValue{font-weight:600;color:var(--accent)}
+  <style>
+    body {
+      background-color: #080a0f;
+      color: #f0f0f0;
+      overflow-x: hidden;
+    }
 
-  /* RIGHT: AU SELECT */
-  #auPanel{
-    position:absolute;top:50%;right:5%;transform:translateY(-50%);
-    width:360px;display:flex;flex-direction:column;padding:16px;
-    background:linear-gradient(180deg,var(--panel),var(--panel-2));
-    border:1px solid rgba(122,162,247,.28);border-radius:12px;max-height:80vh;
-  }
-  #auHeader{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
-  #auHeader .subtitle{font-size:13px;color:#9cdcfe;opacity:.85}
-  #auContent{flex:1;display:flex;flex-direction:column;gap:8px;overflow-y:auto;}
-  .auBtn,.auBack{
-    padding:10px 12px;border-radius:10px;cursor:pointer;
-    border:1px solid rgba(122,162,247,.28);background:linear-gradient(180deg,#111423,#0d1120);color:var(--text);
-  }
-  .charRow{
-    display:flex;justify-content:space-between;align-items:center;
-    padding:10px;border-radius:10px;background:#0c121c;border:1px solid rgba(122,162,247,.18);
-  }
-  .charName{font-weight:700;letter-spacing:.3px}
-  .buyBtn{
-    padding:8px 12px;border-radius:8px;cursor:pointer;border:1px solid rgba(122,162,247,.28);
-    background:#0d1118;color:var(--text);
-  }
-  .buyBtn:disabled{opacity:.6;cursor:not-allowed}
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: #080a0f; }
+    ::-webkit-scrollbar-thumb { background: #ff6a00; border-radius: 5px; border: 2px solid #080a0f; }
 
-  /* CENTER: STAGE */
-  #stage{
-    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-    display:flex;flex-direction:column;align-items:center;gap:12px;
-  }
-  #soulWrap{
-    width:220px;height:220px;position:relative;
-    filter:drop-shadow(0 0 20px rgba(255,0,70,.45));
-  }
-  #soul{
-    width:100%;height:100%;background:#ff2f57;
-    clip-path:polygon(50% 15%,61% 0,75% 0,100% 25%,100% 55%,50% 100%,0 55%,0 25%,25% 0,39% 0);
-    cursor:pointer;animation:pulse 1.8s ease-in-out infinite;transition:filter .18s ease;
-    will-change:transform,filter;
-  }
-  #soul.dim{filter:brightness(0.55);}
-  @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
-  #soulWrap.shattered #soul{opacity:0;animation:none;}
+    .ambient-engine {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: -2; overflow: hidden;
+      background: radial-gradient(circle at 15% 50%, rgba(255,106,0,0.05), transparent 50%),
+                  radial-gradient(circle at 85% 30%, rgba(255,153,102,0.03), transparent 50%);
+    }
+    
+    .particle {
+      position: absolute; border-radius: 50%;
+      background: radial-gradient(circle, #ff9966 0%, transparent 70%);
+      opacity: 0.5; filter: blur(4px);
+    }
 
-  /* Heart halves */
-  .half{position:absolute;top:0;width:50%;height:100%;background:#ff2f57;pointer-events:none;}
-  .half.left{
-    left:0;
-    clip-path:polygon(50% 15%, 39% 0, 25% 0, 0 25%, 0 55%, 20% 68%, 35% 82%, 50% 100%, 50% 70%, 50% 15%);
-  }
-  .half.right{
-    right:0;
-    clip-path:polygon(50% 15%, 61% 0, 75% 0, 100% 25%, 100% 55%, 80% 68%, 65% 82%, 50% 100%, 50% 70%, 50% 15%);
-  }
-  .halfAnim.left{animation:halfLeft .6s cubic-bezier(.22,.61,.36,1) forwards;}
-  .halfAnim.right{animation:halfRight .6s cubic-bezier(.22,.61,.36,1) forwards;}
-  @keyframes halfLeft{to{transform:translateX(-52px) rotate(-18deg);opacity:0}}
-  @keyframes halfRight{to{transform:translateX(52px) rotate(18deg);opacity:0}}
+    .glass-panel {
+      background: rgba(21, 24, 34, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    }
 
-  /* Shards */
-  .shards{position:absolute;inset:0;pointer-events:none;}
-  .shard{
-    position:absolute;width:12px;height:12px;background:#ff2f57;border-radius:2px;
-    box-shadow:0 0 10px rgba(255,47,87,.55);
-    animation:fly 900ms cubic-bezier(.22,.61,.36,1) forwards;
-  }
-  @keyframes fly{
-    0%{opacity:1;transform:translate(0,0) scale(1)}
-    100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(0.8)}
-  }
+    .game-card {
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .game-card::before {
+      content: ""; position: absolute; inset: -2px; z-index: -1; border-radius: 1.5rem;
+      background: linear-gradient(45deg, transparent 30%, #ff6a00 50%, transparent 70%);
+      background-size: 200% 200%;
+      opacity: 0; transition: opacity 0.4s ease;
+      animation: shiftGradient 3s linear infinite;
+    }
+    .game-card:hover { transform: translateY(-10px) scale(1.02); }
+    .game-card:hover::before { opacity: 1; filter: blur(10px); }
+    @keyframes shiftGradient { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 
-  /* Damage text */
-  .dmg{
-    position:absolute;left:50%;top:0%;transform:translate(-50%,-120%);
-    font-size:42px;font-weight:900;color:#000;
-    text-shadow:2px 2px 0 #ff0000,-2px -2px 0 #ff0000,2px -2px 0 #ff0000,-2px 2px 0 #ff0000;
-    animation:dmgRise .8s ease-out forwards;pointer-events:none;z-index:11;
-  }
-  @keyframes dmgRise{
-    0%{opacity:1;transform:translate(-50%,-120%) translateY(0)}
-    100%{opacity:0;transform:translate(-50%,-120%) translateY(-40px)}
-  }
+    .input-field {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.3s ease;
+    }
+    .input-field:focus {
+      border-color: #ff6a00;
+      box-shadow: 0 0 15px rgba(255, 106, 0, 0.3);
+      background: rgba(0,0,0,0.6);
+      outline: none;
+    }
 
-  /* "But it refused." */
-  .refused{
-    position:absolute;left:50%;top:0%;transform:translate(-50%,-150%);
-    font-size:32px;font-weight:800;color:#fff;z-index:11;white-space:nowrap;
-    text-shadow:0 0 12px rgba(255,255,255,.35);
-  }
+    .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-content { transform: translateY(20px) scale(0.95); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
 
-  /* FRISK slash */
-  .slashSVG{
-    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-    width:160px; height:200px; pointer-events:none; z-index:8;
-    filter:drop-shadow(0 0 18px rgba(255,47,87,.65)) drop-shadow(0 0 30px rgba(255,255,255,.55));
-    animation:slashTravel .26s cubic-bezier(.2,.8,.2,1) forwards, slashEnd .22s ease-out .26s forwards;
-  }
-  @keyframes slashTravel{
-    0%{opacity:1; transform:translate(-50%,-60%) rotate(-6deg) scaleY(.92)}
-    50%{opacity:1; transform:translate(-50%,-50%) rotate(-2deg) scaleY(1)}
-    100%{opacity:1; transform:translate(-50%,-40%) rotate(3deg) scaleY(.98)}
-  }
-  @keyframes slashEnd{
-    0%{opacity:1; transform:translate(-50%,-40%) rotate(3deg) scaleY(.98)}
-    100%{opacity:0; transform:translate(-50%,-36%) rotate(6deg) scaleY(.96)}
-  }
-
-  /* Impact flash */
-  .impactFlash{
-    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-    width:96px;height:96px;border-radius:50%;
-    background:radial-gradient(circle,rgba(255,255,255,0.95) 0%, rgba(255,47,87,0.25) 55%, rgba(255,47,87,0.0) 70%);
-    box-shadow:0 0 24px rgba(255,255,255,.7), 0 0 36px rgba(255,47,87,.6);
-    z-index:7;pointer-events:none;
-    animation:flashPop .28s ease-out forwards;
-  }
-  @keyframes flashPop{
-    0%{opacity:1; transform:translate(-50%,-40%) scale(0.7)}
-    100%{opacity:0; transform:translate(-50%,-40%) scale(1.25)}
-  }
-
-  /* Menu tray */
-  #menuTray{
-    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-    display:none;flex-direction:column;gap:8px;padding:12px;
-    background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid rgba(122,162,247,.28);
-    border-radius:12px;width:260px;z-index:10;
-  }
-  .trayBtn{padding:8px 12px;border-radius:8px;cursor:pointer;border:1px solid rgba(122,162,247,.22);background:#0d1118;color:var(--text);text-align:left;}
-  #menuBtn{
-    padding:10px 16px;border-radius:10px;border:1px solid rgba(122,162,247,.28);
-    background:linear-gradient(180deg,#111423,#0d1120);color:var(--text);cursor:pointer;width:220px;z-index:9;
-  }
-
-  /* Reset overlay */
-  #resetOverlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:20;}
-  #resetCard{
-    width:420px;max-width:95vw;padding:16px;border-radius:12px;
-    background:linear-gradient(180deg,#121826,#0e1322);border:1px solid rgba(122,162,247,.28);box-shadow:var(--shadow);
-  }
-  #resetCard h3{margin:0 0 10px}
-  #resetCard .desc{opacity:.9;margin-bottom:12px}
-  .row{display:flex;gap:8px;justify-content:flex-end;}
-  .btn{padding:10px 14px;border-radius:8px;cursor:pointer;border:1px solid rgba(122,162,247,.28);background:#0d1118;color:var(--text);}
-  .btn.danger{background:#2a0f18;border-color:#ff4d6d}
-  .lock{margin-left:6px;color:#9aa0a6;font-size:12px}
-
-  /* Toriel flames */
-  .torielFlame{
-    position:absolute; width:44px; height:60px;
-    background: radial-gradient(circle at 45% 35%, #ffffff 0%, #ffdcb6 22%, #ff9c4a 52%, #ff6a00 100%);
-    box-shadow:0 0 22px rgba(255,106,0,.85), 0 0 38px rgba(255,180,120,.55);
-    clip-path: polygon(50% 2%,62% 12%,74% 3%,96% 32%,86% 62%,63% 85%,50% 98%,37% 85%,14% 62%,4% 32%,26% 3%,38% 12%);
-    z-index:8; pointer-events:none;
-  }
-  .torielTrail{
-    position:absolute; width:16px; height:16px; border-radius:50%;
-    background: radial-gradient(circle, rgba(255,210,150,.9), rgba(255,106,0,.0));
-    filter: blur(3.5px); opacity:.6; pointer-events:none; z-index:7;
-  }
-
-  /* Asgore flames */
-  .asgoreFlame{
-    position:absolute; width:44px; height:60px;
-    background: radial-gradient(circle at 45% 35%, #ffffff 0%, #ffdcb6 22%, #ff9c4a 52%, #ff6a00 100%);
-    box-shadow:0 0 22px rgba(255,106,0,.85), 0 0 38px rgba(255,180,120,.55);
-    clip-path: polygon(50% 2%,62% 12%,74% 3%,96% 32%,86% 62%,63% 85%,50% 98%,37% 85%,14% 62%,4% 32%,26% 3%,38% 12%);
-    z-index:8; pointer-events:none;
-  }
-
-  /* Papyrus bones */
-  .papyrusBone{
-    position:absolute; width:24px; height:120px; z-index:8; pointer-events:none;
-    filter: drop-shadow(0 0 10px rgba(255,255,255,.75));
-  }
-  .papyrusBone .shaft{
-    position:absolute; left:7px; right:7px; top:12px; bottom:12px;
-    background:#fff; border-radius:12px;
-  }
-  .papyrusBone::before, .papyrusBone::after{
-    content:""; position:absolute; left:50%; transform:translateX(-50%);
-    width:28px; height:28px; border-radius:50%;
-    background:#fff; box-shadow:0 0 8px rgba(255,255,255,.8);
-  }
-  .papyrusBone::before{ top:-4px; }
-  .papyrusBone::after{ bottom:-4px; }
-
-  /* Undyne spears */
-  .undyneSpear{
-    position:absolute; width:8px; height:100px; z-index:8; pointer-events:none;
-    background: linear-gradient(180deg, #85e7ff 0%, #29c4ff 50%, #0aa2ff 100%);
-    box-shadow:0 0 16px rgba(10,162,255,.85), 0 0 28px rgba(133,231,255,.5);
-    border-radius:6px 6px 2px 2px;
-    transform-origin:50% 0%;
-  }
-  .undyneSpear::after{
-    content:""; position:absolute; left:50%; top:-18px; transform:translateX(-50%);
-    width:0; height:0; border-left:14px solid transparent; border-right:14px solid transparent;
-    border-bottom:18px solid #85e7ff; filter:drop-shadow(0 0 8px rgba(133,231,255,.8));
-  }
-
-  /* Sans tiny bone */
-  .sansBone{
-    position:absolute; width:10px; height:40px; z-index:8; pointer-events:none;
-    filter: drop-shadow(0 0 6px rgba(255,255,255,.6));
-  }
-  .sansBone .shaft{
-    position:absolute; left:3px; right:3px; top:8px; bottom:8px;
-    background:#fff; border-radius:8px;
-  }
-  .sansBone::before, .sansBone::after{
-    content:""; position:absolute; left:50%; transform:translateX(-50%);
-    width:12px; height:12px; border-radius:50%;
-    background:#fff; box-shadow:0 0 4px rgba(255,255,255,.7);
-  }
-  .sansBone::before{ top:-3px; }
-  .sansBone::after{ bottom:-3px; }
-
-  /* Mettaton bomb */
-  .mettatonBomb{
-    position:absolute; width:40px; height:40px; border-radius:50%;
-    background:#ffffff; box-shadow:0 0 12px rgba(255,255,255,.8);
-    z-index:9; pointer-events:none;
-  }
-  .mettatonBomb::before, .mettatonBomb::after{content:""; position:absolute; background:#000;}
-  .mettatonBomb::before{ left:50%; top:6px; width:6px; height:28px; transform:translateX(-50%); border-radius:3px; }
-  .mettatonBomb::after{ left:6px; top:50%; width:28px; height:6px; transform:translateY(-50%); border-radius:3px; }
-  .mettatonFuse{ position:absolute; left:50%; top:-8px; transform:translateX(-50%); width:10px; height:10px; border-radius:2px 2px 6px 6px; background:#000; }
-
-  /* Bomb pre-explosion invert flicker */
-  @keyframes bombInvert{
-    0%,100%{filter:invert(0);}
-    20%,60%{filter:invert(1);}
-  }
-  .bombFlashing{ animation:bombInvert 0.4s steps(2,end) 3; }
-
-  /* Explosion lines + wave ring */
-  .bombExplosion{
-    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-    width:0; height:0; z-index:10; pointer-events:none;
-  }
-  .bombExplosion::before, .bombExplosion::after{
-    content:""; position:absolute; left:50%; top:50%; width:4px; height:0; background:#fff;
-    transform-origin:center; opacity:0.9;
-  }
-  .bombExplosion::before{ transform:translate(-50%,-50%) rotate(45deg); }
-  .bombExplosion::after{ transform:translate(-50%,-50%) rotate(-45deg); }
-  .bombExplosion.animate::before, .bombExplosion.animate::after{
-    animation:explosionLine 0.5s ease-out forwards;
-  }
-  @keyframes explosionLine{
-    0%{height:0;opacity:1;}
-    100%{height:160px;opacity:0;}
-  }
-  .bombWave{
-    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-    width:20px; height:20px; border-radius:50%;
-    border:3px solid rgba(255,255,255,0.95);
-    box-shadow:0 0 24px rgba(255,255,255,.8);
-    animation:waveExpand .6s ease-out forwards;
-    pointer-events:none; z-index:10;
-  }
-  @keyframes waveExpand{
-    0%{opacity:1; transform:translate(-50%,-50%) scale(0.2)}
-    100%{opacity:0; transform:translate(-50%,-50%) scale(2.4)}
-  }
-
-  /* Upgrades overlay — 100% width (full viewport) */
-  #upgradesOverlay{
-    position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);z-index:30;
-  }
-  #upgradesCard{
-    width:100vw;max-width:100vw;height:90vh;max-height:90vh;
-    padding:0;border-radius:14px;overflow:hidden;
-    background:linear-gradient(180deg,#121826,#0e1322);
-    border:1px solid rgba(122,162,247,.28);box-shadow:var(--shadow);
-    display:grid;grid-template-columns:420px 1fr;
-  }
-  #ownedList{
-    border-right:1px solid rgba(122,162,247,.18);
-    padding:16px;overflow-y:auto;height:100%;
-  }
-  #ownedList h3{margin:0 0 12px;font-size:15px;color:#9cdcfe;opacity:.85}
-  .ownedItem{display:block;width:100%;text-align:left;padding:12px;border-radius:10px;margin:6px 0;border:1px solid rgba(122,162,247,.22);background:#0d1118;color:var(--text);cursor:pointer;}
-  .ownedItem.active{border-color:#7aa2f7;background:#111423}
-  #upgradeTree{padding:20px;overflow:auto;height:100%;}
-  #upgradeTree h3{margin:0 0 8px}
-  .treeGrid{display:grid;grid-template-columns:repeat(6,minmax(160px,1fr));gap:14px;min-width:1200px;}
-  .node{
-    background:#0c121c;border:1px solid rgba(122,162,247,.18);border-radius:10px;padding:12px;
-  }
-  .node .title{font-weight:700;margin-bottom:6px}
-  .node .desc{font-size:12px;opacity:.85;margin-bottom:8px}
-  .node .btn{padding:8px 10px;border-radius:8px;border:1px solid rgba(122,162,247,.28);background:#0d1118;color:var(--text);cursor:pointer;}
-</style>
+    .show-register #login-form { display: none; }
+    #register-form { display: none; }
+    .show-register #register-form { display: block; }
+  </style>
 </head>
-<body>
+<body class="font-inter antialiased min-h-screen flex flex-col select-none">
 
-<!-- LEFT: STATS -->
-<aside id="statsPanel">
-  <h2>STATS</h2>
-  <div class="statRow"><span class="statLabel">LV</span><span class="statValue" id="loveStat">0</span></div>
-  <div class="statRow"><span class="statLabel">EXP</span><span class="statValue" id="expStat">0</span></div>
-  <div class="statRow"><span class="statLabel">GOLD</span><span class="statValue" id="goldStat">0</span></div>
-  <div class="statRow"><span class="statLabel">RESET</span><span class="statValue" id="resetStat">0</span></div>
-  <div class="statRow"><span class="statLabel">NEXT</span><span class="statValue" id="needStat">10 EXP</span></div>
-</aside>
-
-<!-- CENTER: STAGE -->
-<main id="stage">
-  <div id="soulWrap">
-    <div id="soul" aria-label="SOUL"></div>
-    <div id="menuTray">
-      <button class="trayBtn" data-panel="upgrades">Upgrades</button>
-      <button class="trayBtn" data-panel="settings">Settings</button>
-      <button class="trayBtn" data-panel="leaderboard">Leaderboard</button>
-      <button class="trayBtn" data-panel="reset">Reset</button>
-      <button class="trayBtn" data-panel="stats">Stats</button>
-    </div>
+  <div class="ambient-engine">
+    <div class="particle animate-float-slow" style="left: 15%; width: 50px; height: 50px; animation-duration: 18s;"></div>
+    <div class="particle animate-float-slow" style="left: 35%; width: 70px; height: 70px; animation-duration: 22s; animation-delay: -5s;"></div>
+    <div class="particle animate-float-slow" style="left: 65%; width: 40px; height: 40px; animation-duration: 14s; animation-delay: -2s;"></div>
+    <div class="particle animate-float-slow" style="left: 85%; width: 90px; height: 90px; animation-duration: 25s; animation-delay: -10s;"></div>
   </div>
-  <button id="menuBtn">Menu</button>
 
-  <!-- Reset overlay -->
-  <div id="resetOverlay">
-    <div id="resetCard">
-      <h3>RESET</h3>
-      <div class="desc">
-        Requirements:
-        <ul style="margin:8px 0 12px 16px;padding:0">
-          <li>LV: 20</li>
-          <li>EXP: 2,500</li>
-        </ul>
-        <div>All your progress will be reset</div>
-      </div>
-      <div class="row">
-        <button class="btn" id="cancelReset">Cancel</button>
-        <button class="btn danger" id="confirmReset">Reset</button>
+  <header class="glass-panel sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
+    <div class="text-2xl font-orbitron font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-brand to-yellow-400 cursor-pointer hover:drop-shadow-[0_0_10px_rgba(255,106,0,0.8)] transition-all">
+      ORANGE GAMES
+    </div>
+
+    <div class="relative">
+      <button id="nav-login-btn" class="border border-brand text-brand hover:bg-brand hover:text-white px-6 py-2 rounded-full font-semibold uppercase tracking-wide transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,106,0,0.6)]">
+        Initiate Uplink
+      </button>
+      
+      <div id="profile-area" class="hidden group relative">
+        <button class="flex items-center gap-3 bg-white/5 border border-white/10 hover:border-brand px-5 py-2 rounded-full backdrop-blur-md transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,106,0,0.3)]">
+          <i class="fas fa-user-astronaut text-brand text-xl"></i>
+          <span id="user-display-name" class="font-medium text-white">Player</span>
+          <i class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-brand transition-colors"></i>
+        </button>
+
+        <div class="absolute right-0 mt-2 w-56 glass-panel rounded-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right group-hover:translate-y-0 translate-y-2">
+          <div id="hub-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors">
+            <i class="fas fa-gamepad w-5"></i> Game Hub
+          </div>
+          <div id="stats-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors">
+            <i class="fas fa-trophy w-5"></i> My Stats
+          </div>
+          <div id="logout-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors border-t border-white/5 mt-1">
+            <i class="fas fa-power-off w-5"></i> Disconnect
+          </div>
+        </div>
       </div>
     </div>
-  </div>
+  </header>
 
-  <!-- Upgrades overlay -->
-  <div id="upgradesOverlay">
-    <div id="upgradesCard">
-      <div id="ownedList">
-        <h3>Owned characters</h3>
+  <main class="flex-grow container mx-auto px-4 py-12 flex flex-col xl:flex-row gap-10">
+    
+    <div class="flex-1 space-y-12">
+      <section class="text-center xl:text-left pt-10">
+        <h1 class="text-5xl md:text-6xl font-orbitron font-black text-white mb-6 animate-flicker">
+          YOU'RE GONNA HAVE<br/>A GOOD TIME.
+        </h1>
+      </section>
+
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <a href="TicTacToe.md" class="game-card relative block h-72 rounded-2xl p-8 flex flex-col justify-end overflow-hidden group cursor-pointer border border-white/10 bg-surface-solid">
+          <div class="absolute inset-0 bg-gradient-to-t from-[#080a0f] via-[#080a0f]/80 to-transparent z-10"></div>
+          <div class="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity bg-[url('https://images.unsplash.com/photo-1614680376593-902f74cf0d41?auto=format&fit=crop&q=80')] bg-cover bg-center"></div>
+          
+          <div class="relative z-20">
+            <div class="w-12 h-12 bg-brand/20 border border-brand rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <i class="fas fa-times text-brand text-2xl"></i>
+            </div>
+            <h3 class="font-orbitron text-2xl font-bold text-white mb-2 group-hover:text-brand transition-colors">X and O Arena</h3>
+            <div class="mt-4 flex items-center text-xs font-bold text-brand uppercase tracking-wider">
+              <span>CLICK TO PLAY HERE</span> <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
+            </div>
+          </div>
+        </a>
+
+        <a href="AuClicker.md" class="game-card relative block h-72 rounded-2xl p-8 flex flex-col justify-end overflow-hidden group cursor-pointer border border-white/10 bg-surface-solid">
+          <div class="absolute inset-0 bg-gradient-to-t from-[#080a0f] via-[#080a0f]/80 to-transparent z-10"></div>
+          <div class="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity bg-[url('https://images.unsplash.com/photo-1621504450181-5c3b123af6c6?auto=format&fit=crop&q=80')] bg-cover bg-center"></div>
+          
+          <div class="relative z-20">
+            <div class="w-12 h-12 bg-yellow-500/20 border border-yellow-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <i class="fas fa-coins text-yellow-500 text-2xl"></i>
+            </div>
+            <h3 class="font-orbitron text-2xl font-bold text-white mb-2 group-hover:text-yellow-500 transition-colors">AU Syndicate</h3>
+            <div class="mt-4 flex items-center text-xs font-bold text-yellow-500 uppercase tracking-wider">
+              <span>CLICK TO PLAY HERE</span> <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
+            </div>
+          </div>
+        </a>
+
+      </section>
+    </div>
+
+    <div class="w-full xl:w-96 flex-shrink-0 pt-10 xl:pt-0">
+      <div class="glass-panel rounded-2xl p-6 h-full border-t-4 border-t-brand relative overflow-hidden">
+        <div class="absolute -top-10 -right-10 w-32 h-32 bg-brand/20 blur-3xl rounded-full pointer-events-none"></div>
+
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-orbitron text-xl font-bold text-white">Global Network</h2>
+          <i class="fas fa-globe text-brand animate-pulse"></i>
+        </div>
+
+        <div class="space-y-4">
+          <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-white/10 pb-2">Top Operatives</h3>
+          
+          <div id="leaderboard-container" class="space-y-3">
+            <div class="text-center py-8 text-gray-500 text-sm">Initializing radar...</div>
+          </div>
+        </div>
       </div>
-      <div id="upgradeTree">
-        <h3>Upgrades</h3>
-        <div class="desc">Select a character on the left to view their upgrade tree.</div>
+    </div>
+
+  </main>
+
+  <div id="auth-modal-overlay" class="modal-overlay fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div id="auth-modal-container" class="modal-content relative w-full max-w-md glass-panel rounded-3xl p-8 border border-brand/30 shadow-[0_0_50px_rgba(255,106,0,0.15)] overflow-hidden">
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-brand to-transparent"></div>
+      
+      <button id="close-modal" class="absolute top-5 right-6 text-gray-400 hover:text-brand text-2xl transition-transform hover:rotate-90">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div id="login-form">
+        <h2 class="font-orbitron text-3xl font-bold text-white text-center mb-8">INITIATE UPLINK</h2>
+        
+        <div class="space-y-5">
+          <div>
+            <input type="text" id="login-user" placeholder="Callsign (Username)" autocomplete="off" 
+                   class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
+          </div>
+          <div>
+            <input type="password" id="login-pass" placeholder="Passkey" 
+                   class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
+          </div>
+          
+          <button id="do-login" class="w-full bg-gradient-to-r from-brand to-yellow-500 text-black font-orbitron font-black text-lg py-4 rounded-xl hover:shadow-[0_0_20px_rgba(255,106,0,0.5)] hover:-translate-y-1 transition-all">
+            AUTHENTICATE
+          </button>
+          
+          <div id="login-msg" class="text-red-400 text-center font-semibold text-sm h-5"></div>
+        </div>
+
+        <div class="text-center mt-6 text-gray-400 text-sm">
+          New Operative? <span id="to-register" class="text-brand font-bold cursor-pointer hover:underline">Register Here</span>
+        </div>
+      </div>
+
+      <div id="register-form">
+        <h2 class="font-orbitron text-3xl font-bold text-white text-center mb-8">CONSTRUCT IDENTITY</h2>
+        
+        <div class="space-y-5">
+          <div>
+            <input type="text" id="reg-user" placeholder="Desired Callsign" autocomplete="off" 
+                   class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
+          </div>
+          <div>
+            <input type="password" id="reg-pass" placeholder="Secure Passkey" 
+                   class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
+          </div>
+          
+          <button id="do-register" class="w-full bg-gradient-to-r from-brand to-yellow-500 text-black font-orbitron font-black text-lg py-4 rounded-xl hover:shadow-[0_0_20px_rgba(255,106,0,0.5)] hover:-translate-y-1 transition-all">
+            ESTABLISH ACCOUNT
+          </button>
+          
+          <div id="reg-msg" class="text-red-400 text-center font-semibold text-sm h-5"></div>
+        </div>
+
+        <div class="text-center mt-6 text-gray-400 text-sm">
+          Existing Operative? <span id="to-login" class="text-brand font-bold cursor-pointer hover:underline">Authenticate Here</span>
+        </div>
       </div>
     </div>
   </div>
-</main>
 
-<!-- RIGHT: AU SELECT -->
-<aside id="auPanel">
-  <div id="auHeader">
-    <h2>AU Select</h2>
-    <div class="subtitle" id="auSubtitle">Choose a timeline</div>
+  <div id="stats-modal-overlay" class="modal-overlay fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div class="modal-content relative w-full max-w-sm glass-panel rounded-3xl p-8 border border-brand/30 shadow-[0_0_50px_rgba(255,106,0,0.15)] overflow-hidden text-center">
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-brand to-transparent"></div>
+      
+      <button id="close-stats" class="absolute top-5 right-6 text-gray-400 hover:text-brand text-2xl transition-transform hover:rotate-90">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <h2 class="font-orbitron text-3xl font-bold text-white mb-4">MY STATS</h2>
+      <i class="fas fa-trophy text-6xl text-yellow-500 mb-6 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]"></i>
+      
+      <div class="bg-black/40 rounded-xl p-4 border border-white/5">
+        <div class="text-gray-400 text-sm font-bold uppercase mb-1">Total Global Power</div>
+        <div id="stats-score" class="font-orbitron text-4xl font-black text-brand">0</div>
+      </div>
+    </div>
   </div>
-  <div id="auContent"></div>
-</aside>
 
-<script>
-  /* ===== Core state ===== */
-  let love = 0;
-  let exp = 0;
-  let gold = 9990;
-  let resets = 0;
-  let expNeeded = 10;
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-  let soulHP = randInt(25,40);
-  let soulDisabled = false;
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-  const RESET_EXP_REQ = 2500;
-  const RESET_LV_REQ = 20;
+    let currentUser = null;
+    let localUsername = localStorage.getItem('orange_currentUser');
 
-  function resetBonusMultiplier(){ return 1 + resets * 0.1; }
+    const UI = {
+      navLoginBtn: document.getElementById('nav-login-btn'),
+      profileArea: document.getElementById('profile-area'),
+      userNameDisplay: document.getElementById('user-display-name'),
+      modalOverlay: document.getElementById('auth-modal-overlay'),
+      modalContainer: document.getElementById('auth-modal-container'),
+      closeModalBtn: document.getElementById('close-modal'),
+      toRegister: document.getElementById('to-register'),
+      toLogin: document.getElementById('to-login'),
+      loginBtn: document.getElementById('do-login'),
+      regBtn: document.getElementById('do-register'),
+      logoutBtn: document.getElementById('logout-btn'),
+      loginMsg: document.getElementById('login-msg'),
+      regMsg: document.getElementById('reg-msg'),
+      leaderboardContainer: document.getElementById('leaderboard-container'),
+      hubBtn: document.getElementById('hub-btn'),
+      statsBtn: document.getElementById('stats-btn'),
+      statsModalOverlay: document.getElementById('stats-modal-overlay'),
+      closeStatsBtn: document.getElementById('close-stats'),
+      statsScore: document.getElementById('stats-score')
+    };
 
-  /* DOM refs */
-  const loveStat = document.getElementById('loveStat');
-  const expStat  = document.getElementById('expStat');
-  const goldStat = document.getElementById('goldStat');
-  const needStat = document.getElementById('needStat');
-  const resetStat= document.getElementById('resetStat');
-
-  const soul     = document.getElementById('soul');
-  const soulWrap = document.getElementById('soulWrap');
-  const menuBtn  = document.getElementById('menuBtn');
-  const menuTray = document.getElementById('menuTray');
-
-  const resetOverlay = document.getElementById('resetOverlay');
-  const cancelReset  = document.getElementById('cancelReset');
-  const confirmReset = document.getElementById('confirmReset');
-
-  const upgradesOverlay = document.getElementById('upgradesOverlay');
-  const ownedList = document.getElementById('ownedList');
-  const upgradeTree = document.getElementById('upgradeTree');
-
-  const auContent  = document.getElementById('auContent');
-  const auSubtitle = document.getElementById('auSubtitle');
-
-  /* ===== AU roster ===== */
-  const roster = {
-    Undertale: [
-      { name:"FRISK: 50 G",   label:"FRISK",   costGold:50,   dps:0,  owned:0, type:'frisk' },
-      { name:"TORIEL: 120 G", label:"TORIEL",  costGold:120,  dps:0,  owned:0, type:'toriel' },
-      { name:"PAPYRUS: 220 G",label:"PAPYRUS", costGold:220,  dps:0,  owned:0, type:'papyrus' },
-      { name:"UNDYNE: 400 G", label:"UNDYNE",  costGold:400,  dps:0,  owned:0, type:'undyne' },
-      { name:"METTATON: 650 G",label:"METTATON",costGold:650, dps:0,  owned:0, type:'mettaton' },
-      { name:"SANS: 1200 G",  label:"SANS",    costGold:1200, dps:0,  owned:0, type:'sans' },
-      { name:"ASGORE: 1800 G",label:"ASGORE",  costGold:1800, dps:0,  owned:0, type:'asgore' }
-    ],
-    Underswap: [
-      { name:"Swap Sans",     label:"Swap Sans",     costGold:900,  dps:20, owned:0, type:'dps' },
-      { name:"Swap Papyrus",  label:"Swap Papyrus",  costGold:1300, dps:26, owned:0, type:'dps' },
-      { name:"Swap Toriel",   label:"Swap Toriel",   costGold:2200, dps:34, owned:0, type:'dps' }
-    ]
-  };
-
-  /* ===== Persistence ===== */
-  const SAVE_KEY = 'au_clicker_save_v28_upgrades_large_soul_lock';
-  function save(){
-    const data = { love, exp, gold, resets, expNeeded, soulHP, roster };
-    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
-  }
-  function load(){
-    const raw = localStorage.getItem(SAVE_KEY);
-    if(!raw) return;
-    try{
-      const data = JSON.parse(raw);
-      love = data.love ?? love;
-      exp = data.exp ?? exp;
-      gold = data.gold ?? gold;
-      resets = data.resets ?? resets;
-      expNeeded = data.expNeeded ?? expNeeded;
-      soulHP = data.soulHP ?? soulHP;
-      if(data.roster){
-        Object.keys(roster).forEach(au=>{
-          if(data.roster[au]){
-            roster[au].forEach((c,i)=>{
-              const s = data.roster[au][i];
-              if(s && s.name === c.name){
-                c.costGold = s.costGold ?? c.costGold;
-                c.dps      = s.dps ?? c.dps;
-                c.owned    = s.owned ?? c.owned;
-                c.type     = s.type ?? c.type;
-                c.label    = s.label ?? c.label;
-              }
-            });
-          }
-        });
+    function updateUIState() {
+      if (localUsername) {
+        UI.navLoginBtn.classList.add('hidden');
+        UI.profileArea.classList.remove('hidden');
+        UI.userNameDisplay.textContent = localUsername;
+        UI.modalOverlay.classList.remove('active');
+      } else {
+        UI.navLoginBtn.classList.remove('hidden');
+        UI.profileArea.classList.add('hidden');
       }
-    }catch(e){ /* ignore */ }
-  }
-
-  /* ===== UI helpers ===== */
-  function updateStats(){
-    loveStat.textContent = formatNum(love);
-    expStat.textContent  = formatNum(exp);
-    goldStat.textContent = formatNum(gold);
-    resetStat.textContent= resets;
-    needStat.textContent = formatNum(expNeeded) + " EXP";
-    save();
-  }
-  function formatNum(n){
-    if(n < 1000) return Math.floor(n);
-    const units = ["K","M","B","T","Qa","Qi"]; let u=-1;
-    while(n>=1000 && u<units.length-1){ n/=1000; u++; }
-    return n.toFixed(2)+" "+units[u];
-  }
-  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
-  function randFloat(min,max){ return Math.random()*(max-min)+min; }
-
-  function tryConvertExpToLove(){
-    let leveled=false;
-    while(exp>=expNeeded){
-      exp-=expNeeded; love+=1; expNeeded+=10; leveled=true;
-    }
-    if(leveled){ gentlePop(document.getElementById('statsPanel')); }
-  }
-
-  /* ===== SOUL interactions — hard damage lock while shattered ===== */
-  soul.addEventListener('click', ()=>{
-    if(soulDisabled) return;
-    const dmg = randInt(5,16);
-    applyDamage(dmg, true);
-  });
-
-  function applyDamage(dmg, dim=true){
-    if(soulDisabled) return; /* lock: no damage while shattered */
-
-    soulHP -= dmg;
-    showDamage(dmg);
-    if(dim){
-      soul.classList.add('dim');
-      setTimeout(()=> soul.classList.remove('dim'),150);
-    }
-    soul.animate(
-      [{transform:'scale(1)'},{transform:'scale(0.985)'},{transform:'scale(1)'}],
-      {duration:120, easing:'ease-out'}
-    );
-    if(soulHP <= 0){ shatterSoul(); }
-    updateStats();
-  }
-
-  function showDamage(n){
-    const d=document.createElement('div'); d.className='dmg'; d.textContent=n;
-    soulWrap.appendChild(d); setTimeout(()=> d.remove(),900);
-  }
-
-  /* ===== FRISK slash ===== */
-  let friskSlashTimer = null;
-  function startFriskSlashLoop(){
-    stopFriskSlashLoop();
-    const schedule = ()=>{
-      const delay = randInt(8000,12000);
-      friskSlashTimer = setTimeout(()=>{
-        if(!soulDisabled){
-          showFriskSlashSVG();
-          const slashDmg = randInt(12,15);
-          applyDamage(slashDmg, true);
-        }
-        schedule();
-      }, delay);
-    };
-    schedule();
-  }
-  function stopFriskSlashLoop(){
-    if(friskSlashTimer){ clearTimeout(friskSlashTimer); friskSlashTimer=null; }
-  }
-  function showFriskSlashSVG(){
-    const svgNS = "http://www.w3.org/2000/svg";
-    const svg = document.createElementNS(svgNS, "svg");
-    svg.setAttribute("viewBox", "0 0 160 200");
-    svg.classList.add("slashSVG");
-
-    const defs = document.createElementNS(svgNS, "defs");
-    const grad = document.createElementNS(svgNS, "linearGradient");
-    grad.setAttribute("id", "slashGrad");
-    grad.setAttribute("x1", "0"); grad.setAttribute("y1", "0");
-    grad.setAttribute("x2", "0"); grad.setAttribute("y2", "1");
-    const stop1 = document.createElementNS(svgNS, "stop");
-    stop1.setAttribute("offset", "0%"); stop1.setAttribute("stop-color", "#ffffff"); stop1.setAttribute("stop-opacity", "0.95");
-    const stop2 = document.createElementNS(svgNS, "stop");
-    stop2.setAttribute("offset", "60%"); stop2.setAttribute("stop-color", "#ff2f57"); stop2.setAttribute("stop-opacity", "0.9");
-    const stop3 = document.createElementNS(svgNS, "stop");
-    stop3.setAttribute("offset", "100%"); stop3.setAttribute("stop-color", "#ff2f57"); stop3.setAttribute("stop-opacity", "0.75");
-    grad.appendChild(stop1); grad.appendChild(stop2); grad.appendChild(stop3);
-    defs.appendChild(grad);
-    svg.appendChild(defs);
-
-    const path = document.createElementNS(svgNS, "path");
-    path.setAttribute("fill", "url(#slashGrad)");
-    path.setAttribute("stroke", "rgba(255,255,255,0.85)");
-    path.setAttribute("stroke-width", "1");
-    path.setAttribute("d",
-      "M80,10 C78,16 76,24 78,34 C82,52 88,68 92,86 C96,104 96,122 92,140 C88,158 82,172 78,188 C86,178 98,164 106,148 C114,132 118,114 116,98 C114,82 108,68 100,54 C92,40 86,26 80,10 Z"
-    );
-
-    const inner = document.createElementNS(svgNS, "path");
-    inner.setAttribute("fill", "none");
-    inner.setAttribute("stroke", "rgba(255,255,255,0.65)");
-    inner.setAttribute("stroke-width", "2");
-    inner.setAttribute("d", "M86,26 C94,44 103,64 108,90 C111,106 108,124 100,140");
-
-    svg.appendChild(path);
-    svg.appendChild(inner);
-
-    const flash = document.createElement("div");
-    flash.className = "impactFlash";
-
-    soulWrap.appendChild(svg);
-    soulWrap.appendChild(flash);
-
-    setTimeout(()=> svg.remove(), 520);
-    setTimeout(()=> flash.remove(), 360);
-  }
-
-  /* ===== Toriel fire ===== */
-  let torielFireTimer = null;
-  function startTorielFireLoop(){
-    stopTorielFireLoop();
-    const schedule = ()=>{
-      const delay = randInt(14000,16000);
-      torielFireTimer = setTimeout(()=>{
-        if(!soulDisabled){
-          const count = pickCount({one:1, two:0.20, three:0.08, four:0.03});
-          spawnMultiple(spawnTorielFlame, count, 1000);
-        }
-        schedule();
-      }, delay);
-    };
-    schedule();
-  }
-  function stopTorielFireLoop(){
-    if(torielFireTimer){ clearTimeout(torielFireTimer); torielFireTimer=null; }
-  }
-  function spawnTorielFlame(){
-    const flame = document.createElement('div');
-    flame.className = 'torielFlame';
-
-    const wrapRect = soulWrap.getBoundingClientRect();
-    const centerX = wrapRect.width/2;
-    const centerY = wrapRect.height/2;
-
-    const sides = ['left','right','top','bottom','top-left','top-right','bottom-left','bottom-right'];
-    const side = sides[randInt(0, sides.length-1)];
-    const margin = 36;
-    let x = 0, y = 0;
-
-    switch(side){
-      case 'left':        x = -margin;                 y = randInt(0, wrapRect.height); break;
-      case 'right':       x = wrapRect.width + margin; y = randInt(0, wrapRect.height); break;
-      case 'top':         x = randInt(0, wrapRect.width); y = -margin; break;
-      case 'bottom':      x = randInt(0, wrapRect.width); y = wrapRect.height + margin; break;
-      case 'top-left':    x = -margin;                 y = -margin; break;
-      case 'top-right':   x = wrapRect.width + margin; y = -margin; break;
-      case 'bottom-left': x = -margin;                 y = wrapRect.height + margin; break;
-      case 'bottom-right':x = wrapRect.width + margin; y = wrapRect.height + margin; break;
     }
 
-    flame.style.left = x + 'px';
-    flame.style.top  = y + 'px';
-    soulWrap.appendChild(flame);
+    UI.navLoginBtn.onclick = () => UI.modalOverlay.classList.add('active');
+    UI.closeModalBtn.onclick = () => UI.modalOverlay.classList.remove('active');
+    UI.modalOverlay.onclick = (e) => { if(e.target === UI.modalOverlay) UI.modalOverlay.classList.remove('active'); };
 
-    const trail = document.createElement('div');
-    trail.className = 'torielTrail';
-    trail.style.left = x + 'px';
-    trail.style.top  = y + 'px';
-    soulWrap.appendChild(trail);
+    UI.toRegister.onclick = () => { UI.modalContainer.classList.add('show-register'); UI.loginMsg.textContent = ''; };
+    UI.toLogin.onclick = () => { UI.modalContainer.classList.remove('show-register'); UI.regMsg.textContent = ''; };
 
-    const travelMs = randInt(640,920);
-    const endX = centerX - 22;
-    const endY = centerY - 30;
-
-    const anim = flame.animate(
-      [
-        { transform: `translate(0,0) scale(1)` },
-        { transform: `translate(${endX - x}px, ${endY - y}px) scale(1.06)` }
-      ],
-      { duration: travelMs, easing: 'cubic-bezier(.22,.61,.36,1)' }
-    );
-    trail.animate(
-      [
-        { transform: `translate(0,0) scale(1)`, opacity: 0.6 },
-        { transform: `translate(${(endX - x)*0.82}px, ${(endY - y)*0.82}px) scale(0.92)`, opacity: 0 }
-      ],
-      { duration: travelMs+160, easing: 'ease-out', fill: 'forwards' }
-    );
-
-    anim.onfinish = ()=>{
-      flame.remove();
-      setTimeout(()=> trail.remove(), 260);
-
-      const flash = document.createElement('div');
-      flash.className = 'impactFlash';
-      soulWrap.appendChild(flash);
-      setTimeout(()=> flash.remove(), 360);
-
-      const dmg = randInt(10,15);
-      applyDamage(dmg, true);
-    };
-  }
-
-  /* ===== Papyrus bones ===== */
-  let papyrusBoneTimer = null;
-  let activeBones = 0;
-  function startPapyrusBoneLoop(){
-    stopPapyrusBoneLoop();
-    const schedule = ()=>{
-      const delay = randInt(12000,16000);
-      papyrusBoneTimer = setTimeout(()=>{
-        if(!soulDisabled && activeBones < 6){
-          const count = pickCount({one:1, two:0.25, three:0.10, four:0.04});
-          spawnMultiple(spawnPapyrusBone, Math.min(count, 6 - activeBones), 1000);
-        }
-        schedule();
-      }, delay);
-    };
-    schedule();
-  }
-  function stopPapyrusBoneLoop(){
-    if(papyrusBoneTimer){ clearTimeout(papyrusBoneTimer); papyrusBoneTimer=null; }
-  }
-  function spawnPapyrusBone(){
-    if(activeBones>=6) return;
-    activeBones++;
-
-    const bone = document.createElement('div');
-    bone.className = 'papyrusBone';
-    const shaft = document.createElement('div');
-    shaft.className = 'shaft';
-    bone.appendChild(shaft);
-
-    const wrapRect = soulWrap.getBoundingClientRect();
-    const centerY = wrapRect.height/2;
-
-    const laneTop = Math.random() < 0.5;
-    const y = laneTop ? centerY - randInt(130,165) : centerY + randInt(64,84);
-
-    const fromLeft = Math.random() < 0.5;
-    const startX = fromLeft ? -80 : wrapRect.width + 52;
-    const stopX   = randInt(60,140);
-
-    bone.style.top = Math.max(-40, Math.min(wrapRect.height - 120, y)) + 'px';
-    bone.style.left = startX + 'px';
-    soulWrap.appendChild(bone);
-
-    const travelMs = randInt(1400,1900);
-    const deltaX = (fromLeft ? 1 : -1) * Math.abs(stopX - startX);
-    const anim = bone.animate(
-      [
-        { transform: `translate(0,0)` },
-        { transform: `translate(${deltaX}px, 0)` }
-      ],
-      { duration: travelMs, easing: 'cubic-bezier(.22,.61,.36,1)' }
-    );
-
-    const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 };
-    const boneW = 24, boneH = 120;
-
-    const checkInterval = setInterval(()=>{
-      if(soulDisabled){ clearInterval(checkInterval); anim.cancel(); bone.remove(); activeBones=Math.max(0,activeBones-1); return; }
-
-      const elapsed = anim.currentTime || 0;
-      const progress = Math.min(1, elapsed / travelMs);
-      const curX = startX + deltaX * progress;
-      const curY = y;
-      const intersectsX = (curX + boneW) >= soulBounds.x1 && curX <= soulBounds.x2;
-      const intersectsY = (curY + boneH) >= soulBounds.y1 && curY <= soulBounds.y2;
-      if(intersectsX && intersectsY){
-        clearInterval(checkInterval);
-        anim.cancel();
-        bone.remove();
-        activeBones = Math.max(0, activeBones-1);
-        applyDamage(4, true);
+    UI.hubBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    UI.statsBtn.onclick = async () => {
+      if(!localUsername || !currentUser) return;
+      const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', localUsername.toLowerCase());
+      const snap = await getDoc(docRef);
+      if(snap.exists()) {
+        UI.statsScore.textContent = snap.data().score.toLocaleString();
       }
-    }, 40);
-
-    anim.onfinish = ()=>{
-      clearInterval(checkInterval);
-      bone.remove();
-      activeBones = Math.max(0, activeBones-1);
+      UI.statsModalOverlay.classList.add('active');
     };
-  }
+    
+    UI.closeStatsBtn.onclick = () => UI.statsModalOverlay.classList.remove('active');
+    UI.statsModalOverlay.onclick = (e) => { if(e.target === UI.statsModalOverlay) UI.statsModalOverlay.classList.remove('active'); };
 
-  /* ===== Undyne spears ===== */
-  let undyneSpearTimer = null;
-  function startUndyneSpearLoop(){
-    stopUndyneSpearLoop();
-    const schedule = ()=>{
-      const delay = randInt(14000,18000);
-      undyneSpearTimer = setTimeout(()=>{
-        if(!soulDisabled){
-          const count = pickCount({one:1, two:0.22, three:0.08});
-          spawnMultiple(()=>spawnUndyneSpear(), count, 1000);
-        }
-        schedule();
-      }, delay);
-    };
-    schedule();
-  }
-  function stopUndyneSpearLoop(){
-    if(undyneSpearTimer){ clearTimeout(undyneSpearTimer); undyneSpearTimer=null; }
-  }
-  function spawnUndyneSpear(){
-    const spear = document.createElement('div');
-    spear.className = 'undyneSpear';
-
-    const wrapRect = soulWrap.getBoundingClientRect();
-    const centerX = wrapRect.width/2;
-    const centerY = wrapRect.height/2;
-
-    const sides = ['left','right','top','bottom'];
-    const side = sides[randInt(0, sides.length-1)];
-    const margin = 90;
-
-    let x = 0, y = 0, angle = 0;
-    switch(side){
-      case 'left':   x = -margin;                 y = randInt(24, wrapRect.height-120); angle = 90;  break;
-      case 'right':  x = wrapRect.width + margin; y = randInt(24, wrapRect.height-120); angle = -90; break;
-      case 'top':    x = randInt(24, wrapRect.width-24); y = -margin - 44; angle = 180; break;
-      case 'bottom': x = randInt(24, wrapRect.width-24); y = wrapRect.height + margin; angle = 0;    break;
-    }
-
-    spear.style.left = x + 'px';
-    spear.style.top  = y + 'px';
-    spear.style.transform = `rotate(${angle}deg)`;
-    soulWrap.appendChild(spear);
-
-    const dx = centerX - x, dy = centerY - y;
-    const stopDist = 26;
-    const len = Math.max(1, Math.hypot(dx, dy));
-    const nx = dx / len, ny = dy / len;
-    const travelX = dx - nx * stopDist;
-    const travelY = dy - ny * stopDist;
-
-    const travelMs = randInt(1000,1400);
-    const anim = spear.animate(
-      [
-        { transform: `translate(0,0) rotate(${angle}deg)` },
-        { transform: `translate(${travelX}px, ${travelY}px) rotate(${angle}deg)` }
-      ],
-      { duration: travelMs, easing: 'cubic-bezier(.22,.61,.36,1)' }
-    );
-
-    const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 };
-    const spearW = 8, spearH = 118;
-    const checkInterval = setInterval(()=>{
-      if(soulDisabled){ clearInterval(checkInterval); anim.cancel(); spear.remove(); return; }
-
-      const elapsed = anim.currentTime || 0;
-      const progress = Math.min(1, elapsed / travelMs);
-      const curX = x + travelX * progress;
-      const curY = y + travelY * progress;
-      const intersectsX = (curX + spearW) >= soulBounds.x1 && curX <= soulBounds.x2;
-      const intersectsY = (curY + spearH) >= soulBounds.y1 && curY <= soulBounds.y2;
-      if(intersectsX && intersectsY){
-        clearInterval(checkInterval);
-        anim.cancel();
-        spear.remove();
-        applyDamage(8, true);
-      }
-    }, 40);
-
-    anim.onfinish = ()=>{
-      clearInterval(checkInterval);
-      spear.remove();
-    };
-  }
-
-  /* ===== Mettaton bomb ===== */
-  let mettatonBombTimer = null;
-  function startMettatonBombLoop(){
-    stopMettatonBombLoop();
-    const schedule = ()=>{
-      const delay = randInt(16000,20000);
-      mettatonBombTimer = setTimeout(()=>{
-        if(!soulDisabled){
-          const count = pickCount({one:1, two:0.35, three:0.12});
-          spawnMultiple(spawnMettatonBomb, count, 1000);
-        }
-        schedule();
-      }, delay);
-    };
-    schedule();
-  }
-  function stopMettatonBombLoop(){
-    if(mettatonBombTimer){ clearTimeout(mettatonBombTimer); mettatonBombTimer=null; }
-  }
-  function spawnMettatonBomb(){
-    const bomb = document.createElement('div');
-    bomb.className = 'mettatonBomb';
-    const fuse = document.createElement('div');
-    fuse.className = 'mettatonFuse';
-    bomb.appendChild(fuse);
-
-    const wrapRect = soulWrap.getBoundingClientRect();
-    const centerY = wrapRect.height/2;
-
-    const x = randInt(30, wrapRect.width-30);
-    const startY = -44;
-    bomb.style.left = x + 'px';
-    bomb.style.top = startY + 'px';
-    soulWrap.appendChild(bomb);
-
-    const fallMs = randInt(1600,2200);
-    const endY = centerY - 20;
-
-    const anim = bomb.animate(
-      [
-        { transform:`translate(0,0)` },
-        { transform:`translate(0, ${endY - startY}px)` }
-      ],
-      { duration: fallMs, easing:'cubic-bezier(.22,.61,.36,1)', fill:'forwards' }
-    );
-
-    let exploded=false;
-    const checkInterval = setInterval(()=>{
-      if(soulDisabled){ clearInterval(checkInterval); anim.cancel(); bomb.remove(); return; }
-
-      const elapsed = anim.currentTime || 0;
-      const progress = Math.min(1, elapsed / fallMs);
-      const curY = startY + (endY - startY) * progress;
-      if(!exploded && curY >= endY){
-        exploded = true;
-        clearInterval(checkInterval);
-        anim.cancel();
-        bomb.classList.add('bombFlashing');
-        setTimeout(()=>{
-          showBombExplosionAt(x, endY);
-          bomb.remove();
-          applyDamage(6, true);
-        }, 420);
-      }
-    }, 40);
-
-    anim.onfinish = ()=>{
-      clearInterval(checkInterval);
-      if(!exploded){
-        bomb.classList.add('bombFlashing');
-        setTimeout(()=>{
-          showBombExplosionAt(x, endY);
-          bomb.remove();
-          applyDamage(6, true);
-        }, 420);
+    const initAuth = async () => {
+      if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+        await signInWithCustomToken(auth, __initial_auth_token);
+      } else {
+        await signInAnonymously(auth);
       }
     };
-  }
 
-  function showBombExplosionAt(cx, cy){
-    const explosion = document.createElement('div');
-    explosion.className = 'bombExplosion animate';
-    explosion.style.left = cx + 'px';
-    explosion.style.top  = cy + 'px';
-    soulWrap.appendChild(explosion);
-    setTimeout(()=> explosion.remove(), 600);
-
-    const wave = document.createElement('div');
-    wave.className = 'bombWave';
-    wave.style.left = cx + 'px';
-    wave.style.top  = cy + 'px';
-    soulWrap.appendChild(wave);
-    setTimeout(()=> wave.remove(), 600);
-  }
-
-  /* ===== Sans tiny bone ===== */
-  let sansBoneTimer = null;
-  let sansBoneActive = false;
-
-  function startSansBoneLoop(){
-    stopSansBoneLoop();
-    const schedule = ()=>{
-      const delay = randInt(8000,12000);
-      sansBoneTimer = setTimeout(()=>{
-        if(!soulDisabled && !sansBoneActive){
-          spawnSansBone();
-        }
-        schedule();
-      }, delay);
-    };
-    schedule();
-  }
-  function stopSansBoneLoop(){
-    if(sansBoneTimer){ clearTimeout(sansBoneTimer); sansBoneTimer=null; }
-  }
-  function spawnSansBone(){
-    sansBoneActive = true;
-
-    const bone = document.createElement('div');
-    bone.className = 'sansBone';
-    const shaft = document.createElement('div');
-    shaft.className = 'shaft';
-    bone.appendChild(shaft);
-
-    const wrapRect = soulWrap.getBoundingClientRect();
-    const centerY = wrapRect.height/2;
-
-    const y = Math.max(-40, Math.min(wrapRect.height - 40, centerY + randInt(64,84)));
-    const startX = -30;
-    const endX = 240;
-
-    bone.style.left = startX + 'px';
-    bone.style.top  = y + 'px';
-    soulWrap.appendChild(bone);
-
-    const travelMs = 4200;
-    const anim = bone.animate(
-      [
-        { transform: `translateX(0)` },
-        { transform: `translateX(${endX - startX}px)` }
-      ],
-      { duration: travelMs, easing:'linear' }
-    );
-
-    const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 };
-    const boneW = 10, boneH = 40;
-    const checkInterval = setInterval(()=>{
-      if(soulDisabled){ clearInterval(checkInterval); anim.cancel(); bone.remove(); sansBoneActive=false; return; }
-
-      const elapsed = anim.currentTime || 0;
-      const progress = Math.min(1, elapsed / travelMs);
-      const curX = startX + (endX - startX) * progress;
-      const curY = y;
-
-      const intersectsX = (curX + boneW) >= soulBounds.x1 && curX <= soulBounds.x2;
-      const intersectsY = (curY + boneH) >= soulBounds.y1 && curY <= soulBounds.y2;
-
-      if(intersectsX && intersectsY){
-        clearInterval(checkInterval);
-        anim.cancel();
-        bone.remove();
-        applyDamage(1, true);
-        sansBoneActive = false;
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      if (user) {
+        setupLeaderboard();
       }
-    }, 80);
-
-    anim.onfinish = ()=>{
-      clearInterval(checkInterval);
-      bone.remove();
-      sansBoneActive = false;
-    };
-  }
-
-  /* ===== ASGORE rework: wave flames ===== */
-  let asgoreWaveTimer = null;
-  function startAsgoreWaveLoop(){
-    stopAsgoreWaveLoop();
-    const schedule = ()=>{
-      const delay = randInt(16000,24000);
-      asgoreWaveTimer = setTimeout(()=>{
-        if(!soulDisabled){
-          spawnAsgoreWave();
-        }
-        schedule();
-      }, delay);
-    };
-    schedule();
-  }
-  function stopAsgoreWaveLoop(){
-    if(asgoreWaveTimer){ clearTimeout(asgoreWaveTimer); asgoreWaveTimer=null; }
-  }
-  function spawnAsgoreWave(){
-    const count = randInt(4,9);
-    let spawned = 0;
-    const tick = ()=>{
-      if(soulDisabled) return;
-      spawnAsgoreFlame();
-      spawned++;
-      if(spawned < count) setTimeout(tick, 500);
-    };
-    tick();
-  }
-  function spawnAsgoreFlame(){
-    const flame = document.createElement('div');
-    flame.className = 'asgoreFlame';
-
-    const wrapRect = soulWrap.getBoundingClientRect();
-    const startX = randInt(20, wrapRect.width - 64);
-    const startY = -160;
-    flame.style.left = startX + 'px';
-    flame.style.top  = startY + 'px';
-    soulWrap.appendChild(flame);
-
-    const endY = randInt(40, 220);
-    const travelMs = randInt(1600,2200);
-    const amp = randInt(12,28);
-    const freq = randFloat(1.2,2.2);
-
-    const steps = 8;
-    const kfs = [];
-    for(let i=0;i<=steps;i++){
-      const t = i/steps;
-      const y = (endY - startY) * t;
-      const x = amp * Math.sin(t * Math.PI * 2 * freq);
-      kfs.push({ transform: `translate(${x}px, ${y}px)` });
-    }
-
-    const anim = flame.animate(kfs, { duration: travelMs, easing:'linear' });
-
-    const soulBounds = { x1: 20, x2: 200, y1: 20, y2: 200 };
-    const flameW = 44, flameH = 60;
-
-    const checkInterval = setInterval(()=>{
-      if(soulDisabled){ clearInterval(checkInterval); anim.cancel(); flame.remove(); return; }
-
-      const elapsed = anim.currentTime || 0;
-      const progress = Math.min(1, elapsed / travelMs);
-      const y = startY + (endY - startY) * progress;
-      const x = startX + amp * Math.sin(progress * Math.PI * 2 * freq);
-
-      const intersectsX = (x + flameW) >= soulBounds.x1 && x <= soulBounds.x2;
-      const intersectsY = (y + flameH) >= soulBounds.y1 && y <= soulBounds.y2;
-
-      if(intersectsX && intersectsY){
-        clearInterval(checkInterval);
-        anim.cancel();
-        flame.remove();
-        applyDamage(8, true);
-      }
-    }, 60);
-
-    anim.onfinish = ()=>{
-      clearInterval(checkInterval);
-      flame.remove();
-    };
-  }
-
-  /* ===== Upgrades overlay behavior (100% width + owned list clickable + outside click to close) ===== */
-  function openUpgrades(){
-    ownedList.innerHTML = '<h3>Owned characters</h3>';
-    const owned = [];
-    Object.values(roster).forEach(list=> list.forEach(c=>{ if(c.owned){ owned.push(c); } }));
-    owned.forEach((c,idx)=>{
-      const b = document.createElement('button');
-      b.className = 'ownedItem' + (idx===0 ? ' active':'');
-      b.textContent = c.label;
-      b.addEventListener('click', ()=>{
-        [...ownedList.querySelectorAll('.ownedItem')].forEach(x=> x.classList.remove('active'));
-        b.classList.add('active');
-        renderUpgradeTree(c);
-      });
-      ownedList.appendChild(b);
     });
-    renderUpgradeTree(owned[0] || null);
-    upgradesOverlay.style.display='flex';
-  }
-  function renderUpgradeTree(char){
-    upgradeTree.innerHTML = '';
-    const title = document.createElement('h3');
-    title.textContent = char ? (char.label + ' upgrade tree') : 'Upgrades';
-    const desc = document.createElement('div');
-    desc.className='desc';
-    desc.textContent = char ? 'Choose an upgrade node to improve this character.' : 'No owned characters yet.';
-    upgradeTree.appendChild(title);
-    upgradeTree.appendChild(desc);
-    if(!char) return;
 
-    const grid = document.createElement('div');
-    grid.className='treeGrid';
-    const nodes = [
-      { key:'power',  title:'Power I',  desc:'+10% impact', cost:100 },
-      { key:'speed',  title:'Speed I',  desc:'-10% cooldown', cost:120 },
-      { key:'style',  title:'Style I',  desc:'+visual flair', cost:80 },
-      { key:'power2', title:'Power II', desc:'+20% impact', cost:250 },
-      { key:'speed2', title:'Speed II', desc:'-20% cooldown', cost:300 },
-      { key:'unique', title:`${char.label} Signature`,   desc:'Unlocks signature mechanic', cost:500 },
-      { key:'mastery',title:'Mastery',  desc:'+special handling', cost:800 },
-      { key:'focus',  title:'Focus',    desc:'Consistency boost', cost:220 }
-    ];
-    nodes.forEach(n=>{
-      const node = document.createElement('div'); node.className='node';
-      const t = document.createElement('div'); t.className='title'; t.textContent=n.title;
-      const d = document.createElement('div'); d.className='desc'; d.textContent=n.desc;
-      const btn = document.createElement('button'); btn.className='btn'; btn.textContent=`Buy (${n.cost} G)`;
-      btn.addEventListener('click', ()=>{
-        if(gold >= n.cost){
-          gold -= n.cost;
-          gentlePop(upgradeTree);
-          updateStats();
-          btn.disabled = true; btn.textContent='Purchased';
-        } else {
-          shake(upgradeTree);
+    UI.regBtn.onclick = async () => {
+      if (!currentUser) return;
+      const userStr = document.getElementById('reg-user').value.trim();
+      const passStr = document.getElementById('reg-pass').value.trim();
+      
+      if(userStr.length < 3 || passStr.length < 4) {
+        UI.regMsg.textContent = "Callsign > 3 chars. Passkey > 4 chars.";
+        return;
+      }
+      
+      const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', userStr.toLowerCase());
+      const snap = await getDoc(docRef);
+      
+      if(snap.exists()) {
+        UI.regMsg.textContent = "Callsign already registered globally.";
+        return;
+      }
+
+      await setDoc(docRef, { username: userStr, passkey: passStr, score: 0, uid: currentUser.uid });
+      
+      localStorage.setItem('orange_currentUser', userStr);
+      localUsername = userStr;
+      document.getElementById('reg-user').value = '';
+      document.getElementById('reg-pass').value = '';
+      updateUIState();
+    };
+
+    UI.loginBtn.onclick = async () => {
+      if (!currentUser) return;
+      const userStr = document.getElementById('login-user').value.trim();
+      const passStr = document.getElementById('login-pass').value.trim();
+      
+      const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', userStr.toLowerCase());
+      const snap = await getDoc(docRef);
+      
+      if(snap.exists() && snap.data().passkey === passStr) {
+        localStorage.setItem('orange_currentUser', userStr);
+        localUsername = userStr;
+        document.getElementById('login-user').value = '';
+        document.getElementById('login-pass').value = '';
+        updateUIState();
+      } else {
+        UI.loginMsg.textContent = "Invalid Callsign or Passkey.";
+      }
+    };
+
+    UI.logoutBtn.onclick = () => {
+      localStorage.removeItem('orange_currentUser');
+      localUsername = null;
+      updateUIState();
+    };
+
+    function setupLeaderboard() {
+      if (!currentUser) return;
+      const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'users');
+      onSnapshot(colRef, (snapshot) => {
+        let usersData = [];
+        snapshot.forEach(doc => usersData.push(doc.data()));
+        usersData.sort((a, b) => b.score - a.score);
+        
+        if (usersData.length === 0) {
+          UI.leaderboardContainer.innerHTML = `<div class="text-center py-6 text-gray-500 text-sm italic">No operatives found in the network.</div>`;
+          return;
+        }
+
+        UI.leaderboardContainer.innerHTML = usersData.slice(0, 5).map((player, index) => {
+          const rankColors = ['text-yellow-400', 'text-gray-300', 'text-amber-600'];
+          const iconColor = rankColors[index] || 'text-brand/50';
+          const bgHover = index === 0 ? 'hover:bg-yellow-500/10 hover:border-yellow-500/30' : 'hover:bg-brand/10 hover:border-brand/30';
+          
+          return `
+            <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-transparent ${bgHover} transition-all group">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-black/50 flex items-center justify-center font-orbitron font-bold ${iconColor}">
+                  #${index + 1}
+                </div>
+                <span class="font-medium text-white group-hover:text-brand transition-colors">${player.username}</span>
+              </div>
+              <div class="text-right">
+                <div class="text-brand font-orbitron font-bold">${player.score.toLocaleString()}</div>
+                <div class="text-[10px] text-gray-500 uppercase">Power</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }, (error) => {
+        UI.leaderboardContainer.innerHTML = `<div class="text-red-500 text-sm">Failed to sync network.</div>`;
+      });
+    }
+
+    document.querySelectorAll('.game-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if(!localUsername) {
+          e.preventDefault();
+          UI.modalOverlay.classList.add('active');
+          UI.loginMsg.textContent = "Authentication required.";
         }
       });
-      node.appendChild(t); node.appendChild(d); node.appendChild(btn);
-      grid.appendChild(node);
     });
-    upgradeTree.appendChild(grid);
-  }
-  // Close upgrades when clicking outside the card
-  upgradesOverlay.addEventListener('click', (e)=>{
-    if(e.target === upgradesOverlay){ upgradesOverlay.style.display='none'; }
-  });
 
-  /* ===== Menu ===== */
-  menuBtn.addEventListener('click', ()=>{
-    const open = menuTray.style.display==='flex';
-    menuTray.style.display = open ? 'none':'flex';
-  });
-  menuTray.addEventListener('click',(e)=>{
-    const btn=e.target.closest('.trayBtn'); if(!btn) return;
-    const panel=btn.getAttribute('data-panel');
-    if(panel==='reset'){ openResetOverlay(); }
-    else if(panel==='upgrades'){ openUpgrades(); }
-    else {
-      auSubtitle.textContent=panel.charAt(0).toUpperCase()+panel.slice(1)+" panel (WIP)";
-      setTimeout(()=> auSubtitle.textContent="Choose a timeline",1500);
-    }
-  });
-
-  /* ===== Reset overlay ===== */
-  function openResetOverlay(){ resetOverlay.style.display='flex'; }
-  cancelReset.addEventListener('click',()=> resetOverlay.style.display='none');
-  confirmReset.addEventListener('click',()=>{
-    if(love>=RESET_LV_REQ && exp>=RESET_EXP_REQ){
-      exp -= RESET_EXP_REQ;
-      love=0; exp=0; gold=0; expNeeded=10; resets+=1;
-      Object.keys(roster).forEach(au=> roster[au].forEach(c=> c.owned=0 ));
-      stopFriskSlashLoop();
-      stopTorielFireLoop();
-      stopPapyrusBoneLoop();
-      stopUndyneSpearLoop();
-      stopMettatonBombLoop();
-      stopSansBoneLoop();
-      stopAsgoreWaveLoop();
-      updateStats(); renderAUList(); resetOverlay.style.display='none';
-      pulse(document.getElementById('statsPanel'));
-    } else { shake(resetOverlay); }
-  });
-
-  /* ===== Feedback ===== */
-  function shake(el){
-    el.animate(
-      [{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],
-      {duration:260}
-    );
-  }
-  function gentlePop(el){
-    el.animate(
-      [{transform:'scale(1)'},{transform:'scale(1.02)'},{transform:'scale(1)'}],
-      {duration:200}
-    );
-  }
-  function pulse(el){
-    el.animate(
-      [{filter:'brightness(1)'},{filter:'brightness(1.15)'},{filter:'brightness(1)'}],
-      {duration:600}
-    );
-  }
-
-  /* ===== AU panel ===== */
-  let auMode='list'; let selectedAU=null;
-
-  function renderAUList(){
-    auMode='list'; selectedAU=null; auSubtitle.textContent="Choose a timeline"; auContent.innerHTML="";
-    const btnUT=document.createElement('button'); btnUT.className='auBtn'; btnUT.textContent='Undertale'; btnUT.addEventListener('click',()=> openAU('Undertale')); auContent.appendChild(btnUT);
-    const btnUS=document.createElement('button'); btnUS.className='auBtn';
-    if(resets>=1){ btnUS.textContent='Underswap'; btnUS.addEventListener('click',()=> openAU('Underswap')); }
-    else { btnUS.innerHTML='Underswap <span class="lock">Locked (Requires 1 reset)</span>'; btnUS.disabled=true; btnUS.style.opacity=.7; btnUS.style.cursor='not-allowed'; }
-    auContent.appendChild(btnUS);
-  }
-
-  function openAU(name){
-    auMode='characters'; selectedAU=name; auSubtitle.textContent=name+" roster"; auContent.innerHTML="";
-    const back=document.createElement('button'); back.className='auBack'; back.textContent='← Back to AU select'; back.addEventListener('click',renderAUList); auContent.appendChild(back);
-
-    roster[name].forEach((c,i)=>{
-      const row=document.createElement('div'); row.className='charRow';
-      const left=document.createElement('div'); left.className='charName'; left.textContent=c.name;
-      const buy=document.createElement('button'); buy.className='buyBtn';
-      buy.textContent = c.owned ? 'Owned' : 'Buy';
-      buy.disabled = !!c.owned;
-      buy.addEventListener('click',()=> buyChar(name,i));
-      row.appendChild(left); row.appendChild(buy); auContent.appendChild(row);
-    });
-  }
-
-  function buyChar(au,index){
-    const c=roster[au][index];
-    if(c.owned) return;
-    if(gold>=c.costGold){
-      gold -= c.costGold; c.owned = 1;
-      if(c.type==='frisk'){ startFriskSlashLoop(); }
-      if(c.type==='toriel'){ startTorielFireLoop(); }
-      if(c.type==='papyrus'){ startPapyrusBoneLoop(); }
-      if(c.type==='undyne'){ startUndyneSpearLoop(); }
-      if(c.type==='mettaton'){ startMettatonBombLoop(); }
-      if(c.type==='sans'){ startSansBoneLoop(); }
-      if(c.type==='asgore'){ startAsgoreWaveLoop(); }
-      tryConvertExpToLove(); updateStats(); openAU(au); gentlePop(auContent);
-    } else { shake(auContent); }
-  }
-
-  /* ===== Passive DPS ===== */
-  setInterval(()=>{
-    if(soulDisabled) return;
-    let totalDps=0;
-    Object.values(roster).forEach(list=>{
-      list.forEach(c=>{
-        if(c.owned && c.type==='dps'){ totalDps += c.dps; }
-      });
-    });
-    if(totalDps>0){ applyDamage(totalDps, true); }
-  }, 1000);
-
-  /* ===== Shatter sequence ===== */
-  function shatterSoul(){
-    if(soulDisabled) return; /* prevent duplicate shatters */
-    soulDisabled = true;
-    soulWrap.classList.add('shattered');
-
-    const leftHalf = document.createElement('div'); leftHalf.className='half left';
-    const rightHalf= document.createElement('div'); rightHalf.className='half right';
-    soulWrap.appendChild(leftHalf); soulWrap.appendChild(rightHalf);
-
-    let gainedExp = Math.floor(randInt(2,24) * resetBonusMultiplier());
-    let gainedGold= randInt(4,9);
-
-    const refused = Math.random() < 0.10;
-    if(refused){
-      gainedGold*=2;
-      gainedExp = 0;
-    }
-
-    exp += gainedExp; gold += gainedGold; tryConvertExpToLove(); updateStats();
-
-    if(refused){
-      typeRefusedInline("But it refused.", soulWrap, ()=>{
-        setTimeout(()=>{
-          leftHalf.remove(); rightHalf.remove();
-          soulWrap.classList.remove('shattered'); soulDisabled=false; soulHP=randInt(25,40);
-        }, 2000);
-      });
-    } else {
-      setTimeout(()=>{
-        leftHalf.classList.add('halfAnim','left');
-        rightHalf.classList.add('halfAnim','right');
-        setTimeout(()=>{
-          const shards=document.createElement('div'); shards.className='shards';
-          for(let i=0;i<18;i++){
-            const p=document.createElement('div'); p.className='shard';
-            p.style.setProperty('--dx', randInt(-110,110)+'px');
-            p.style.setProperty('--dy', randInt(-110,110)+'px');
-            p.style.setProperty('--rot', randInt(-180,180)+'deg');
-            p.style.left = randInt(60,160)+'px'; p.style.top = randInt(60,160)+'px';
-            shards.appendChild(p);
-          }
-          soulWrap.appendChild(shards);
-          setTimeout(()=>{
-            shards.remove(); leftHalf.remove(); rightHalf.remove();
-            soulWrap.classList.remove('shattered'); soulDisabled=false; soulHP=randInt(25,40);
-          }, 900);
-        }, 200);
-      }, 1000);
-    }
-  }
-
-  function typeRefusedInline(text, container, onDone){
-    const el=document.createElement('div'); el.className='refused'; el.textContent="";
-    container.appendChild(el); let i=0;
-    const tick=setInterval(()=>{
-      el.textContent=text.slice(0, i+1); i++;
-      if(i>=text.length){ clearInterval(tick); setTimeout(()=>{ el.remove(); onDone && onDone(); }, 400); }
-    }, 50);
-  }
-
-  /* ===== INIT ===== */
-  load(); updateStats(); renderAUList();
-  if(roster.Undertale.find(x=> x.type==='frisk' && x.owned)) startFriskSlashLoop();
-  if(roster.Undertale.find(x=> x.type==='toriel' && x.owned)) startTorielFireLoop();
-  if(roster.Undertale.find(x=> x.type==='papyrus' && x.owned)) startPapyrusBoneLoop();
-  if(roster.Undertale.find(x=> x.type==='undyne'  && x.owned)) startUndyneSpearLoop();
-  if(roster.Undertale.find(x=> x.type==='mettaton' && x.owned)) startMettatonBombLoop();
-  if(roster.Undertale.find(x=> x.type==='sans' && x.owned)) startSansBoneLoop();
-  if(roster.Undertale.find(x=> x.type==='asgore' && x.owned)) startAsgoreWaveLoop();
-
-  /* ===== utils ===== */
-  function pickCount(weights){
-    const r=Math.random();
-    if(r<weights.four) return 4;
-    if(r<weights.three+weights.four) return 3;
-    if(r<weights.two+weights.three+weights.four) return 2;
-    return 1;
-  }
-  function spawnMultiple(fn, count, spreadMs){
-    for(let i=0;i<count;i++){
-      setTimeout(()=> fn(), i*spreadMs);
-    }
-  }
-</script>
+    updateUIState();
+    initAuth();
+  </script>
 </body>
 </html>
