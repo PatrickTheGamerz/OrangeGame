@@ -53,6 +53,20 @@
   </script>
 
   <style>
+    * {
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    }
+
+    input {
+      user-select: auto;
+      -webkit-user-select: auto;
+      -moz-user-select: auto;
+      -ms-user-select: auto;
+    }
+
     body {
       background-color: #080a0f;
       color: #f0f0f0;
@@ -120,7 +134,7 @@
     .show-register #register-form { display: block; }
   </style>
 </head>
-<body class="font-inter antialiased min-h-screen flex flex-col select-none">
+<body class="font-inter antialiased min-h-screen flex flex-col">
 
   <div class="ambient-engine">
     <div class="particle animate-float-slow" style="left: 15%; width: 50px; height: 50px; animation-duration: 18s;"></div>
@@ -172,7 +186,7 @@
 
       <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
         
-        <a href="TicTacToe.md" class="game-card relative block h-72 rounded-2xl p-8 flex flex-col justify-end overflow-hidden group cursor-pointer border border-white/10 bg-surface-solid">
+        <a href="TicTacToe.html" class="game-card relative block h-72 rounded-2xl p-8 flex flex-col justify-end overflow-hidden group cursor-pointer border border-white/10 bg-surface-solid">
           <div class="absolute inset-0 bg-gradient-to-t from-[#080a0f] via-[#080a0f]/80 to-transparent z-10"></div>
           <div class="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity bg-[url('https://images.unsplash.com/photo-1614680376593-902f74cf0d41?auto=format&fit=crop&q=80')] bg-cover bg-center"></div>
           
@@ -187,7 +201,7 @@
           </div>
         </a>
 
-        <a href="AuClicker.md" class="game-card relative block h-72 rounded-2xl p-8 flex flex-col justify-end overflow-hidden group cursor-pointer border border-white/10 bg-surface-solid">
+        <a href="AuClicker.html" class="game-card relative block h-72 rounded-2xl p-8 flex flex-col justify-end overflow-hidden group cursor-pointer border border-white/10 bg-surface-solid">
           <div class="absolute inset-0 bg-gradient-to-t from-[#080a0f] via-[#080a0f]/80 to-transparent z-10"></div>
           <div class="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity bg-[url('https://images.unsplash.com/photo-1621504450181-5c3b123af6c6?auto=format&fit=crop&q=80')] bg-cover bg-center"></div>
           
@@ -352,7 +366,12 @@
       }
     }
 
-    UI.navLoginBtn.onclick = () => UI.modalOverlay.classList.add('active');
+    UI.navLoginBtn.onclick = () => {
+      UI.loginMsg.textContent = '';
+      UI.regMsg.textContent = '';
+      UI.modalOverlay.classList.add('active');
+    };
+    
     UI.closeModalBtn.onclick = () => UI.modalOverlay.classList.remove('active');
     UI.modalOverlay.onclick = (e) => { if(e.target === UI.modalOverlay) UI.modalOverlay.classList.remove('active'); };
 
@@ -363,12 +382,19 @@
     
     UI.statsBtn.onclick = async () => {
       if(!localUsername || !currentUser) return;
-      const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', localUsername.toLowerCase());
-      const snap = await getDoc(docRef);
-      if(snap.exists()) {
-        UI.statsScore.textContent = snap.data().score.toLocaleString();
+      try {
+        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', localUsername.toLowerCase());
+        const snap = await getDoc(docRef);
+        if(snap.exists() && snap.data().score !== undefined) {
+          UI.statsScore.textContent = snap.data().score.toLocaleString();
+        } else {
+          UI.statsScore.textContent = "0";
+        }
+        UI.statsModalOverlay.classList.add('active');
+      } catch(err) {
+        UI.statsScore.textContent = "ERR";
+        UI.statsModalOverlay.classList.add('active');
       }
-      UI.statsModalOverlay.classList.add('active');
     };
     
     UI.closeStatsBtn.onclick = () => UI.statsModalOverlay.classList.remove('active');
@@ -399,21 +425,25 @@
         return;
       }
       
-      const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', userStr.toLowerCase());
-      const snap = await getDoc(docRef);
-      
-      if(snap.exists()) {
-        UI.regMsg.textContent = "Callsign already registered globally.";
-        return;
-      }
+      try {
+        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', userStr.toLowerCase());
+        const snap = await getDoc(docRef);
+        
+        if(snap.exists()) {
+          UI.regMsg.textContent = "Callsign already registered globally.";
+          return;
+        }
 
-      await setDoc(docRef, { username: userStr, passkey: passStr, score: 0, uid: currentUser.uid });
-      
-      localStorage.setItem('orange_currentUser', userStr);
-      localUsername = userStr;
-      document.getElementById('reg-user').value = '';
-      document.getElementById('reg-pass').value = '';
-      updateUIState();
+        await setDoc(docRef, { username: userStr, passkey: passStr, score: 0, uid: currentUser.uid });
+        
+        localStorage.setItem('orange_currentUser', userStr);
+        localUsername = userStr;
+        document.getElementById('reg-user').value = '';
+        document.getElementById('reg-pass').value = '';
+        updateUIState();
+      } catch(err) {
+        UI.regMsg.textContent = "Network error. Try again.";
+      }
     };
 
     UI.loginBtn.onclick = async () => {
@@ -421,17 +451,26 @@
       const userStr = document.getElementById('login-user').value.trim();
       const passStr = document.getElementById('login-pass').value.trim();
       
-      const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', userStr.toLowerCase());
-      const snap = await getDoc(docRef);
-      
-      if(snap.exists() && snap.data().passkey === passStr) {
-        localStorage.setItem('orange_currentUser', userStr);
-        localUsername = userStr;
-        document.getElementById('login-user').value = '';
-        document.getElementById('login-pass').value = '';
-        updateUIState();
-      } else {
-        UI.loginMsg.textContent = "Invalid Callsign or Passkey.";
+      if(!userStr || !passStr) {
+        UI.loginMsg.textContent = "Please enter credentials.";
+        return;
+      }
+
+      try {
+        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', userStr.toLowerCase());
+        const snap = await getDoc(docRef);
+        
+        if(snap.exists() && snap.data().passkey === passStr) {
+          localStorage.setItem('orange_currentUser', snap.data().username);
+          localUsername = snap.data().username;
+          document.getElementById('login-user').value = '';
+          document.getElementById('login-pass').value = '';
+          updateUIState();
+        } else {
+          UI.loginMsg.textContent = "Invalid Callsign or Passkey.";
+        }
+      } catch(err) {
+        UI.loginMsg.textContent = "Network error. Try again.";
       }
     };
 
@@ -446,7 +485,12 @@
       const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'users');
       onSnapshot(colRef, (snapshot) => {
         let usersData = [];
-        snapshot.forEach(doc => usersData.push(doc.data()));
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          if(data.score !== undefined) {
+            usersData.push(data);
+          }
+        });
         usersData.sort((a, b) => b.score - a.score);
         
         if (usersData.length === 0) {
@@ -483,8 +527,9 @@
       card.addEventListener('click', (e) => {
         if(!localUsername) {
           e.preventDefault();
-          UI.modalOverlay.classList.add('active');
           UI.loginMsg.textContent = "Authentication required.";
+          UI.regMsg.textContent = "";
+          UI.modalOverlay.classList.add('active');
         }
       });
     });
