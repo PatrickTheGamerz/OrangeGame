@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Orange Games - Unleash Your Inner Gamer</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>Orange Games Hub</title>
   
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   
   <script src="https://cdn.tailwindcss.com"></script>
@@ -14,38 +14,14 @@
       theme: {
         extend: {
           colors: {
-            brand: {
-              DEFAULT: '#ff6a00',
-              light: '#ff9966',
-              dark: '#cc5500',
-              glow: 'rgba(255, 106, 0, 0.4)'
-            },
-            surface: {
-              DEFAULT: 'rgba(21, 24, 34, 0.7)',
-              solid: '#151822'
-            }
+            brand: { DEFAULT: '#ff6a00', light: '#ff9966', dark: '#cc5500' },
+            surface: { DEFAULT: 'rgba(21, 24, 34, 0.75)', solid: '#151822' }
           },
-          fontFamily: {
-            orbitron: ['Orbitron', 'sans-serif'],
-            inter: ['Inter', 'sans-serif']
-          },
-          animation: {
-            'float-slow': 'float 15s infinite linear',
-            'flicker': 'flicker 3s infinite alternate',
-            'spin-slow': 'spin 8s linear infinite',
-          },
+          fontFamily: { orbitron: ['Orbitron', 'sans-serif'], inter: ['Inter', 'sans-serif'] },
+          animation: { 'float-slow': 'float 15s infinite linear', 'pulse-glow': 'pulseGlow 2s infinite alternate' },
           keyframes: {
-            float: {
-              '0%': { transform: 'translateY(100vh) scale(0.5)', opacity: '0' },
-              '50%': { opacity: '0.6' },
-              '100%': { transform: 'translateY(-20vh) scale(1.5)', opacity: '0' }
-            },
-            flicker: {
-              '0%, 18%, 22%, 25%, 53%, 57%, 100%': {
-                textShadow: '0 0 5px #fff, 0 0 20px #ff6a00, 0 0 40px #ff6a00'
-              },
-              '20%, 24%, 55%': { textShadow: 'none' }
-            }
+            float: { '0%': { transform: 'translateY(100vh) scale(0.5)', opacity: '0' }, '50%': { opacity: '0.5' }, '100%': { transform: 'translateY(-20vh) scale(1.5)', opacity: '0' } },
+            pulseGlow: { '0%': { opacity: '0.6', transform: 'scale(1)' }, '100%': { opacity: '1', transform: 'scale(1.05)' } }
           }
         }
       }
@@ -53,993 +29,355 @@
   </script>
 
   <style>
-    * {
-      user-select: none;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-    }
-
-    input {
-      user-select: auto;
-      -webkit-user-select: auto;
-      -moz-user-select: auto;
-      -ms-user-select: auto;
-    }
-
-    body {
-      background-color: #080a0f;
-      color: #f0f0f0;
-      overflow-x: hidden;
-    }
-
-    ::-webkit-scrollbar { width: 10px; }
-    ::-webkit-scrollbar-track { background: #080a0f; }
-    ::-webkit-scrollbar-thumb { background: #ff6a00; border-radius: 5px; border: 2px solid #080a0f; }
-
-    .custom-scrollbar-mini::-webkit-scrollbar { width: 6px; }
-    .custom-scrollbar-mini::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 3px; }
-    .custom-scrollbar-mini::-webkit-scrollbar-thumb { background: #ff6a00; border-radius: 3px; }
-
-    .ambient-engine {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      z-index: -2; overflow: hidden;
-      background: radial-gradient(circle at 15% 50%, rgba(255,106,0,0.05), transparent 50%),
-                  radial-gradient(circle at 85% 30%, rgba(255,153,102,0.03), transparent 50%);
-    }
+    * { user-select: none; -webkit-user-select: none; box-sizing: border-box; }
+    input, select { user-select: auto; -webkit-user-select: auto; }
+    body { background-color: #080a0f; color: #f0f0f0; overflow-x: hidden; margin: 0; min-height: 100vh; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; }
     
-    .particle {
-      position: absolute; border-radius: 50%;
-      background: radial-gradient(circle, #ff9966 0%, transparent 70%);
-      opacity: 0.5; filter: blur(4px);
-    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #ff6a00, #eab308); border-radius: 4px; }
 
-    .glass-panel {
-      background: rgba(21, 24, 34, 0.6);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-    }
+    .ambient-engine { position: fixed; inset: 0; z-index: -2; overflow: hidden; background: radial-gradient(circle at 20% 40%, rgba(255,106,0,0.06), transparent 60%), radial-gradient(circle at 80% 70%, rgba(16,185,129,0.04), transparent 60%); }
+    .particle { position: absolute; border-radius: 50%; background: radial-gradient(circle, #ff9966 0%, transparent 70%); opacity: 0.5; filter: blur(5px); }
+    
+    .glass-panel { background: rgba(21, 24, 34, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 106, 0, 0.15); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6); }
+    
+    .btn-orange { background: linear-gradient(90deg, #ff6a00, #eab308); color: #000; font-family: 'Orbitron', sans-serif; font-weight: 900; text-transform: uppercase; padding: 12px 24px; border-radius: 12px; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: none; outline: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-orange:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 10px 25px rgba(255,106,0,0.4); }
+    .btn-orange:active { transform: translateY(0) scale(0.98); }
+    
+    .btn-dark { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-family: 'Orbitron', sans-serif; font-weight: 700; padding: 10px 20px; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-dark:hover { border-color: #ff6a00; background: rgba(255,106,0,0.15); box-shadow: 0 0 15px rgba(255,106,0,0.2); }
 
-    .game-card {
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .game-card::before {
-      content: ""; position: absolute; inset: -2px; z-index: -1; border-radius: 1.5rem;
-      background: linear-gradient(45deg, transparent 30%, #ff6a00 50%, transparent 70%);
-      background-size: 200% 200%;
-      opacity: 0; transition: opacity 0.4s ease;
-      animation: shiftGradient 3s linear infinite;
-    }
-    .game-card:hover { transform: translateY(-10px) scale(1.02); }
-    .game-card:hover::before { opacity: 1; filter: blur(10px); }
-    @keyframes shiftGradient { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+    .game-card { background: linear-gradient(145deg, #161925, #0d0f17); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; overflow: hidden; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; display: flex; flex-direction: column; position: relative; }
+    .game-card::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.4s ease; pointer-events: none; z-index: 1; }
+    .game-card.card-orange::before { background: linear-gradient(180deg, transparent, rgba(255,106,0,0.15)); }
+    .game-card.card-emerald::before { background: linear-gradient(180deg, transparent, rgba(16,185,129,0.15)); }
+    .game-card:hover { transform: translateY(-12px); box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
+    .game-card.card-orange:hover { border-color: #ff6a00; box-shadow: 0 20px 40px rgba(255,106,0,0.25); }
+    .game-card.card-emerald:hover { border-color: #10b981; box-shadow: 0 20px 40px rgba(16,185,129,0.25); }
+    .game-card:hover::before { opacity: 1; }
+    
+    .game-icon-wrap { height: 180px; display: flex; align-items: center; justify-content: center; font-size: 4.5rem; background: rgba(0,0,0,0.5); position: relative; overflow: hidden; }
+    .game-icon-wrap i { z-index: 2; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .game-card:hover .game-icon-wrap i { transform: scale(1.25) rotate(5deg); }
 
-    .input-field {
-      background: rgba(0,0,0,0.4);
-      border: 1px solid rgba(255,255,255,0.1);
-      transition: all 0.3s ease;
-    }
-    .input-field:focus {
-      border-color: #ff6a00;
-      box-shadow: 0 0 15px rgba(255, 106, 0, 0.3);
-      background: rgba(0,0,0,0.6);
-      outline: none;
-    }
+    .leaderboard-row { display: grid; grid-template-columns: 40px 1fr auto; gap: 16px; align-items: center; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.03); transition: all 0.3s ease; border-radius: 12px; margin-bottom: 4px; background: rgba(255,255,255,0.01); }
+    .leaderboard-row:hover { background: rgba(255,106,0,0.08); transform: translateX(5px); }
+    .leaderboard-row.active-user { background: linear-gradient(90deg, rgba(255,106,0,0.15), transparent); border-left: 4px solid #ff6a00; border-bottom: none; }
+    .rank-badge { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 14px; background: rgba(0,0,0,0.6); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1); }
+    .rank-1 { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #000; box-shadow: 0 0 20px rgba(245,158,11,0.6); border: none; }
+    .rank-2 { background: linear-gradient(135deg, #9ca3af, #d1d5db); color: #000; box-shadow: 0 0 15px rgba(156,163,175,0.5); border: none; }
+    .rank-3 { background: linear-gradient(135deg, #b45309, #d97706); color: #000; box-shadow: 0 0 15px rgba(180,83,9,0.5); border: none; }
 
-    .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
-    .modal-overlay.active { opacity: 1; pointer-events: auto; }
-    .modal-content { transform: translateY(20px) scale(0.95); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(16px); display: none; place-items: center; z-index: 100; opacity: 0; transition: opacity 0.4s ease; }
+    .modal-overlay.active { display: grid; opacity: 1; pointer-events: auto; }
+    .modal-content { transform: translateY(40px) scale(0.9); transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: #11141e; border: 1px solid rgba(255,106,0,0.4); border-radius: 28px; padding: 40px; width: 90%; max-width: 450px; box-shadow: 0 25px 60px rgba(255,106,0,0.35); }
     .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
 
-    .show-register #login-form { display: none; }
-    #register-form { display: none; }
-    .show-register #register-form { display: block; }
+    .input-field { width: 100%; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; color: #fff; padding: 16px 20px; margin-top: 8px; outline: none; transition: all 0.3s ease; font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
+    .input-field:focus { border-color: #ff6a00; box-shadow: 0 0 25px rgba(255,106,0,0.4); background: rgba(0,0,0,0.8); }
+    
+    .lang-select { appearance: none; background: transparent; color: #fff; font-family: 'Orbitron', sans-serif; font-weight: 700; border: none; outline: none; cursor: pointer; padding-right: 20px; }
   </style>
 </head>
-<body class="font-inter antialiased min-h-screen flex flex-col">
+<body>
 
-  <div class="ambient-engine">
-    <div class="particle animate-float-slow" style="left: 15%; width: 50px; height: 50px; animation-duration: 18s;"></div>
-    <div class="particle animate-float-slow" style="left: 35%; width: 70px; height: 70px; animation-duration: 22s; animation-delay: -5s;"></div>
-    <div class="particle animate-float-slow" style="left: 65%; width: 40px; height: 40px; animation-duration: 14s; animation-delay: -2s;"></div>
-    <div class="particle animate-float-slow" style="left: 85%; width: 90px; height: 90px; animation-duration: 25s; animation-delay: -10s;"></div>
-  </div>
+  <div class="ambient-engine" id="particles"></div>
 
-  <header class="glass-panel sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
-    <div class="text-2xl font-orbitron font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-brand to-yellow-400 cursor-pointer hover:drop-shadow-[0_0_10px_rgba(255,106,0,0.8)] transition-all">
-      ORANGE GAMES
+  <header class="glass-panel sticky top-0 z-50 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center gap-4 cursor-pointer hover:scale-105 transition-transform duration-300">
+      <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brand to-yellow-400 flex items-center justify-center shadow-[0_0_20px_rgba(255,106,0,0.6)]">
+        <i class="fas fa-gamepad text-black text-2xl"></i>
+      </div>
+      <div class="text-3xl font-orbitron font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-brand to-yellow-400">
+        ORANGE HUB
+      </div>
     </div>
-
-    <div class="flex items-center gap-4 relative">
-      <div class="hidden sm:block relative group">
-        <button class="flex items-center gap-2 bg-white/5 border border-white/10 hover:border-brand px-4 py-2 rounded-full backdrop-blur-md transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,106,0,0.3)]">
-          <i class="fas fa-globe text-brand text-sm"></i>
-          <span id="current-lang" class="font-medium text-white text-sm">English</span>
-          <i class="fas fa-chevron-down text-[10px] text-gray-400 group-hover:text-brand transition-colors"></i>
-        </button>
-
-        <div class="absolute right-0 mt-2 w-48 glass-panel rounded-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right group-hover:translate-y-0 translate-y-2 max-h-64 overflow-y-auto custom-scrollbar-mini">
-          <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 px-3 pt-1" data-i18n="select_language">Select Language</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">English</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Español</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Français</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Deutsch</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Italiano</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Português</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Polski</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Русский</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Українська</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Türkçe</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Nederlands</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Svenska</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">中文</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">日本語</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">한국어</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">हिन्दी</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">العربية</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Tiếng Việt</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">ภาษาไทย</div>
-          <div class="lang-option px-3 py-2 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">Bahasa Indonesia</div>
-        </div>
+    
+    <div class="flex items-center gap-4">
+      <div class="relative flex items-center bg-black/50 border border-white/10 rounded-xl px-4 py-2 hover:border-brand/50 transition-colors shadow-inner">
+        <i class="fas fa-globe text-brand mr-2"></i>
+        <select id="lang-selector" class="lang-select">
+          <option value="English">EN</option>
+          <option value="Español">ES</option>
+          <option value="Français">FR</option>
+          <option value="Deutsch">DE</option>
+          <option value="Italiano">IT</option>
+          <option value="Português">PT</option>
+          <option value="Polski">PL</option>
+          <option value="Русский">RU</option>
+          <option value="Українська">UK</option>
+          <option value="Türkçe">TR</option>
+          <option value="Nederlands">NL</option>
+          <option value="Svenska">SV</option>
+          <option value="中文">ZH</option>
+          <option value="日本語">JA</option>
+          <option value="한국어">KO</option>
+          <option value="हिन्दी">HI</option>
+          <option value="العربية">AR</option>
+          <option value="Tiếng Việt">VI</option>
+          <option value="ภาษาไทย">TH</option>
+          <option value="Bahasa Indonesia">ID</option>
+        </select>
+        <i class="fas fa-chevron-down text-xs text-gray-400 absolute right-3 pointer-events-none"></i>
       </div>
 
-      <button id="nav-login-btn" data-i18n="signin_btn" class="border border-brand text-brand hover:bg-brand hover:text-white px-6 py-2 rounded-full font-semibold uppercase tracking-wide transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,106,0,0.6)] text-sm">
-        Sign In / Log In
+      <button id="auth-btn" class="btn-dark px-5 py-3">
+        <i class="fas fa-user-circle text-lg"></i> <span id="auth-text" data-i18n="login" class="tracking-wide">Login</span>
       </button>
-      
-      <div id="profile-area" class="hidden group relative">
-        <button class="flex items-center gap-3 bg-white/5 border border-white/10 hover:border-brand px-5 py-2 rounded-full backdrop-blur-md transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,106,0,0.3)]">
-          <i class="fas fa-user-astronaut text-brand text-xl"></i>
-          <span id="user-display-name" class="font-medium text-white text-sm">Player</span>
-          <i class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-brand transition-colors"></i>
-        </button>
-
-        <div class="absolute right-0 mt-2 w-56 glass-panel rounded-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right group-hover:translate-y-0 translate-y-2">
-          <div id="hub-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">
-            <i class="fas fa-gamepad w-5"></i> <span data-i18n="game_hub">Game Hub</span>
-          </div>
-          <div id="stats-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-gray-300 hover:bg-brand/20 hover:text-white transition-colors text-sm">
-            <i class="fas fa-trophy w-5"></i> <span data-i18n="my_stats">My Stats</span>
-          </div>
-          <div id="logout-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors border-t border-white/5 mt-1 text-sm">
-            <i class="fas fa-power-off w-5"></i> <span data-i18n="disconnect">Disconnect</span>
-          </div>
-        </div>
-      </div>
     </div>
   </header>
 
-  <main class="flex-grow container mx-auto px-4 py-12 flex flex-col xl:flex-row gap-10">
+  <main class="flex-grow container mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
     
-    <div class="flex-1 space-y-12">
-      <section class="text-center xl:text-left pt-10">
-        <h1 class="text-5xl md:text-6xl font-orbitron font-black text-white mb-6 animate-flicker" data-i18n="hero_title">
-          YOU'RE GONNA HAVE<br/>A GOOD TIME.
+    <div class="lg:col-span-2 space-y-8">
+      <div class="glass-panel p-10 rounded-[32px] relative overflow-hidden shadow-2xl border-white/5">
+        <div class="absolute top-0 right-0 w-80 h-80 bg-brand rounded-full filter blur-[100px] opacity-20 -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+        <h1 class="text-4xl md:text-6xl font-orbitron font-black text-white mb-6 leading-tight tracking-wide">
+          <span data-i18n="welcome">WELCOME TO THE</span> <br>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand to-yellow-400 drop-shadow-[0_0_15px_rgba(255,106,0,0.5)]">ARENA</span>
         </h1>
-      </section>
-
-      <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <p class="text-gray-300 text-lg mb-10 max-w-xl leading-relaxed" data-i18n="desc">Select a game below and dominate the leaderboards. Your global power score syncs automatically across all supported experiences.</p>
         
-        <a href="TicTacToe.html" class="game-card relative block h-72 rounded-2xl p-8 flex flex-col justify-end overflow-hidden group cursor-pointer border border-white/10 bg-surface-solid">
-          <div class="absolute inset-0 bg-gradient-to-t from-[#080a0f] via-[#080a0f]/80 to-transparent z-10"></div>
-          <div class="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity bg-[url('https://images.unsplash.com/photo-1614680376593-902f74cf0d41?auto=format&fit=crop&q=80')] bg-cover bg-center"></div>
-          
-          <div class="relative z-20">
-            <div class="w-12 h-12 bg-brand/20 border border-brand rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <i class="fas fa-times text-brand text-2xl"></i>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+          <div class="game-card card-orange group" onclick="window.location.href='TicTacToe.html'">
+            <div class="game-icon-wrap">
+              <i class="fas fa-times text-brand absolute -translate-x-10 -translate-y-5 opacity-90 drop-shadow-[0_0_15px_rgba(255,106,0,0.5)]"></i>
+              <i class="far fa-circle text-yellow-500 absolute translate-x-10 translate-y-5 opacity-90 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]"></i>
+              <div class="absolute inset-0 bg-gradient-to-t from-[#0d0f17] via-transparent to-transparent z-10"></div>
             </div>
-            <h3 class="font-orbitron text-2xl font-bold text-white mb-2 group-hover:text-brand transition-colors">X and O Arena</h3>
-            <div class="mt-4 flex items-center text-xs font-bold text-brand uppercase tracking-wider">
-              <span data-i18n="play_here">CLICK TO PLAY HERE</span> <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
-            </div>
-          </div>
-        </a>
-
-        <a href="AuClicker.html" class="game-card relative block h-72 rounded-2xl p-8 flex flex-col justify-end overflow-hidden group cursor-pointer border border-white/10 bg-surface-solid">
-          <div class="absolute inset-0 bg-gradient-to-t from-[#080a0f] via-[#080a0f]/80 to-transparent z-10"></div>
-          <div class="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity bg-[url('https://images.unsplash.com/photo-1621504450181-5c3b123af6c6?auto=format&fit=crop&q=80')] bg-cover bg-center"></div>
-          
-          <div class="relative z-20">
-            <div class="w-12 h-12 bg-yellow-500/20 border border-yellow-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <i class="fas fa-coins text-yellow-500 text-2xl"></i>
-            </div>
-            <h3 class="font-orbitron text-2xl font-bold text-white mb-2 group-hover:text-yellow-500 transition-colors">AU Syndicate</h3>
-            <div class="mt-4 flex items-center text-xs font-bold text-yellow-500 uppercase tracking-wider">
-              <span data-i18n="play_here">CLICK TO PLAY HERE</span> <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
+            <div class="p-6 relative z-20">
+              <h3 class="text-2xl font-orbitron font-bold text-white mb-2 group-hover:text-brand transition-colors tracking-wide" data-i18n="xno_title">X & O ARENA</h3>
+              <p class="text-sm text-gray-400 mb-5 leading-relaxed" data-i18n="xno_desc">Tactical chaos deck multiplayer with wild modifiers and bots.</p>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black uppercase tracking-widest text-brand bg-brand/10 px-4 py-1.5 rounded-full border border-brand/30">Multiplayer</span>
+                <i class="fas fa-arrow-right text-white group-hover:translate-x-2 transition-transform text-lg"></i>
+              </div>
             </div>
           </div>
-        </a>
 
-      </section>
+          <div class="game-card card-emerald group" onclick="window.location.href='TowerDef.html'">
+            <div class="game-icon-wrap">
+              <i class="fas fa-chess-rook text-emerald-500 text-7xl drop-shadow-[0_0_20px_rgba(16,185,129,0.6)] z-20"></i>
+              <i class="fas fa-shield-alt text-emerald-900 absolute text-[9rem] opacity-30 z-10"></i>
+              <div class="absolute inset-0 bg-gradient-to-t from-[#0d0f17] via-transparent to-transparent z-30"></div>
+            </div>
+            <div class="p-6 relative z-40">
+              <h3 class="text-2xl font-orbitron font-bold text-white mb-2 group-hover:text-emerald-500 transition-colors tracking-wide" data-i18n="td_title">TOWER DEFENSE</h3>
+              <p class="text-sm text-gray-400 mb-5 leading-relaxed" data-i18n="td_desc">Defend the core against endless waves. Upgrade and survive.</p>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black uppercase tracking-widest text-emerald-500 bg-emerald-500/10 px-4 py-1.5 rounded-full border border-emerald-500/30">Strategy</span>
+                <i class="fas fa-arrow-right text-white group-hover:translate-x-2 transition-transform text-lg"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="w-full xl:w-96 flex-shrink-0 pt-10 xl:pt-0">
-      <div class="glass-panel rounded-2xl p-6 h-full border-t-4 border-t-brand relative overflow-hidden">
-        <div class="absolute -top-10 -right-10 w-32 h-32 bg-brand/20 blur-3xl rounded-full pointer-events-none"></div>
-
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="font-orbitron text-xl font-bold text-white" data-i18n="global_network">Global Network</h2>
-          <i class="fas fa-globe text-brand animate-pulse"></i>
-        </div>
-
-        <div class="space-y-4">
-          <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-white/10 pb-2" data-i18n="top_operatives">Top Operatives</h3>
-          
-          <div id="leaderboard-container" class="space-y-3">
+    <div class="lg:col-span-1">
+      <div class="glass-panel p-8 rounded-[32px] h-full flex flex-col shadow-2xl border-white/5 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-brand/10 to-transparent pointer-events-none"></div>
+        <div class="flex items-center gap-4 mb-8 relative z-10">
+          <div class="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center border border-yellow-500/30">
+            <i class="fas fa-trophy text-yellow-500 text-xl"></i>
           </div>
+          <h2 class="text-2xl font-orbitron font-bold text-white tracking-widest" data-i18n="leaderboard">GLOBAL POWER</h2>
+        </div>
+        
+        <div class="flex-grow flex flex-col gap-2 custom-scrollbar-mini pr-2 overflow-y-auto relative z-10" id="leaderboard-container">
         </div>
       </div>
     </div>
 
   </main>
 
-  <div id="auth-modal-overlay" class="modal-overlay fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-    <div id="auth-modal-container" class="modal-content relative w-full max-w-md glass-panel rounded-3xl p-8 border border-brand/30 shadow-[0_0_50px_rgba(255,106,0,0.15)] overflow-hidden">
-      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-brand to-transparent"></div>
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal-content relative overflow-hidden">
+      <div class="absolute -top-20 -right-20 w-40 h-40 bg-brand rounded-full filter blur-[60px] opacity-20 pointer-events-none"></div>
+      <h3 class="font-orbitron text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand to-yellow-400 mb-4 tracking-widest text-center" data-i18n="identify">IDENTIFY</h3>
+      <p class="text-center text-sm text-gray-400 mb-8 leading-relaxed font-inter" data-i18n="auth_desc">Enter your agent designation to sync your global power score across all simulations.</p>
       
-      <button id="close-modal" class="absolute top-5 right-6 text-gray-400 hover:text-brand text-2xl transition-transform hover:rotate-90">
-        <i class="fas fa-times"></i>
-      </button>
-
-      <div id="login-form">
-        <h2 class="font-orbitron text-3xl font-bold text-white text-center mb-6" data-i18n="modal_signin">SIGN IN / LOG IN</h2>
-        
-        <div class="space-y-5">
-          <div>
-            <input type="text" id="login-user" autocomplete="off" data-i18n="ph_username" placeholder="Username"
-                   class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
-          </div>
-          <div>
-            <input type="password" id="login-pass" data-i18n="ph_passkey" placeholder="Password"
-                   class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
-          </div>
-          
-          <button id="do-login" class="w-full bg-gradient-to-r from-brand to-yellow-500 text-black font-orbitron font-black text-lg py-4 rounded-xl hover:shadow-[0_0_20px_rgba(255,106,0,0.5)] hover:-translate-y-1 transition-all" data-i18n="modal_signin">
-            SIGN IN / LOG IN
-          </button>
-          
-          <div id="login-msg" class="text-red-400 text-center font-semibold text-sm h-5"></div>
-        </div>
-
-        <div class="text-center mt-6 text-gray-400 text-sm">
-          <span data-i18n="new_user">New Operative?</span> <span id="to-register" class="text-brand font-bold cursor-pointer hover:underline" data-i18n="register_here">Register Here</span>
-        </div>
-      </div>
-
-      <div id="register-form">
-        <h2 class="font-orbitron text-3xl font-bold text-white text-center mb-6" data-i18n="modal_register">REGISTER</h2>
-        
-        <div class="space-y-5">
-          <div>
-            <input type="text" id="reg-user" autocomplete="off" data-i18n="ph_reg_user" placeholder="Desired Username"
-                   class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
-          </div>
-          <div>
-            <input type="password" id="reg-pass" data-i18n="ph_reg_pass" placeholder="Secure Password"
-                   class="input-field w-full px-5 py-4 rounded-xl text-white placeholder-gray-500">
-          </div>
-          
-          <button id="do-register" class="w-full bg-gradient-to-r from-brand to-yellow-500 text-black font-orbitron font-black text-lg py-4 rounded-xl hover:shadow-[0_0_20px_rgba(255,106,0,0.5)] hover:-translate-y-1 transition-all" data-i18n="modal_register">
-            REGISTER
-          </button>
-          
-          <div id="reg-msg" class="text-red-400 text-center font-semibold text-sm h-5"></div>
-        </div>
-
-        <div class="text-center mt-6 text-gray-400 text-sm">
-          <span data-i18n="exist_user">Existing Operative?</span> <span id="to-login" class="text-brand font-bold cursor-pointer hover:underline" data-i18n="login_here">Sign In Here</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="stats-modal-overlay" class="modal-overlay fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-    <div class="modal-content relative w-full max-w-sm glass-panel rounded-3xl p-8 border border-brand/30 shadow-[0_0_50px_rgba(255,106,0,0.15)] overflow-hidden text-center">
-      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-brand to-transparent"></div>
+      <input type="text" id="username-input" class="input-field mb-8 text-center text-xl" placeholder="USERNAME" maxlength="12" autocomplete="off" data-i18n="identify">
       
-      <button id="close-stats" class="absolute top-5 right-6 text-gray-400 hover:text-brand text-2xl transition-transform hover:rotate-90">
-        <i class="fas fa-times"></i>
-      </button>
-
-      <h2 class="font-orbitron text-3xl font-bold text-white mb-4" data-i18n="my_stats">MY STATS</h2>
-      <i class="fas fa-trophy text-6xl text-yellow-500 mb-6 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]"></i>
-      
-      <div class="bg-black/40 rounded-xl p-4 border border-white/5">
-        <div class="text-gray-400 text-sm font-bold uppercase mb-1" data-i18n="total_power">Total Global Power</div>
-        <div id="stats-score" class="font-orbitron text-4xl font-black text-brand">0</div>
+      <div class="flex gap-4">
+        <button class="btn-dark flex-1 tracking-widest uppercase text-sm" id="btn-auth-cancel" data-i18n="cancel">Cancel</button>
+        <button class="btn-orange flex-1 tracking-widest uppercase text-sm shadow-[0_0_20px_rgba(255,106,0,0.3)]" id="btn-auth-confirm" data-i18n="confirm">Confirm</button>
       </div>
     </div>
   </div>
 
   <script>
     const translations = {
-      "English": {
-        "signin_btn": "Sign In / Log In",
-        "game_hub": "Game Hub",
-        "my_stats": "My Stats",
-        "disconnect": "Disconnect",
-        "hero_title": "YOU'RE GONNA HAVE<br/>A GOOD TIME.",
-        "play_here": "CLICK TO PLAY HERE",
-        "global_network": "Global Network",
-        "top_operatives": "Top Operatives",
-        "modal_signin": "SIGN IN / LOG IN",
-        "ph_username": "Username",
-        "ph_passkey": "Password",
-        "new_user": "New Operative?",
-        "register_here": "Register Here",
-        "modal_register": "REGISTER",
-        "ph_reg_user": "Desired Username",
-        "ph_reg_pass": "Secure Password",
-        "exist_user": "Existing Operative?",
-        "login_here": "Sign In Here",
-        "total_power": "Total Global Power",
-        "select_language": "Select Language",
-        "power_label": "Power"
-      },
-      "Español": {
-        "signin_btn": "Iniciar Sesión",
-        "game_hub": "Centro de Juegos",
-        "my_stats": "Mis Estadísticas",
-        "disconnect": "Desconectar",
-        "hero_title": "VAS A PASARLO<br/>MUY BIEN.",
-        "play_here": "HAZ CLIC PARA JUGAR",
-        "global_network": "Red Global",
-        "top_operatives": "Mejores Agentes",
-        "modal_signin": "INICIAR SESIÓN",
-        "ph_username": "Usuario",
-        "ph_passkey": "Contraseña",
-        "new_user": "¿Nuevo Agente?",
-        "register_here": "Regístrate Aquí",
-        "modal_register": "REGISTRARSE",
-        "ph_reg_user": "Usuario Deseado",
-        "ph_reg_pass": "Contraseña Segura",
-        "exist_user": "¿Agente Existente?",
-        "login_here": "Inicia Sesión Aquí",
-        "total_power": "Poder Global Total",
-        "select_language": "Elige Idioma",
-        "power_label": "Poder"
-      },
-      "Français": {
-        "signin_btn": "Connexion",
-        "game_hub": "Hub de Jeux",
-        "my_stats": "Mes Stats",
-        "disconnect": "Déconnexion",
-        "hero_title": "VOUS ALLEZ PASSER<br/>UN BON MOMENT.",
-        "play_here": "CLIQUEZ POUR JOUER",
-        "global_network": "Réseau Mondial",
-        "top_operatives": "Meilleurs Agents",
-        "modal_signin": "CONNEXION",
-        "ph_username": "Nom d'utilisateur",
-        "ph_passkey": "Mot de passe",
-        "new_user": "Nouvel agent ?",
-        "register_here": "S'inscrire ici",
-        "modal_register": "S'INSCRIRE",
-        "ph_reg_user": "Nom désiré",
-        "ph_reg_pass": "Mot de passe sécurisé",
-        "exist_user": "Agent existant ?",
-        "login_here": "Connectez-vous ici",
-        "total_power": "Puissance Globale Totale",
-        "select_language": "Choisir Langue",
-        "power_label": "Puissance"
-      },
-      "Deutsch": {
-        "signin_btn": "Anmelden",
-        "game_hub": "Spiele-Hub",
-        "my_stats": "Meine Statistiken",
-        "disconnect": "Abmelden",
-        "hero_title": "DU WIRST EINE<br/>GUTE ZEIT HABEN.",
-        "play_here": "KLICKEN ZUM SPIELEN",
-        "global_network": "Globales Netzwerk",
-        "top_operatives": "Top Agenten",
-        "modal_signin": "ANMELDEN",
-        "ph_username": "Benutzername",
-        "ph_passkey": "Passwort",
-        "new_user": "Neuer Agent?",
-        "register_here": "Hier registrieren",
-        "modal_register": "REGISTRIEREN",
-        "ph_reg_user": "Gewünschter Name",
-        "ph_reg_pass": "Sicheres Passwort",
-        "exist_user": "Existierender Agent?",
-        "login_here": "Hier anmelden",
-        "total_power": "Gesamte Globale Macht",
-        "select_language": "Sprache Wählen",
-        "power_label": "Macht"
-      },
-      "Italiano": {
-        "signin_btn": "Accedi",
-        "game_hub": "Hub Giochi",
-        "my_stats": "Mie Statistiche",
-        "disconnect": "Disconnetti",
-        "hero_title": "PASSERAI UN<br/>BEL MOMENTO.",
-        "play_here": "CLICCA PER GIOCARE",
-        "global_network": "Rete Globale",
-        "top_operatives": "Migliori Agenti",
-        "modal_signin": "ACCEDI",
-        "ph_username": "Nome utente",
-        "ph_passkey": "Password",
-        "new_user": "Nuovo Agente?",
-        "register_here": "Registrati Qui",
-        "modal_register": "REGISTRATI",
-        "ph_reg_user": "Nome Desiderato",
-        "ph_reg_pass": "Password Sicura",
-        "exist_user": "Agente Esistente?",
-        "login_here": "Accedi Qui",
-        "total_power": "Potere Globale Totale",
-        "select_language": "Seleziona Lingua",
-        "power_label": "Potere"
-      },
-      "Português": {
-        "signin_btn": "Entrar",
-        "game_hub": "Hub de Jogos",
-        "my_stats": "Minhas Estatísticas",
-        "disconnect": "Desconectar",
-        "hero_title": "VOCÊ VAI TER UM<br/>ÓTIMO MOMENTO.",
-        "play_here": "CLIQUE PARA JOGAR",
-        "global_network": "Rede Global",
-        "top_operatives": "Melhores Agentes",
-        "modal_signin": "ENTRAR",
-        "ph_username": "Usuário",
-        "ph_passkey": "Senha",
-        "new_user": "Novo Agente?",
-        "register_here": "Registre-se Aqui",
-        "modal_register": "REGISTRAR",
-        "ph_reg_user": "Usuário Desejado",
-        "ph_reg_pass": "Senha Segura",
-        "exist_user": "Agente Existente?",
-        "login_here": "Entre Aqui",
-        "total_power": "Poder Global Total",
-        "select_language": "Escolher Idioma",
-        "power_label": "Poder"
-      },
-      "Polski": {
-        "signin_btn": "Zaloguj się",
-        "game_hub": "Centrum Gier",
-        "my_stats": "Moje Statystyki",
-        "disconnect": "Wyloguj",
-        "hero_title": "BĘDZIESZ SIĘ<br/>DOBRZE BAWIĆ.",
-        "play_here": "KLIKNIJ ABY ZAGRAĆ",
-        "global_network": "Sieć Globalna",
-        "top_operatives": "Najlepsi Gracze",
-        "modal_signin": "ZALOGUJ SIĘ",
-        "ph_username": "Nazwa użytkownika",
-        "ph_passkey": "Hasło",
-        "new_user": "Nowy agent?",
-        "register_here": "Zarejestruj się tutaj",
-        "modal_register": "ZAREJESTRUJ SIĘ",
-        "ph_reg_user": "Wybierz nazwę",
-        "ph_reg_pass": "Bezpieczne hasło",
-        "exist_user": "Masz już konto?",
-        "login_here": "Zaloguj się tutaj",
-        "total_power": "Całkowita Moc Globalna",
-        "select_language": "Wybierz Język",
-        "power_label": "Moc"
-      },
-      "Русский": {
-        "signin_btn": "Войти",
-        "game_hub": "Игровой Центр",
-        "my_stats": "Моя Статистика",
-        "disconnect": "Выйти",
-        "hero_title": "ТЫ ХОРОШО<br/>ПРОВЕДЕШЬ ВРЕМЯ.",
-        "play_here": "НАЖМИ ЧТОБЫ ИГРАТЬ",
-        "global_network": "Глобальная Сеть",
-        "top_operatives": "Лучшие Агенты",
-        "modal_signin": "ВОЙТИ",
-        "ph_username": "Имя пользователя",
-        "ph_passkey": "Пароль",
-        "new_user": "Новый агент?",
-        "register_here": "Зарегистрироваться",
-        "modal_register": "РЕГИСТРАЦИЯ",
-        "ph_reg_user": "Желаемое Имя",
-        "ph_reg_pass": "Надежный Пароль",
-        "exist_user": "Уже есть аккаунт?",
-        "login_here": "Войти здесь",
-        "total_power": "Общая Глобальная Мощь",
-        "select_language": "Выберите Язык",
-        "power_label": "Мощь"
-      },
-      "Українська": {
-        "signin_btn": "Увійти",
-        "game_hub": "Ігровий Центр",
-        "my_stats": "Моя Статистика",
-        "disconnect": "Вийти",
-        "hero_title": "ТИ ДОБРЕ<br/>ПРОВЕДЕШ ЧАС.",
-        "play_here": "НАТИСНИ ЩОБ ГРАТИ",
-        "global_network": "Глобальна Мережа",
-        "top_operatives": "Кращі Агенти",
-        "modal_signin": "УВІЙТИ",
-        "ph_username": "Ім'я користувача",
-        "ph_passkey": "Пароль",
-        "new_user": "Новий агент?",
-        "register_here": "Зареєструватися",
-        "modal_register": "РЕЄСТРАЦІЯ",
-        "ph_reg_user": "Бажане Ім'я",
-        "ph_reg_pass": "Надійний Пароль",
-        "exist_user": "Вже є акаунт?",
-        "login_here": "Увійти тут",
-        "total_power": "Загальна Глобальна Міць",
-        "select_language": "Оберіть Мову",
-        "power_label": "Міць"
-      },
-      "Türkçe": {
-        "signin_btn": "Giriş Yap",
-        "game_hub": "Oyun Merkezi",
-        "my_stats": "İstatistiklerim",
-        "disconnect": "Çıkış Yap",
-        "hero_title": "HARİKA ZAMAN<br/>GEÇİRECEKSİN.",
-        "play_here": "OYNAMAK İÇİN TIKLA",
-        "global_network": "Küresel Ağ",
-        "top_operatives": "En İyi Ajanlar",
-        "modal_signin": "GİRİŞ YAP",
-        "ph_username": "Kullanıcı Adı",
-        "ph_passkey": "Şifre",
-        "new_user": "Yeni Ajan?",
-        "register_here": "Buradan Kayıt Ol",
-        "modal_register": "KAYIT OL",
-        "ph_reg_user": "İstenen Kullanıcı Adı",
-        "ph_reg_pass": "Güvenli Şifre",
-        "exist_user": "Mevcut Ajan?",
-        "login_here": "Buradan Giriş Yap",
-        "total_power": "Toplam Küresel Güç",
-        "select_language": "Dil Seçin",
-        "power_label": "Güç"
-      },
-      "Nederlands": {
-        "signin_btn": "Inloggen",
-        "game_hub": "Game Hub",
-        "my_stats": "Mijn Stats",
-        "disconnect": "Uitloggen",
-        "hero_title": "JE GAAT EEN<br/>LEUKE TIJD HEBBEN.",
-        "play_here": "KLIK OM TE SPELEN",
-        "global_network": "Wereldwijd Netwerk",
-        "top_operatives": "Top Agenten",
-        "modal_signin": "INLOGGEN",
-        "ph_username": "Gebruikersnaam",
-        "ph_passkey": "Wachtwoord",
-        "new_user": "Nieuwe Agent?",
-        "register_here": "Registreer Hier",
-        "modal_register": "REGISTREREN",
-        "ph_reg_user": "Gewenste Naam",
-        "ph_reg_pass": "Veilig Wachtwoord",
-        "exist_user": "Bestaande Agent?",
-        "login_here": "Log Hier In",
-        "total_power": "Totale Globale Macht",
-        "select_language": "Selecteer Taal",
-        "power_label": "Macht"
-      },
-      "Svenska": {
-        "signin_btn": "Logga in",
-        "game_hub": "Spelhubb",
-        "my_stats": "Min Statistik",
-        "disconnect": "Logga ut",
-        "hero_title": "DU KOMMER ATT HA<br/>EN BRA TID.",
-        "play_here": "KLICKA FÖR ATT SPELA",
-        "global_network": "Globalt Nätverk",
-        "top_operatives": "Toppagenter",
-        "modal_signin": "LOGGA IN",
-        "ph_username": "Användarnamn",
-        "ph_passkey": "Lösenord",
-        "new_user": "Ny Agent?",
-        "register_here": "Registrera Här",
-        "modal_register": "REGISTRERA",
-        "ph_reg_user": "Önskat Namn",
-        "ph_reg_pass": "Säkert Lösenord",
-        "exist_user": "Befintlig Agent?",
-        "login_here": "Logga In Här",
-        "total_power": "Total Global Makt",
-        "select_language": "Välj Språk",
-        "power_label": "Makt"
-      },
-      "中文": {
-        "signin_btn": "登录",
-        "game_hub": "游戏中心",
-        "my_stats": "我的统计",
-        "disconnect": "断开连接",
-        "hero_title": "你会度过<br/>美好的时光。",
-        "play_here": "点击这里开始游戏",
-        "global_network": "全球网络",
-        "top_operatives": "顶级特工",
-        "modal_signin": "登录",
-        "ph_username": "用户名",
-        "ph_passkey": "密码",
-        "new_user": "新特工？",
-        "register_here": "在这里注册",
-        "modal_register": "注册",
-        "ph_reg_user": "期望的用户名",
-        "ph_reg_pass": "安全密码",
-        "exist_user": "已有账号？",
-        "login_here": "在这里登录",
-        "total_power": "全球总战力",
-        "select_language": "选择语言",
-        "power_label": "战力"
-      },
-      "日本語": {
-        "signin_btn": "ログイン",
-        "game_hub": "ゲームハブ",
-        "my_stats": "マイステータス",
-        "disconnect": "切断",
-        "hero_title": "素晴らしい時間を<br/>過ごせるだろう。",
-        "play_here": "クリックしてプレイ",
-        "global_network": "グローバルネットワーク",
-        "top_operatives": "トップエージェント",
-        "modal_signin": "ログイン",
-        "ph_username": "ユーザー名",
-        "ph_passkey": "パスワード",
-        "new_user": "新規エージェント？",
-        "register_here": "ここで登録",
-        "modal_register": "登録",
-        "ph_reg_user": "希望するユーザー名",
-        "ph_reg_pass": "安全なパスワード",
-        "exist_user": "既存のエージェント？",
-        "login_here": "ここでログイン",
-        "total_power": "総グローバルパワー",
-        "select_language": "言語を選択",
-        "power_label": "パワー"
-      },
-      "한국어": {
-        "signin_btn": "로그인",
-        "game_hub": "게임 허브",
-        "my_stats": "내 통계",
-        "disconnect": "연결 끊기",
-        "hero_title": "즐거운 시간을<br/>보낼 것입니다.",
-        "play_here": "플레이하려면 클릭",
-        "global_network": "글로벌 네트워크",
-        "top_operatives": "최고 요원",
-        "modal_signin": "로그인",
-        "ph_username": "사용자 이름",
-        "ph_passkey": "비밀번호",
-        "new_user": "새 요원인가요?",
-        "register_here": "여기서 등록하세요",
-        "modal_register": "등록",
-        "ph_reg_user": "원하는 사용자 이름",
-        "ph_reg_pass": "안전한 비밀번호",
-        "exist_user": "기존 요원인가요?",
-        "login_here": "여기서 로그인하세요",
-        "total_power": "총 글로벌 파워",
-        "select_language": "언어 선택",
-        "power_label": "파워"
-      },
-      "हिन्दी": {
-        "signin_btn": "साइन इन",
-        "game_hub": "गेम हब",
-        "my_stats": "मेरे आँकड़े",
-        "disconnect": "डिस्कनेक्ट",
-        "hero_title": "आपका समय<br/>अच्छा बीतेगा।",
-        "play_here": "खेलने के लिए यहाँ क्लिक करें",
-        "global_network": "ग्लोबल नेटवर्क",
-        "top_operatives": "शीर्ष एजेंट",
-        "modal_signin": "साइन इन",
-        "ph_username": "उपयोगकर्ता नाम",
-        "ph_passkey": "पासवर्ड",
-        "new_user": "नए एजेंट?",
-        "register_here": "यहाँ रजिस्टर करें",
-        "modal_register": "रजिस्टर",
-        "ph_reg_user": "वांछित नाम",
-        "ph_reg_pass": "सुरक्षित पासवर्ड",
-        "exist_user": "मौजूदा एजेंट?",
-        "login_here": "यहाँ साइन इन करें",
-        "total_power": "कुल ग्लोबल पावर",
-        "select_language": "भाषा चुनें",
-        "power_label": "पावर"
-      },
-      "العربية": {
-        "signin_btn": "تسجيل الدخول",
-        "game_hub": "مركز الألعاب",
-        "my_stats": "إحصائياتي",
-        "disconnect": "قطع الاتصال",
-        "hero_title": "ستقضي<br/>وقتا ممتعا.",
-        "play_here": "انقر هنا للعب",
-        "global_network": "الشبكة العالمية",
-        "top_operatives": "أفضل العملاء",
-        "modal_signin": "تسجيل الدخول",
-        "ph_username": "اسم المستخدم",
-        "ph_passkey": "كلمة المرور",
-        "new_user": "عميل جديد؟",
-        "register_here": "سجل هنا",
-        "modal_register": "تسجيل",
-        "ph_reg_user": "الاسم المطلوب",
-        "ph_reg_pass": "كلمة مرور آمنة",
-        "exist_user": "عميل حالي؟",
-        "login_here": "سجل دخولك هنا",
-        "total_power": "إجمالي القوة العالمية",
-        "select_language": "اختر اللغة",
-        "power_label": "قوة"
-      },
-      "Tiếng Việt": {
-        "signin_btn": "Đăng Nhập",
-        "game_hub": "Trung Tâm Trò Chơi",
-        "my_stats": "Thống Kê",
-        "disconnect": "Ngắt Kết Nối",
-        "hero_title": "BẠN SẼ CÓ<br/>MỘT THỜI GIAN TUYỆT VỜI.",
-        "play_here": "NHẤP ĐỂ CHƠI",
-        "global_network": "Mạng Toàn Cầu",
-        "top_operatives": "Đặc Vụ Hàng Đầu",
-        "modal_signin": "ĐĂNG NHẬP",
-        "ph_username": "Tên người dùng",
-        "ph_passkey": "Mật khẩu",
-        "new_user": "Đặc Vụ Mới?",
-        "register_here": "Đăng Ký Tại Đây",
-        "modal_register": "ĐĂNG KÝ",
-        "ph_reg_user": "Tên Mong Muốn",
-        "ph_reg_pass": "Mật Khẩu An Toàn",
-        "exist_user": "Đã Có Tài Khoản?",
-        "login_here": "Đăng Nhập Tại Đây",
-        "total_power": "Tổng Sức Mạnh",
-        "select_language": "Chọn Ngôn Ngữ",
-        "power_label": "Sức Mạnh"
-      },
-      "ภาษาไทย": {
-        "signin_btn": "เข้าสู่ระบบ",
-        "game_hub": "ศูนย์รวมเกม",
-        "my_stats": "สถิติของฉัน",
-        "disconnect": "ตัดการเชื่อมต่อ",
-        "hero_title": "คุณกำลังจะ<br/>มีช่วงเวลาที่ดี",
-        "play_here": "คลิกเพื่อเล่น",
-        "global_network": "เครือข่ายระดับโลก",
-        "top_operatives": "ตัวแทนยอดเยี่ยม",
-        "modal_signin": "เข้าสู่ระบบ",
-        "ph_username": "ชื่อผู้ใช้",
-        "ph_passkey": "รหัสผ่าน",
-        "new_user": "ตัวแทนใหม่?",
-        "register_here": "ลงทะเบียนที่นี่",
-        "modal_register": "ลงทะเบียน",
-        "ph_reg_user": "ชื่อผู้ใช้ที่ต้องการ",
-        "ph_reg_pass": "รหัสผ่านที่ปลอดภัย",
-        "exist_user": "เป็นตัวแทนอยู่แล้ว?",
-        "login_here": "เข้าสู่ระบบที่นี่",
-        "total_power": "พลังระดับโลกทั้งหมด",
-        "select_language": "เลือกภาษา",
-        "power_label": "พลัง"
-      },
-      "Bahasa Indonesia": {
-        "signin_btn": "Masuk",
-        "game_hub": "Pusat Game",
-        "my_stats": "Statistik Saya",
-        "disconnect": "Keluar",
-        "hero_title": "ANDA AKAN MEMILIKI<br/>WAKTU YANG MENYENANGKAN.",
-        "play_here": "KLIK UNTUK BERMAIN",
-        "global_network": "Jaringan Global",
-        "top_operatives": "Agen Teratas",
-        "modal_signin": "MASUK",
-        "ph_username": "Nama Pengguna",
-        "ph_passkey": "Kata Sandi",
-        "new_user": "Agen Baru?",
-        "register_here": "Daftar di Sini",
-        "modal_register": "DAFTAR",
-        "ph_reg_user": "Nama Pengguna",
-        "ph_reg_pass": "Kata Sandi Aman",
-        "exist_user": "Agen yang Ada?",
-        "login_here": "Masuk di Sini",
-        "total_power": "Total Kekuatan Global",
-        "select_language": "Pilih Bahasa",
-        "power_label": "Kekuatan"
-      }
+      "English": { "login": "Login", "welcome": "WELCOME TO THE", "desc": "Select a game below and dominate the leaderboards. Your global power score syncs automatically across all supported experiences.", "xno_title": "X & O ARENA", "xno_desc": "Tactical chaos deck multiplayer with wild modifiers and bots.", "td_title": "TOWER DEFENSE", "td_desc": "Defend the core against endless waves. Upgrade and survive.", "leaderboard": "GLOBAL POWER", "identify": "IDENTIFY", "auth_desc": "Enter your agent designation to sync your global power score across all simulations.", "cancel": "Cancel", "confirm": "Confirm" },
+      "Español": { "login": "Entrar", "welcome": "BIENVENIDO A LA", "desc": "Selecciona un juego y domina. Tu puntuación de poder se sincroniza automáticamente.", "xno_title": "ARENA X & O", "xno_desc": "Multijugador táctico con cartas, modificadores y bots.", "td_title": "DEFENSA DE TORRE", "td_desc": "Defiende el núcleo de oleadas infinitas. Mejora y sobrevive.", "leaderboard": "PODER GLOBAL", "identify": "IDENTIFICATE", "auth_desc": "Ingresa tu nombre para sincronizar tu poder.", "cancel": "Cancelar", "confirm": "Confirmar" },
+      "Français": { "login": "Connexion", "welcome": "BIENVENUE DANS", "desc": "Sélectionnez un jeu et dominez. Votre puissance se synchronise automatiquement.", "xno_title": "ARÈNE X & O", "xno_desc": "Multijoueur tactique avec cartes, modificateurs et bots.", "td_title": "TOWER DEFENSE", "td_desc": "Défendez le noyau contre des vagues infinies. Survivez.", "leaderboard": "PUISSANCE GLOBALE", "identify": "IDENTIFICATION", "auth_desc": "Entrez votre nom pour synchroniser votre score.", "cancel": "Annuler", "confirm": "Confirmer" },
+      "Deutsch": { "login": "Anmelden", "welcome": "WILLKOMMEN IN DER", "desc": "Wähle ein Spiel und dominiere. Deine Punkte werden automatisch synchronisiert.", "xno_title": "X & O ARENA", "xno_desc": "Taktischer Multiplayer mit Chaos-Karten und Bots.", "td_title": "TOWER DEFENSE", "td_desc": "Verteidige den Kern gegen endlose Wellen. Überlebe.", "leaderboard": "GLOBALE MACHT", "identify": "IDENTIFIZIEREN", "auth_desc": "Gib deinen Namen ein, um deine Punkte zu synchronisieren.", "cancel": "Abbrechen", "confirm": "Bestätigen" },
+      "Italiano": { "login": "Accedi", "welcome": "BENVENUTO NELL'", "desc": "Seleziona un gioco e domina. Il tuo punteggio si sincronizza automaticamente.", "xno_title": "ARENA X & O", "xno_desc": "Multiplayer tattico con carte, modificatori e bot.", "td_title": "TOWER DEFENSE", "td_desc": "Difendi il nucleo da ondate infinite. Sopravvivi.", "leaderboard": "POTERE GLOBALE", "identify": "IDENTIFICATI", "auth_desc": "Inserisci il tuo nome per sincronizzare il punteggio.", "cancel": "Annulla", "confirm": "Conferma" },
+      "Português": { "login": "Entrar", "welcome": "BEM-VINDO À", "desc": "Selecione um jogo e domine. Sua pontuação sincroniza automaticamente.", "xno_title": "ARENA X & O", "xno_desc": "Multiplayer tático com cartas do caos e bots.", "td_title": "DEFESA DE TORRE", "td_desc": "Defenda o núcleo contra ondas infinitas. Sobreviva.", "leaderboard": "PODER GLOBAL", "identify": "IDENTIFICAÇÃO", "auth_desc": "Digite seu nome para sincronizar sua pontuação.", "cancel": "Cancelar", "confirm": "Confirmar" },
+      "Polski": { "login": "Zaloguj", "welcome": "WITAJ NA", "desc": "Wybierz grę i dominuj. Twoje punkty synchronizują się automatycznie.", "xno_title": "ARENA X & O", "xno_desc": "Taktyczny multiplayer z kartami chaosu i botami.", "td_title": "TOWER DEFENSE", "td_desc": "Broń rdzenia przed falami wrogów. Przetrwaj.", "leaderboard": "GLOBALNA MOC", "identify": "IDENTYFIKACJA", "auth_desc": "Wpisz swój nick, aby zsynchronizować punkty.", "cancel": "Anuluj", "confirm": "Potwierdź" },
+      "Русский": { "login": "Войти", "welcome": "ДОБРО ПОЖАЛОВАТЬ В", "desc": "Выберите игру и доминируйте. Ваши очки синхронизируются.", "xno_title": "АРЕНА X & O", "xno_desc": "Тактический мультиплеер с картами хаоса и ботами.", "td_title": "ЗАЩИТА БАШНИ", "td_desc": "Защищайте ядро от бесконечных волн. Выживайте.", "leaderboard": "ГЛОБАЛЬНАЯ СИЛА", "identify": "ИДЕНТИФИКАЦИЯ", "auth_desc": "Введите имя для синхронизации очков.", "cancel": "Отмена", "confirm": "Подтвердить" },
+      "Українська": { "login": "Увійти", "welcome": "ЛАСКАВО ПРОСИМО ДО", "desc": "Оберіть гру та домінуйте. Ваші бали синхронізуються.", "xno_title": "АРЕНА X & O", "xno_desc": "Тактичний мультиплеєр з картами хаосу та ботами.", "td_title": "ЗАХИСТ ВЕЖІ", "td_desc": "Захищайте ядро від нескінченних хвиль. Виживайте.", "leaderboard": "ГЛОБАЛЬНА СИЛА", "identify": "ІДЕНТИФІКАЦІЯ", "auth_desc": "Введіть ім'я для синхронізації балів.", "cancel": "Скасувати", "confirm": "Підтвердити" },
+      "Türkçe": { "login": "Giriş", "welcome": "HOŞ GELDİNİZ", "desc": "Bir oyun seçin ve domine edin. Puanınız otomatik senkronize edilir.", "xno_title": "X & O ARENASI", "xno_desc": "Kaos kartları ve botlarla taktiksel çok oyunculu.", "td_title": "KULE SAVUNMASI", "td_desc": "Çekirdeği sonsuz dalgalara karşı koruyun. Hayatta kalın.", "leaderboard": "KÜRESEL GÜÇ", "identify": "KİMLİK", "auth_desc": "Puanınızı senkronize etmek için adınızı girin.", "cancel": "İptal", "confirm": "Onayla" },
+      "Nederlands": { "login": "Inloggen", "welcome": "WELKOM IN DE", "desc": "Kies een game en domineer. Je score synchroniseert automatisch.", "xno_title": "X & O ARENA", "xno_desc": "Tactische multiplayer met chaoskaarten en bots.", "td_title": "TOWER DEFENSE", "td_desc": "Verdedig de kern tegen eindeloze golven. Overleef.", "leaderboard": "GLOBALE MACHT", "identify": "IDENTIFICATIE", "auth_desc": "Voer je naam in om je score te synchroniseren.", "cancel": "Annuleren", "confirm": "Bevestigen" },
+      "Svenska": { "login": "Logga in", "welcome": "VÄLKOMMEN TILL", "desc": "Välj ett spel och dominera. Dina poäng synkroniseras automatiskt.", "xno_title": "X & O ARENA", "xno_desc": "Taktisk multiplayer med kaoskort och botar.", "td_title": "TOWER DEFENSE", "td_desc": "Försvara kärnan mot ändlösa vågor. Överlev.", "leaderboard": "GLOBAL MAKT", "identify": "IDENTIFIERA", "auth_desc": "Ange ditt namn för att synkronisera dina poäng.", "cancel": "Avbryt", "confirm": "Bekräfta" },
+      "中文": { "login": "登录", "welcome": "欢迎来到", "desc": "选择一款游戏并统治排行榜。您的全球战力会自动同步。", "xno_title": "X & O 竞技场", "xno_desc": "战术混沌卡牌多人游戏，包含疯狂的修改器和机器人。", "td_title": "塔防", "td_desc": "抵御无尽的浪潮，保护核心。升级并生存下去。", "leaderboard": "全球战力", "identify": "身份验证", "auth_desc": "输入您的代号以同步您的全球战力。", "cancel": "取消", "confirm": "确认" },
+      "日本語": { "login": "ログイン", "welcome": "アリーナへようこそ", "desc": "ゲームを選んでランキングを支配しよう。スコアは自動的に同期されます。", "xno_title": "X & O アリーナ", "xno_desc": "カオスカードとボットによる戦術的なマルチプレイヤー。", "td_title": "タワーディフェンス", "td_desc": "無限の波からコアを守り抜け。アップグレードして生き残れ。", "leaderboard": "グローバルパワー", "identify": "個人認証", "auth_desc": "スコアを同期するために名前を入力してください。", "cancel": "キャンセル", "confirm": "確認" },
+      "한국어": { "login": "로그인", "welcome": "아레나에 오신 것을 환영합니다", "desc": "게임을 선택하고 리더보드를 지배하세요. 점수가 자동으로 동기화됩니다.", "xno_title": "X & O 아레나", "xno_desc": "카오스 덱과 봇이 있는 전술적 멀티플레이어.", "td_title": "타워 디펜스", "td_desc": "끝없는 파도로부터 코어를 방어하세요. 생존하세요.", "leaderboard": "글로벌 파워", "identify": "신원 확인", "auth_desc": "점수를 동기화하려면 이름을 입력하세요.", "cancel": "취소", "confirm": "확인" },
+      "हिन्दी": { "login": "लॉग इन", "welcome": "अखाड़े में आपका स्वागत है", "desc": "एक गेम चुनें और हावी हों। आपका स्कोर स्वचालित रूप से सिंक होता है।", "xno_title": "X & O अखाड़ा", "xno_desc": "कैओस कार्ड और बॉट्स के साथ सामरिक मल्टीप्लेयर।", "td_title": "टॉवर डिफेंस", "td_desc": "अंतहीन लहरों के खिलाफ कोर की रक्षा करें। जीवित रहें।", "leaderboard": "वैश्विक शक्ति", "identify": "पहचान", "auth_desc": "अपने स्कोर को सिंक करने के लिए अपना नाम दर्ज करें।", "cancel": "रद्द करें", "confirm": "पुष्टि करें" },
+      "العربية": { "login": "دخول", "welcome": "مرحباً بك في", "desc": "اختر لعبة وسيطر على لوحة المتصدرين. تتم مزامنة نقاطك تلقائياً.", "xno_title": "ساحة X & O", "xno_desc": "لعب تكتيكي متعدد اللاعبين مع بطاقات فوضى وروبوتات.", "td_title": "الدفاع عن البرج", "td_desc": "دافع عن النواة ضد موجات لا نهاية لها. ابق على قيد الحياة.", "leaderboard": "القوة العالمية", "identify": "تحديد الهوية", "auth_desc": "أدخل اسمك لمزامنة نقاطك.", "cancel": "إلغاء", "confirm": "تأكيد" },
+      "Tiếng Việt": { "login": "Đăng nhập", "welcome": "CHÀO MỪNG ĐẾN", "desc": "Chọn game và thống trị. Điểm của bạn tự động đồng bộ.", "xno_title": "ĐẤU TRƯỜNG X & O", "xno_desc": "Chiến thuật nhiều người chơi với thẻ bài hỗn loạn.", "td_title": "THỦ THÀNH", "td_desc": "Bảo vệ lõi khỏi những đợt sóng vô tận. Sống sót.", "leaderboard": "SỨC MẠNH TOÀN CẦU", "identify": "XÁC NHẬN", "auth_desc": "Nhập tên để đồng bộ điểm của bạn.", "cancel": "Hủy", "confirm": "Xác nhận" },
+      "ภาษาไทย": { "login": "เข้าสู่ระบบ", "welcome": "ยินดีต้อนรับสู่", "desc": "เลือกเกมและครอบครองกระดานผู้นำ คะแนนของคุณจะซิงค์อัตโนมัติ", "xno_title": "X & O อารีน่า", "xno_desc": "ผู้เล่นหลายคนพร้อมการ์ดพลังและบอท", "td_title": "ทาวเวอร์ดีเฟนส์", "td_desc": "ปกป้องแกนหลักจากศัตรู เอาชีวิตรอด", "leaderboard": "พลังระดับโลก", "identify": "ยืนยันตัวตน", "auth_desc": "ใส่ชื่อเพื่อซิงค์คะแนน", "cancel": "ยกเลิก", "confirm": "ยืนยัน" },
+      "Bahasa Indonesia": { "login": "Masuk", "welcome": "SELAMAT DATANG DI", "desc": "Pilih game dan kuasai. Skor Anda disinkronkan secara otomatis.", "xno_title": "ARENA X & O", "xno_desc": "Multiplayer taktis dengan kartu chaos dan bot.", "td_title": "TOWER DEFENSE", "td_desc": "Pertahankan inti dari gelombang tak berujung. Bertahan.", "leaderboard": "KEKUATAN GLOBAL", "identify": "IDENTIFIKASI", "auth_desc": "Masukkan nama untuk menyinkronkan skor Anda.", "cancel": "Batal", "confirm": "Konfirmasi" }
     };
 
-    function applyLanguage(lang) {
-      const dict = translations[lang] || translations["English"];
+    const initialNetworkSeeds = {
+      "NEXUS_AI": 15420,
+      "CYBER_GHOST": 12850,
+      "NEON_STRIKER": 9600,
+      "VOID_WALKER": 6240,
+      "DATA_BREAKER": 3100
+    };
+
+    let currentLang = localStorage.getItem('orange_lang') || 'English';
+    let currentUser = localStorage.getItem('orange_currentUser') || null;
+    
+    const langSelector = document.getElementById('lang-selector');
+    const authBtn = document.getElementById('auth-btn');
+    const authText = document.getElementById('auth-text');
+    const authModal = document.getElementById('auth-modal');
+    const usernameInput = document.getElementById('username-input');
+    const btnCancel = document.getElementById('btn-auth-cancel');
+    const btnConfirm = document.getElementById('btn-auth-confirm');
+    const leaderboardContainer = document.getElementById('leaderboard-container');
+
+    function initNetworkSeeds() {
+      for(let key in initialNetworkSeeds) {
+        if(!localStorage.getItem(`orange_au_score_${key}`)) {
+          localStorage.setItem(`orange_au_score_${key}`, initialNetworkSeeds[key].toString());
+        }
+      }
+    }
+
+    function t(key) {
+      const dict = translations[currentLang] || translations["English"];
+      return dict[key] || key;
+    }
+
+    function applyTranslations() {
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (dict[key]) {
-          if (el.tagName === 'INPUT') {
-            el.placeholder = dict[key];
-          } else {
-            el.innerHTML = dict[key];
-          }
+        if(el.tagName === 'INPUT') {
+            el.placeholder = t(key);
+        } else {
+            el.innerHTML = t(key);
         }
       });
-    }
-
-    const UI = {
-      navLoginBtn: document.getElementById('nav-login-btn'),
-      profileArea: document.getElementById('profile-area'),
-      userNameDisplay: document.getElementById('user-display-name'),
-      modalOverlay: document.getElementById('auth-modal-overlay'),
-      modalContainer: document.getElementById('auth-modal-container'),
-      closeModalBtn: document.getElementById('close-modal'),
-      toRegister: document.getElementById('to-register'),
-      toLogin: document.getElementById('to-login'),
-      loginBtn: document.getElementById('do-login'),
-      regBtn: document.getElementById('do-register'),
-      logoutBtn: document.getElementById('logout-btn'),
-      loginMsg: document.getElementById('login-msg'),
-      regMsg: document.getElementById('reg-msg'),
-      leaderboardContainer: document.getElementById('leaderboard-container'),
-      hubBtn: document.getElementById('hub-btn'),
-      statsBtn: document.getElementById('stats-btn'),
-      statsModalOverlay: document.getElementById('stats-modal-overlay'),
-      closeStatsBtn: document.getElementById('close-stats'),
-      statsScore: document.getElementById('stats-score'),
-      langOptions: document.querySelectorAll('.lang-option'),
-      currentLang: document.getElementById('current-lang')
-    };
-
-    let globalPlayers = [
-      { username: 'Neo_Matrix', score: 84200 },
-      { username: 'GhostInShell', score: 75100 },
-      { username: 'Cipher', score: 62050 },
-      { username: 'BladeRunner', score: 45000 },
-      { username: 'ZeroCool', score: 32000 }
-    ];
-
-    function getUsers() {
-      try {
-        return JSON.parse(localStorage.getItem('orange_users_db')) || [];
-      } catch {
-        return [];
-      }
-    }
-    
-    function saveUsers(users) {
-      localStorage.setItem('orange_users_db', JSON.stringify(users));
-    }
-
-    const savedLang = localStorage.getItem('orange_lang') || 'English';
-    UI.currentLang.textContent = savedLang;
-    applyLanguage(savedLang);
-
-    UI.langOptions.forEach(opt => {
-      opt.addEventListener('click', (e) => {
-        const selected = e.target.textContent.trim();
-        UI.currentLang.textContent = selected;
-        localStorage.setItem('orange_lang', selected);
-        applyLanguage(selected);
-      });
-    });
-
-    function updateUIState() {
-      const activeUser = localStorage.getItem('orange_currentUser');
-      if (activeUser) {
-        UI.navLoginBtn.classList.add('hidden');
-        UI.profileArea.classList.remove('hidden');
-        UI.userNameDisplay.textContent = activeUser;
-        UI.modalOverlay.classList.remove('active');
+      if(currentUser) {
+        authText.innerHTML = `<span class="text-brand font-black">${currentUser}</span>`;
       } else {
-        UI.navLoginBtn.classList.remove('hidden');
-        UI.profileArea.classList.add('hidden');
+        authText.textContent = t('login');
       }
-      initLeaderboard();
     }
 
-    UI.navLoginBtn.onclick = () => {
-      UI.loginMsg.textContent = '';
-      UI.regMsg.textContent = '';
-      UI.modalOverlay.classList.add('active');
-    };
-    
-    UI.closeModalBtn.onclick = () => UI.modalOverlay.classList.remove('active');
-    UI.modalOverlay.onclick = (e) => { if(e.target === UI.modalOverlay) UI.modalOverlay.classList.remove('active'); };
-
-    UI.toRegister.onclick = () => { UI.modalContainer.classList.add('show-register'); UI.loginMsg.textContent = ''; };
-    UI.toLogin.onclick = () => { UI.modalContainer.classList.remove('show-register'); UI.regMsg.textContent = ''; };
-
-    UI.hubBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    UI.statsBtn.onclick = () => {
-      const activeUser = localStorage.getItem('orange_currentUser');
-      if(!activeUser) return;
-      
-      const auScore = parseInt(localStorage.getItem(`orange_au_score_${activeUser}`)) || 0;
-      UI.statsScore.textContent = auScore.toLocaleString();
-      UI.statsModalOverlay.classList.add('active');
-    };
-    
-    UI.closeStatsBtn.onclick = () => UI.statsModalOverlay.classList.remove('active');
-    UI.statsModalOverlay.onclick = (e) => { if(e.target === UI.statsModalOverlay) UI.statsModalOverlay.classList.remove('active'); };
-
-    UI.regBtn.onclick = () => {
-      const userStr = document.getElementById('reg-user').value.trim();
-      const passStr = document.getElementById('reg-pass').value.trim();
-      
-      if(userStr.length < 3 || passStr.length < 4) {
-        UI.regMsg.textContent = "Username > 3 chars. Password > 4 chars.";
-        return;
+    function generateParticles() {
+      const container = document.getElementById('particles');
+      for(let i=0; i<15; i++) {
+        let p = document.createElement('div');
+        p.className = 'particle animate-float-slow';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.width = p.style.height = (Math.random() * 40 + 20) + 'px';
+        p.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        p.style.animationDelay = '-' + (Math.random() * 10) + 's';
+        container.appendChild(p);
       }
+    }
+
+    function updateLeaderboard() {
+      let players = [];
       
-      const users = getUsers();
-      if(users.some(u => u.username.toLowerCase() === userStr.toLowerCase())) {
-        UI.regMsg.textContent = "Username already registered.";
-        return;
+      for(let i=0; i<localStorage.length; i++) {
+        let key = localStorage.key(i);
+        if(key && key.startsWith('orange_au_score_')) {
+          let name = key.replace('orange_au_score_', '');
+          let score = parseInt(localStorage.getItem(key)) || 0;
+          players.push({ name: name, baseScore: score, isMe: (name === currentUser) });
+        }
       }
 
-      users.push({ username: userStr, passkey: passStr });
-      saveUsers(users);
-      localStorage.setItem('orange_currentUser', userStr);
+      players.sort((a, b) => b.baseScore - a.baseScore);
       
-      document.getElementById('reg-user').value = '';
-      document.getElementById('reg-pass').value = '';
-      updateUIState();
-    };
-
-    UI.loginBtn.onclick = () => {
-      const userStr = document.getElementById('login-user').value.trim();
-      const passStr = document.getElementById('login-pass').value.trim();
-      const users = getUsers();
+      leaderboardContainer.innerHTML = '';
       
-      const validUser = users.find(u => u.username.toLowerCase() === userStr.toLowerCase() && u.passkey === passStr);
-      
-      if(validUser) {
-        localStorage.setItem('orange_currentUser', validUser.username);
-        document.getElementById('login-user').value = '';
-        document.getElementById('login-pass').value = '';
-        updateUIState();
-      } else {
-        UI.loginMsg.textContent = "Invalid Username or Password.";
-      }
-    };
-
-    UI.logoutBtn.onclick = () => {
-      localStorage.removeItem('orange_currentUser');
-      updateUIState();
-    };
-
-    function renderLeaderboardData() {
-      const localUsers = getUsers();
-      const activeUser = localStorage.getItem('orange_currentUser');
-      
-      let allPlayers = [...globalPlayers];
-
-      localUsers.forEach(u => {
-        const auScore = parseInt(localStorage.getItem(`orange_au_score_${u.username}`)) || 0;
-        const mappedScore = auScore > 0 ? auScore : 100; 
+      players.slice(0, 15).forEach((p, idx) => {
+        let rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : '';
+        let meClass = p.isMe ? 'active-user' : '';
+        let badge = `<div class="rank-badge ${rankClass}">${idx + 1}</div>`;
         
-        allPlayers = allPlayers.filter(p => p.username.toLowerCase() !== u.username.toLowerCase());
-        allPlayers.push({ username: u.username, score: mappedScore });
-      });
-
-      allPlayers.sort((a, b) => b.score - a.score);
-      const top5 = allPlayers.slice(0, 5);
-
-      UI.leaderboardContainer.innerHTML = top5.map((player, index) => {
-        const rankColors = ['text-yellow-400', 'text-gray-300', 'text-amber-600'];
-        const iconColor = rankColors[index] || 'text-brand/50';
-        const bgHover = index === 0 ? 'hover:bg-yellow-500/10 hover:border-yellow-500/30' : 'hover:bg-brand/10 hover:border-brand/30';
-        const isMe = player.username === activeUser ? 'border-brand bg-brand/10' : 'border-transparent bg-white/5';
-        
-        return `
-          <div class="flex items-center justify-between p-3 rounded-xl border ${isMe} ${bgHover} transition-all group">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-black/50 flex items-center justify-center font-orbitron font-bold ${iconColor}">
-                #${index + 1}
-              </div>
-              <span class="font-medium text-white group-hover:text-brand transition-colors">${player.username} ${player.username === activeUser ? '(You)' : ''}</span>
-            </div>
-            <div class="text-right">
-              <div class="text-brand font-orbitron font-bold">${player.score.toLocaleString()}</div>
-              <div class="text-[10px] text-gray-500 uppercase" data-i18n="power_label">Power</div>
-            </div>
-          </div>
+        let row = document.createElement('div');
+        row.className = `leaderboard-row ${meClass}`;
+        row.innerHTML = `
+          ${badge}
+          <div class="font-orbitron font-bold text-white truncate text-sm md:text-base">${p.name} ${p.isMe ? '<span class="text-brand text-[10px] ml-1 font-black tracking-widest">(YOU)</span>' : ''}</div>
+          <div class="font-inter font-black text-brand tracking-wider text-lg">${p.baseScore.toLocaleString()}</div>
         `;
-      }).join('');
-
-      applyLanguage(UI.currentLang.textContent);
-    }
-
-    function initLeaderboard() {
-      renderLeaderboardData();
-      if(window.leaderboardInterval) clearInterval(window.leaderboardInterval);
-      
-      window.leaderboardInterval = setInterval(() => {
-        globalPlayers.forEach(p => {
-          if(Math.random() > 0.5) p.score += Math.floor(Math.random() * 50);
-        });
-        renderLeaderboardData();
-      }, 3500);
-    }
-
-    document.querySelectorAll('.game-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        if(!localStorage.getItem('orange_currentUser')) {
-          e.preventDefault();
-          UI.loginMsg.textContent = "Authentication required.";
-          UI.regMsg.textContent = "";
-          UI.modalOverlay.classList.add('active');
-        }
+        leaderboardContainer.appendChild(row);
       });
+    }
+
+    langSelector.value = currentLang;
+    langSelector.addEventListener('change', (e) => {
+      currentLang = e.target.value;
+      localStorage.setItem('orange_lang', currentLang);
+      applyTranslations();
     });
 
-    updateUIState();
+    authBtn.addEventListener('click', () => {
+      if(currentUser) {
+        localStorage.removeItem('orange_currentUser');
+        currentUser = null;
+        applyTranslations();
+        updateLeaderboard();
+      } else {
+        usernameInput.value = '';
+        authModal.classList.add('active');
+        usernameInput.focus();
+      }
+    });
+
+    btnCancel.addEventListener('click', () => {
+      authModal.classList.remove('active');
+    });
+
+    btnConfirm.addEventListener('click', () => {
+      let val = usernameInput.value.trim().toUpperCase();
+      if(val.length > 0) {
+        currentUser = val;
+        localStorage.setItem('orange_currentUser', currentUser);
+        if(!localStorage.getItem(`orange_au_score_${currentUser}`)) {
+          localStorage.setItem(`orange_au_score_${currentUser}`, "1000");
+        }
+        authModal.classList.remove('active');
+        applyTranslations();
+        updateLeaderboard();
+      }
+    });
+
+    usernameInput.addEventListener('keypress', (e) => {
+      if(e.key === 'Enter') btnConfirm.click();
+    });
+
+    initNetworkSeeds();
+    generateParticles();
+    applyTranslations();
+    updateLeaderboard();
+
+    window.addEventListener('storage', (e) => {
+      if(e.key && e.key.startsWith('orange_au_score_')) {
+        updateLeaderboard();
+      }
+    });
   </script>
 </body>
 </html>
