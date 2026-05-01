@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Universal Dynamics Lab - Pro Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <style>
@@ -24,7 +24,9 @@
             font-family: 'Inter', -apple-system, system-ui, sans-serif;
             overflow: hidden;
             display: flex;
+            flex-direction: row;
             height: 100vh;
+            width: 100vw;
         }
 
         /* Viewport */
@@ -32,6 +34,8 @@
             flex-grow: 1;
             position: relative;
             background: radial-gradient(circle at 50% 50%, #0a0a1a 0%, #010103 100%);
+            overflow: hidden;
+            touch-action: none;
         }
 
         /* Sidebar */
@@ -46,6 +50,22 @@
             overflow-y: auto;
             box-shadow: -15px 0 50px rgba(0,0,0,0.9);
             z-index: 100;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Responsive Scaling for Mobile */
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            #sidebar { 
+                width: 100%; 
+                height: 45%; 
+                border-left: none; 
+                border-top: 1px solid var(--border); 
+            }
+            #viewport { height: 55%; flex-grow: 0; }
+            .header-main { padding: 15px 20px; }
+            .section { padding: 15px 20px; }
+            .stat-overlay { top: 15px !important; left: 15px !important; font-size: 8px !important; }
         }
 
         .header-main {
@@ -54,6 +74,7 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
+            flex-shrink: 0;
         }
 
         .top-row {
@@ -181,8 +202,10 @@
             font-weight: 700;
             cursor: pointer;
             transition: 0.2s;
+            -webkit-tap-highlight-color: transparent;
         }
         button:hover { background: rgba(0, 255, 136, 0.1); border-color: var(--accent); }
+        button:active { transform: scale(0.96); }
         button.active { background: var(--accent); color: #000; }
 
         /* View Mode Switch */
@@ -236,6 +259,7 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
     </style>
 </head>
@@ -243,7 +267,7 @@
 
     <div id="viewport">
         <div class="stat-overlay">
-            <div>CHAMBER: <span class="unit">SEALED</span></div>
+            <div>CHAMBER: <span class="unit">ATMOSPHERIC SEAL</span></div>
             <div>RESOLUTION: <span class="unit">1px = 2cm</span></div>
             <div id="sim-info">ENVIRONMENT: <span class="unit">VACUUM</span></div>
         </div>
@@ -376,7 +400,8 @@
                 width: viewport.clientWidth,
                 height: viewport.clientHeight,
                 wireframes: false,
-                background: 'transparent'
+                background: 'transparent',
+                pixelRatio: window.devicePixelRatio || 1
             }
         });
 
@@ -390,12 +415,12 @@
             Composite.remove(world, boundaries);
             const w = viewport.clientWidth;
             const h = viewport.clientHeight;
-            const t = 100;
+            const t = 200; // Thicker walls for higher realism/stability
             const wallProps = { 
                 isStatic: true, 
                 render: { fillStyle: '#050505' }, 
-                friction: 0.2, 
-                restitution: 0.5,
+                friction: 0.3, 
+                restitution: 0.4,
                 label: 'Wall'
             };
 
@@ -471,8 +496,8 @@
             selectedBody = null;
         }
 
-        // Mouse Down
-        viewport.addEventListener('mousedown', () => {
+        // Handle Spawning
+        viewport.addEventListener('mousedown', (e) => {
             if (mouseConstraint.body) {
                 selectedBody = mouseConstraint.body;
                 return;
@@ -481,14 +506,19 @@
 
             const pos = mouse.position;
             const m = parseFloat(document.getElementById('input-mass').value);
-            const col = `hsl(${Math.random() * 360}, 60%, 50%)`;
+            const col = `hsl(${Math.random() * 360}, 65%, 50%)`;
             
             const opt = { 
                 mass: m, 
                 frictionAir: parseFloat(document.getElementById('input-drag').value),
-                restitution: 0.6,
-                friction: 0.1,
-                render: { fillStyle: col, strokeStyle: '#ffffff', lineWidth: 2 } 
+                restitution: 0.5,
+                friction: 0.2,
+                render: { 
+                    fillStyle: col, 
+                    strokeStyle: '#ffffff', 
+                    lineWidth: 2,
+                    opacity: viewMode === 'mathematical' ? 0.2 : 1
+                } 
             };
 
             let b;
@@ -498,7 +528,6 @@
             if (b) {
                 Composite.add(world, b);
                 selectedBody = b;
-                setViewMode(viewMode);
             }
         });
 
@@ -506,6 +535,7 @@
         Events.on(render, 'afterRender', () => {
             const ctx = render.context;
             const bodies = Composite.allBodies(world);
+            const ratio = window.devicePixelRatio || 1;
             
             const gVal = parseFloat(document.getElementById('input-g').value);
             world.gravity.y = gVal / 9.81;
@@ -526,12 +556,12 @@
 
                 const ΣF = Vector.add(Vector.add({ x: 0, y: weight }, airDrag), mouseForce);
 
-                // Draw Vectors
+                // Draw Vectors with HiDPI support
                 if (viewMode === 'mathematical' || body === selectedBody) {
                     drawVector(ctx, pos, ΣF, 0.4, 'var(--force-red)', 'ΣF');
                     if (viewMode === 'mathematical') {
-                        drawVector(ctx, pos, {x: ΣF.x, y:0}, 0.4, 'rgba(255,51,102,0.3)', 'ΣFx');
-                        drawVector(ctx, pos, {x: 0, y:ΣF.y}, 0.4, 'rgba(255,51,102,0.3)', 'ΣFy');
+                        drawVector(ctx, pos, {x: ΣF.x, y:0}, 0.4, 'rgba(255,51,102,0.4)', 'ΣFx');
+                        drawVector(ctx, pos, {x: 0, y:ΣF.y}, 0.4, 'rgba(255,51,102,0.4)', 'ΣFy');
                     }
                     drawVector(ctx, pos, body.velocity, 8, 'var(--math-blue)', 'v');
                 }
@@ -564,7 +594,7 @@
             document.getElementById('val-drag').innerText = document.getElementById('input-drag').value;
             
             const b = parseFloat(document.getElementById('input-drag').value);
-            document.getElementById('sim-info').innerHTML = b > 0.1 ? "ENVIRONMENT: <span style='color:#ffaa00'>DENSE</span>" : "ENVIRONMENT: <span class='unit'>VACUUM</span>";
+            document.getElementById('sim-info').innerHTML = b > 0.1 ? "ENVIRONMENT: <span style='color:#ffaa00'>FLUID DYNAMICS</span>" : "ENVIRONMENT: <span class='unit'>NEAR-VACUUM</span>";
         });
 
         function drawVector(ctx, start, vec, scale, col, label) {
@@ -573,9 +603,10 @@
 
             const end = { x: start.x + vec.x * scale, y: start.y + vec.y * scale };
 
+            ctx.save();
             ctx.beginPath();
             ctx.strokeStyle = col;
-            ctx.lineWidth = (label === 'ΣF' || label === 'v') ? 2 : 1;
+            ctx.lineWidth = (label === 'ΣF' || label === 'v') ? 2.5 : 1.2;
             ctx.setLineDash((label.includes('x') || label.includes('y')) ? [4, 4] : []);
             ctx.moveTo(start.x, start.y);
             ctx.lineTo(end.x, end.y);
@@ -587,21 +618,31 @@
             ctx.beginPath();
             ctx.fillStyle = col;
             ctx.moveTo(end.x, end.y);
-            ctx.lineTo(end.x - 6 * Math.cos(ang - 0.5), end.y - 6 * Math.sin(ang - 0.5));
-            ctx.lineTo(end.x - 6 * Math.cos(ang + 0.5), end.y - 6 * Math.sin(ang + 0.5));
+            ctx.lineTo(end.x - 7 * Math.cos(ang - 0.45), end.y - 7 * Math.sin(ang - 0.45));
+            ctx.lineTo(end.x - 7 * Math.cos(ang + 0.45), end.y - 7 * Math.sin(ang + 0.45));
             ctx.fill();
 
             if (viewMode === 'mathematical') {
-                ctx.font = '10px monospace';
+                ctx.shadowColor = 'rgba(0,0,0,0.8)';
+                ctx.shadowBlur = 4;
+                ctx.font = 'bold 11px JetBrains Mono, monospace';
                 ctx.fillStyle = col;
-                ctx.fillText(label, end.x + 6, end.y + 4);
+                ctx.fillText(label, end.x + 8, end.y + 4);
             }
+            ctx.restore();
         }
 
+        // Debounced Resize
+        let resizeTimer;
         window.addEventListener('resize', () => {
-            render.canvas.width = viewport.clientWidth;
-            render.canvas.height = viewport.clientHeight;
-            buildChamber();
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                render.canvas.width = viewport.clientWidth;
+                render.canvas.height = viewport.clientHeight;
+                render.options.width = viewport.clientWidth;
+                render.options.height = viewport.clientHeight;
+                buildChamber();
+            }, 100);
         });
 
     </script>
